@@ -159,7 +159,7 @@ IF (UNITTEST STREQUAL 1)
     ### Download and compile googletest
     INCLUDE(DownloadProject)
     download_project(PROJ                googletest
-            GIT_REPOSITORY      git@github.com:google/googletest.git
+            GIT_REPOSITORY      https://github.com/google/googletest.git
             GIT_TAG             master
             ${UPDATE_DISCONNECTED_IF_AVAILABLE}
             )
