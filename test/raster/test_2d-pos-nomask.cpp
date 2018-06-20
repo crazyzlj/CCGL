@@ -40,9 +40,9 @@ TEST(clsRasterDataTestMultiPosNoMask, RasterIO) {
 #else
     string suffix = ".asc";
 #endif /* USE_GDAL */
-    filenames.push_back(apppath + "./data/raster/dem_1" + suffix);
-    filenames.push_back(apppath + "./data/raster/dem_2" + suffix);
-    filenames.push_back(apppath + "./data/raster/dem_3" + suffix);
+    filenames.emplace_back(apppath + "./data/raster/dem_1" + suffix);
+    filenames.emplace_back(apppath + "./data/raster/dem_2" + suffix);
+    filenames.emplace_back(apppath + "./data/raster/dem_3" + suffix);
     clsRasterData<float>* rs = clsRasterData<float>::Init(filenames); // recommended way
     //clsRasterData<float> *rs = new clsRasterData<float>(filenames);  // unsafe way
 
