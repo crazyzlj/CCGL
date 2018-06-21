@@ -261,31 +261,32 @@ TEST(clsRasterDataTestMultiPosNoMask, RasterIO) {
 #ifdef USE_MONGODB
     /** MongoDB I/O test **/
     MongoClient* conn = MongoClient::Init("127.0.0.1", 27017);
-    ASSERT_NE(nullptr, conn);
-    string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
-    MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
-    gfs->RemoveFile(gfsfilename);
-    rs->OutputToMongoDB(gfsfilename, gfs);
-    clsRasterData<float>* mongors = clsRasterData<float>::Init(gfs, gfsfilename.c_str());
-    // test mongors data
-    EXPECT_EQ(545, mongors->GetCellNumber()); // m_nCells
-    EXPECT_EQ(3, mongors->GetLayers());
-    EXPECT_EQ(545, mongors->GetValidNumber());
-    // layer 1
-    EXPECT_FLOAT_EQ(0.806f, rs->GetMinimum(1));
-    EXPECT_FLOAT_EQ(8.68065321f, rs->GetAverage(1));
-    EXPECT_FLOAT_EQ(0.93353500f, rs->GetStd(1));
-    EXPECT_FLOAT_EQ(9.194f, rs->GetRange(1));
-    // layer 2
-    EXPECT_FLOAT_EQ(0.806f, rs->GetMinimum(2));
-    EXPECT_FLOAT_EQ(9.19171165f, rs->GetAverage(2));
-    EXPECT_FLOAT_EQ(5.62426552f, rs->GetStd(2));
-    EXPECT_FLOAT_EQ(97.684f, rs->GetRange(2));
-    // layer 3
-    EXPECT_FLOAT_EQ(8.48936296f, rs->GetAverage(3));
-    EXPECT_FLOAT_EQ(1.42141729f, rs->GetStd(3));
-    // output to asc/tif file for comparison
-    EXPECT_TRUE(mongors->OutputToFile(newfullname4mongo));
+    if (nullptr != conn) {
+        string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+        MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
+        gfs->RemoveFile(gfsfilename);
+        rs->OutputToMongoDB(gfsfilename, gfs);
+        clsRasterData<float>* mongors = clsRasterData<float>::Init(gfs, gfsfilename.c_str());
+        // test mongors data
+        EXPECT_EQ(545, mongors->GetCellNumber()); // m_nCells
+        EXPECT_EQ(3, mongors->GetLayers());
+        EXPECT_EQ(545, mongors->GetValidNumber());
+        // layer 1
+        EXPECT_FLOAT_EQ(0.806f, rs->GetMinimum(1));
+        EXPECT_FLOAT_EQ(8.68065321f, rs->GetAverage(1));
+        EXPECT_FLOAT_EQ(0.93353500f, rs->GetStd(1));
+        EXPECT_FLOAT_EQ(9.194f, rs->GetRange(1));
+        // layer 2
+        EXPECT_FLOAT_EQ(0.806f, rs->GetMinimum(2));
+        EXPECT_FLOAT_EQ(9.19171165f, rs->GetAverage(2));
+        EXPECT_FLOAT_EQ(5.62426552f, rs->GetStd(2));
+        EXPECT_FLOAT_EQ(97.684f, rs->GetRange(2));
+        // layer 3
+        EXPECT_FLOAT_EQ(8.48936296f, rs->GetAverage(3));
+        EXPECT_FLOAT_EQ(1.42141729f, rs->GetStd(3));
+        // output to asc/tif file for comparison
+        EXPECT_TRUE(mongors->OutputToFile(newfullname4mongo));
+    }
 #endif
 }
 } /* namespace */
