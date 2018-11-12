@@ -44,6 +44,51 @@ vector<string> SplitString(const string& item, const char delimiter) {
     return tokens;
 }
 
+#if defined(CPP_GCC) || defined(CPP_ICC)
+void _itoa_s(vint32_t value, char* buffer, size_t size, vint radix) {
+    strprintf(buffer, size, "%d", value);
+}
+
+void _itow_s(vint32_t value, wchar_t* buffer, size_t size, vint radix) {
+    swprintf(buffer, size - 1, L"%d", value);
+}
+
+void _i64toa_s(vint64_t value, char* buffer, size_t size, vint radix) {
+    strprintf(buffer, size, "%ld", value);
+}
+
+void _i64tow_s(vint64_t value, wchar_t* buffer, size_t size, vint radix) {
+    swprintf(buffer, size - 1, L"%ld", value);
+}
+
+void _uitoa_s(vuint32_t value, char* buffer, size_t size, vint radix) {
+    strprintf(buffer, size, "%u", value);
+}
+
+void _uitow_s(vuint32_t value, wchar_t* buffer, size_t size, vint radix) {
+    swprintf(buffer, size - 1, L"%u", value);
+}
+
+void _ui64toa_s(vuint64_t value, char* buffer, size_t size, vint radix) {
+    strprintf(buffer, size, "%lu", value);
+}
+
+void _ui64tow_s(vuint64_t value, wchar_t* buffer, size_t size, vint radix) {
+    swprintf(buffer, size - 1, L"%lu", value);
+}
+
+void _gcvt_s(char* buffer, size_t size, double value, vint numberOfDigits) {
+    sprintf(buffer, "%f", value);
+    char* point = strchr(buffer, '.');
+    if (!point) return;
+    char* zero = buffer + strlen(buffer);
+    while (zero[-1] == '0') {
+        *--zero = '\0';
+    }
+    if (zero[-1] == '.') *--zero = '\0';
+}
+#endif
+
 string itoa(vint number) {
     char buffer[100];
     ITOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
