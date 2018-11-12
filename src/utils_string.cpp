@@ -1,6 +1,15 @@
 #include "utils_string.h"
 
 #include <fstream>
+#if defined(CPP_GCC) || defined(CPP_ICC)
+#include <stdio.h>
+#include <ctype.h>
+#include <wctype.h>
+#define _strtoi64 strtoll
+#define _strtoui64 strtoull
+#define _wcstoi64 wcstoll
+#define _wcstoui64 wcstoull
+#endif
 
 namespace ccgl {
 namespace utils_string {
