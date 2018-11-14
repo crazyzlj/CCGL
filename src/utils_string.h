@@ -92,6 +92,12 @@ string ValueToString(const T& val) {
     return oss.str();
 }
 
+
+/*!
+ * \brief Copy string map
+ */
+void CopyStringMap(const STRING_MAP& in_opts, STRING_MAP& out_opts);
+
 #if defined(CPP_GCC) || defined(CPP_ICC)
 extern void _itoa_s(vint32_t value, char* buffer, size_t size, vint radix);
 extern void _itow_s(vint32_t value, wchar_t* buffer, size_t size, vint radix);

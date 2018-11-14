@@ -287,6 +287,22 @@ string& Trim(string& s) {
     s.erase(0, s.find_first_not_of(" \n\r\t"));
     return s.erase(s.find_last_not_of(" \n\r\t") + 1);
 }
+
+void CopyStringMap(const STRING_MAP& in_opts, STRING_MAP& out_opts) {
+    if (in_opts.empty()) return;
+    for (auto it = in_opts.begin(); it != in_opts.end(); ++it) {
+        if (out_opts.find(it->first) != out_opts.end()) {
+            out_opts[it->first] = it->second;
+        }
+        else {
+#ifdef HAS_VARIADIC_TEMPLATES
+            out_opts.emplace(it->first, it->second);
+#else
+            out_opts.insert(make_pair(it->first, it->second));
+#endif
+        }
+    }
+}
 } /* namespace: utils_string */
 
 } /* namespace: ccgl */
