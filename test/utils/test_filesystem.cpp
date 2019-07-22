@@ -4,8 +4,8 @@
 using namespace ccgl::utils_filesystem;
 
 TEST(TestutilsFileIO, GetAbsolutePath) {
-#ifdef windows
-    // windows path style, mixed style
+#ifdef WINDOWS
+    // WINDOWS path style, mixed style
     EXPECT_EQ("c:\\test\\dem.tif", GetAbsolutePath("c:/test/dem.tif"));
     EXPECT_EQ("c:\\test\\config.fig", GetAbsolutePath("c:\\test\\config.fig"));
     EXPECT_EQ("c:\\config.fig", GetAbsolutePath("c:/test/..\\config.fig"));
@@ -25,12 +25,12 @@ TEST(TestutilsFileIO, GetAbsolutePath) {
     // Only run succeed by `make UnitTestCoverage`
     EXPECT_EQ(tpath, GetAbsolutePath("./test/data/delDirRecursively/txtfile.txt"));
     EXPECT_EQ(tpath, GetAbsolutePath("./test/data/../data/delDirRecursively/txtfile.txt"));
-#endif /* windows */
+#endif /* WINDOWS */
 }
 
 TEST(TestutilsFileIO, GetPathFromFullName) {
-#ifdef windows
-    // windows path style, mixed style
+#ifdef WINDOWS
+    // WINDOWS path style, mixed style
     EXPECT_EQ("c:\\test\\", GetPathFromFullName("c:/test/dem.tif"));
     EXPECT_EQ("c:\\test\\", GetPathFromFullName("c:\\test\\config.fig"));
     EXPECT_EQ("c:\\", GetPathFromFullName("c:/test/..\\config.fig"));
@@ -48,12 +48,12 @@ TEST(TestutilsFileIO, GetPathFromFullName) {
     // linux or unix sytle, the file or directory should be existed.
     string tpath = GetAppPath() + "data/delDirRecursively/";
     EXPECT_EQ(tpath, GetPathFromFullName("./test/data/delDirRecursively/txtfile.txt"));
-#endif /* windows */
+#endif /* WINDOWS */
 }
 
 TEST(TestutilsFileIO, GetSuffix) {
-#ifdef windows
-    // windows path style, mixed style
+#ifdef WINDOWS
+    // WINDOWS path style, mixed style
     EXPECT_EQ("tif", GetSuffix("c:/test/dem.tif"));
     EXPECT_EQ("fig", GetSuffix("c:\\test\\config.fig"));
     EXPECT_EQ("fig", GetSuffix("c:/test/..\\config.fig"));
@@ -65,14 +65,14 @@ TEST(TestutilsFileIO, GetSuffix) {
 #else
     // linux or unix sytle, the file or directory should be existed.
     EXPECT_EQ("txt", GetSuffix("./test/data/delDirRecursively/txtfile.txt"));
-#endif /* windows */
+#endif /* WINDOWS */
     // without suffix
     EXPECT_EQ("", GetSuffix("abcdefg"));
 }
 
 TEST(TestutilsFileIO, GetCoreFileName) {
-#ifdef windows
-    // windows path style, mixed style
+#ifdef WINDOWS
+    // WINDOWS path style, mixed style
     EXPECT_EQ("dem", GetCoreFileName("c:/test/dem.tif"));
     EXPECT_EQ("config", GetCoreFileName("c:\\test\\config.fig"));
     EXPECT_EQ("config", GetCoreFileName("c:/test/..\\config.fig"));
@@ -83,7 +83,7 @@ TEST(TestutilsFileIO, GetCoreFileName) {
 #else
     // linux or unix sytle, the file or directory should be existed.
     EXPECT_EQ("txtfile", GetCoreFileName("./test/data/delDirRecursively/txtfile.txt"));
-#endif /* windows */
+#endif /* WINDOWS */
     // without suffix
     EXPECT_EQ("abcdefg", GetCoreFileName("abcdefg"));
 }
