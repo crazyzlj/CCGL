@@ -6,18 +6,20 @@ branches:
 matrix:
   fast_finish: true
   include:
-  - os: osx
-    language: cpp
-    compiler: clang
-    sudo: required
-    cache:
-      apt: true
-      directories:
-      - $HOME/.ccache
-    env:
-    - BUILD_NAME=osx_xcode
-    - DETAILS="libtool"
-    - ENABLE_CXX11=1
+    - os: osx
+      language: cpp
+      compiler: clang
+      sudo: required
+      cache:
+        apt: true
+        directories:
+        - $HOME/.ccache
+      services:
+        - mongodb
+      env:
+        - BUILD_NAME=osx_xcode
+        - DETAILS="libtool"
+        - ENABLE_CXX11=1
     - os: linux
       dist: trusty
       compiler: gcc
@@ -37,7 +39,6 @@ matrix:
         - mongodb
       env:
         - BUILD_NAME=linux_gcc48
-        - DETAILS=""
         - ENABLE_CXX11=1
         - RUN_TESTS=true
         - COVERAGE=false

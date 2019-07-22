@@ -8,13 +8,16 @@ echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
 
 # Check if GDAL is already installed
 brew list gdal &>/dev/null || brew install gdal
-echo "Installing and starting mongodb"
+
+# MongoDB database service
+# echo "Installing and starting mongodb"
 # The follow dependencies will be automatically installed by mongodb
 # brew install automake autoconf libtool openssl
-brew install mongodb
+# brew install mongodb
 # create a folder for mongodb to prevent an error on mac osx
-sudo mkdir -p /data/db
-brew services start mongodb
+# sudo mkdir -p /data/db
+# brew services start mongodb
+
 # Install mongo-c-driver via brew
 brew install mongo-c-driver
 # cd ..
