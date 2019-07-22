@@ -138,6 +138,11 @@ IF (hasParent)
     SET(CCGLNAME "${CCGLNAME}" PARENT_SCOPE)
 ENDIF ()
 
+### unittest based on gtest/gmock, which is optional.
+SET(GTestTAG release-1.8.1)
+IF(MSVC_VERSION LESS 1900)
+    SET(GTestTAG release-1.8.0)
+ENDIF()
 ### Find or build Googletest if UNITTEST is set as True or 1
 IF (UNITTEST STREQUAL 1)
     MESSAGE(STATUS "GoogleTest Version: ${GTestTAG}")
@@ -230,11 +235,6 @@ IF (RUNCOV STREQUAL 1)
     SET_TARGET_PROPERTIES(${CCGLNAME} PROPERTIES LINK_FLAGS "-coverage -lgcov")
 ENDIF ()
 
-### unittest based on gtest/gmock, which is optional.
-SET(GTestTAG release-1.8.1)
-IF(MSVC_VERSION LESS 1900)
-    SET(GTestTAG release-1.8.0)
-ENDIF()
 IF (UNITTEST STREQUAL 1)
     ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/test)
     ### Copy test data to build directory for UnitTest Only!
