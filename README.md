@@ -4,8 +4,8 @@ Common Cross-platform Geographic-computing Library
 ## Build status
 
 + Windows_MSVC2013x64_GDAL-1.11.4_mongo-c-driver-1.5.5: [![Build status](https://ci.appveyor.com/api/projects/status/b239pv4qvvxxythk/branch/master?svg=true)](https://ci.appveyor.com/project/crazyzlj/ccgl/branch/master)
-+ Linux(Ubuntu trusty)_GCC-4.8_GDAL-1.10.1_mongo-c-driver-1.6.1: [![Build Status](http://badges.herokuapp.com/travis/crazyzlj/CCGL?branch=master&env=BUILD_NAME=linux_gcc48&label=linux_gcc48)](https://travis-ci.org/crazyzlj/CCGL)
-+ macOS(10.13.3)_Clang-8.0_GDAL-2.3.0_mongo-c-driver-1.14.0: [![Build Status](http://badges.herokuapp.com/travis/crazyzlj/CCGL?branch=master&env=BUILD_NAME=linux_gcc48&label=osx_xcode)](https://travis-ci.org/crazyzlj/CCGL)
++ Linux(Ubuntu trusty)_GCC-4.8_GDAL-1.10.1_mongo-c-driver-1.6.1: [![Build Status](http://badges.herokuapp.com/travis/crazyzlj/CCGL?branch=master&env=BUILD_NAME=linux_gcc&label=linux_gcc)](https://travis-ci.org/crazyzlj/CCGL)
++ macOS(10.13.3)_Clang-8.0_GDAL-2.3.0_mongo-c-driver-1.14.0: [![Build Status](http://badges.herokuapp.com/travis/crazyzlj/CCGL?branch=master&env=BUILD_NAME=linux_gcc&label=osx_clang)](https://travis-ci.org/crazyzlj/CCGL)
 
 + Code coverage: [![codecov](https://codecov.io/gh/crazyzlj/CCGL/branch/master/graph/badge.svg)](https://codecov.io/gh/crazyzlj/CCGL)
 

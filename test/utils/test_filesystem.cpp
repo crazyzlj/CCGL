@@ -17,9 +17,8 @@ TEST(TestutilsFileIO, GetAbsolutePath) {
 #else
     // linux or unix style, the file or directory should be existed.
     string tpath = GetAppPath() + "data/delDirRecursively/txtfile.txt";
-    // Only run succeed by `make UnitTestCoverage`
-    EXPECT_EQ(tpath, GetAbsolutePath("./data/delDirRecursively/txtfile.txt"));
-    EXPECT_EQ(tpath, GetAbsolutePath("./data/../data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ(tpath, GetAbsolutePath(GetAppPath() + "./data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ(tpath, GetAbsolutePath(GetAppPath() + "./data/../data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
 }
 
@@ -37,9 +36,9 @@ TEST(TestutilsFileIO, GetPathFromFullName) {
     EXPECT_EQ("c:\\test\\file\\", GetPathFromFullName("c:\\test/file\\"));
     EXPECT_EQ("c:\\test\\file\\", GetPathFromFullName("c:\\test/file/"));
 #else
-    // linux or unix sytle, the file or directory should be existed.
+    // linux or unix style, the file or directory should be existed.
     string tpath = GetAppPath() + "data/delDirRecursively/";
-    EXPECT_EQ(tpath, GetPathFromFullName("./data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ(tpath, GetPathFromFullName(tpath + "./data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
 }
 
@@ -53,8 +52,8 @@ TEST(TestutilsFileIO, GetSuffix) {
     EXPECT_EQ("txt", GetSuffix("c:\\test/file.txt"));
     EXPECT_EQ("", GetSuffix("c:\\test/file"));
 #else
-    // linux or unix sytle, the file or directory should be existed.
-    EXPECT_EQ("txt", GetSuffix("./data/delDirRecursively/txtfile.txt"));
+    // linux or unix style, the file or directory should be existed.
+    EXPECT_EQ("txt", GetSuffix(GetAppPath() + "./data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
     // without suffix
     EXPECT_EQ("", GetSuffix("abcdefg"));
@@ -69,8 +68,8 @@ TEST(TestutilsFileIO, GetCoreFileName) {
     EXPECT_EQ("config", GetCoreFileName("c:/test/data/..\\data/config.fig"));
     EXPECT_EQ("file", GetCoreFileName("c:\\test/file.txt"));
 #else
-    // linux or unix sytle, the file or directory should be existed.
-    EXPECT_EQ("txtfile", GetCoreFileName("./data/delDirRecursively/txtfile.txt"));
+    // linux or unix style, the file or directory should be existed.
+    EXPECT_EQ("txtfile", GetCoreFileName(GetAppPath() + "./data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
     // without suffix
     EXPECT_EQ("abcdefg", GetCoreFileName("abcdefg"));
