@@ -14,17 +14,12 @@ TEST(TestutilsFileIO, GetAbsolutePath) {
     EXPECT_EQ("c:\\test\\data\\config.fig", GetAbsolutePath("c:/test/data/..\\data/config.fig"));
     EXPECT_EQ("c:\\test\\file.txt", GetAbsolutePath("c:\\test/file.txt"));
     EXPECT_EQ("c:\\test\\file", GetAbsolutePath("c:\\test/file"));
-#elif defined XCODE
-    // the file or directory should be existed.
-    string tpath = GetAppPath() + "data/delDirRecursively/txtfile.txt";
-    EXPECT_EQ(tpath, GetAbsolutePath("./data/delDirRecursively/txtfile.txt"));
-    EXPECT_EQ(tpath, GetAbsolutePath("./data/../data/delDirRecursively/txtfile.txt"));
 #else
-    // linux or unix sytle, the file or directory should be existed.
+    // linux or unix style, the file or directory should be existed.
     string tpath = GetAppPath() + "data/delDirRecursively/txtfile.txt";
     // Only run succeed by `make UnitTestCoverage`
-    EXPECT_EQ(tpath, GetAbsolutePath("./test/data/delDirRecursively/txtfile.txt"));
-    EXPECT_EQ(tpath, GetAbsolutePath("./test/data/../data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ(tpath, GetAbsolutePath("./data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ(tpath, GetAbsolutePath("./data/../data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
 }
 
@@ -41,13 +36,10 @@ TEST(TestutilsFileIO, GetPathFromFullName) {
     EXPECT_EQ("c:\\test\\", GetPathFromFullName("c:\\test/file"));
     EXPECT_EQ("c:\\test\\file\\", GetPathFromFullName("c:\\test/file\\"));
     EXPECT_EQ("c:\\test\\file\\", GetPathFromFullName("c:\\test/file/"));
-#elif defined XCODE
-    string tpath = GetAppPath() + "data/delDirRecursively/";
-    EXPECT_EQ(tpath, GetPathFromFullName("./data/delDirRecursively/txtfile.txt"));
 #else
     // linux or unix sytle, the file or directory should be existed.
     string tpath = GetAppPath() + "data/delDirRecursively/";
-    EXPECT_EQ(tpath, GetPathFromFullName("./test/data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ(tpath, GetPathFromFullName("./data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
 }
 
@@ -60,11 +52,9 @@ TEST(TestutilsFileIO, GetSuffix) {
     EXPECT_EQ("fig", GetSuffix("c:/test/data/..\\data/config.fig"));
     EXPECT_EQ("txt", GetSuffix("c:\\test/file.txt"));
     EXPECT_EQ("", GetSuffix("c:\\test/file"));
-#elif defined XCODE
-    EXPECT_EQ("txt", GetSuffix("./data/delDirRecursively/txtfile.txt"));
 #else
     // linux or unix sytle, the file or directory should be existed.
-    EXPECT_EQ("txt", GetSuffix("./test/data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ("txt", GetSuffix("./data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
     // without suffix
     EXPECT_EQ("", GetSuffix("abcdefg"));
@@ -78,11 +68,9 @@ TEST(TestutilsFileIO, GetCoreFileName) {
     EXPECT_EQ("config", GetCoreFileName("c:/test/..\\config.fig"));
     EXPECT_EQ("config", GetCoreFileName("c:/test/data/..\\data/config.fig"));
     EXPECT_EQ("file", GetCoreFileName("c:\\test/file.txt"));
-#elif defined XCODE
-    EXPECT_EQ("txtfile", GetCoreFileName("./data/delDirRecursively/txtfile.txt"));
 #else
     // linux or unix sytle, the file or directory should be existed.
-    EXPECT_EQ("txtfile", GetCoreFileName("./test/data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ("txtfile", GetCoreFileName("./data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
     // without suffix
     EXPECT_EQ("abcdefg", GetCoreFileName("abcdefg"));
