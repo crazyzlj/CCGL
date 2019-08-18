@@ -1,7 +1,6 @@
 /*!
  * \file basic.h
- * \brief Basic definitions.
- *        Part of the Common Cross-platform Geographic Library (CCGL)
+ * \brief Basic definitions of CCGL.
  *
  * Changelog:
  *   - 1. 2018-05-02 - lj - Initially implementation.
@@ -327,7 +326,7 @@ typedef vint64_t pos_t;
 /*! Convert to 8-byte (64-bit) unsigned integer `vuint64_t` */
 #define CVT_VUINT64(param) static_cast<vuint64_t>((param))
 
-
+/*! Map of string key and string value */
 typedef std::map<string, string> STRING_MAP;
 
 #ifdef CPP_64

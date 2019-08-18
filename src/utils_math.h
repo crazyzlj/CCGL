@@ -1,12 +1,11 @@
 /*!
  * \file utils_math.h
- * \brief Useful equations.
- *        Part of the Common Cross-platform Geographic Library (CCGL)
+ * \brief Useful math equations in CCGL.
  *
  * Changelog:
  *   - 1. 2018-05-02 - lj - Make part of CCGL.
  *
- * \author Liangjun Zhu (crazyzlj)
+ * \author Liangjun Zhu (zlj@lreis.ac.cn)
  * \version 1.0
  */
 #ifndef CCGL_UTILS_MATH_H
