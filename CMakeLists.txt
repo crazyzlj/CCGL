@@ -13,6 +13,7 @@
 #       -DUNITTEST=1  means run unittest based gtest/gmock
 #       -DRUNCOV=1    means run code coverage based gcov and lcov
 #       -DLLVM_ROOT_DIR Specific the root directory of brew installed LLVM, e.g., /usr/local/opt/llvm
+#       -DBUILD_DOC=1 means build CCGL documentation based on doxygen
 #
 #  Routine testing platforms and compilers include:
 #     1. Windows 10 with Visual Studio 2010/2015, mongo-c-driver-1.5.5, GDAL-1.11.4/2.4.1
@@ -23,7 +24,7 @@
 #     6. Windows 10 with Visual Studio 2013+Intel C++ Compiler 17.0, mongo-c-driver-1.5.5, GDAL-1.11.4
 #
 #  Created and maintained by Liangjun Zhu (zlj@lreis.ac.cn)
-#  Latest updated: Jul. 20, 2019
+#  Latest updated: Aug. 18, 2019
 #  Copyright (C) 2017-2019 Lreis, IGSNRR, CAS
 # ----------------------------------------------------------------------------
 ### Disable in-source builds to prevent source tree corruption.
@@ -64,6 +65,7 @@ ELSE()
     SET(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/bin CACHE PATH "Set default install path" FORCE)
 ENDIF ()
 SET(INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
+SET(DOC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/doc" CACHE PATH "Path to the documentation")
 
 ### In case of Makefiles if the user does not setup CMAKE_BUILD_TYPE, assume it's Release.
 IF(CMAKE_GENERATOR MATCHES "Makefiles|Ninja" AND "${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -109,6 +111,8 @@ ENDIF()
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 # libraries built with hunter link against the dynamic CRT on windows
 option(BUILD_WITH_STATIC_CRT "Build against dynamic CRT on windows." ON)
+# Build documatation by doxygen
+option(BUILD_DOC "Build CCGL documentation." OFF)
 
 ### Detect compiler and target platform architecture.
 INCLUDE(Utils)
@@ -158,11 +162,11 @@ IF (UNITTEST STREQUAL 1)
     ADD_SUBDIRECTORY(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
     geo_include_directories(${gtest_SOURCE_DIR}/include)
     geo_include_directories(${gmock_SOURCE_DIR}/include)
-ENDIF ()    
+ENDIF ()
 
 ### Find OMP which is optional
 IF(XCODE)
-  # To use OpenMP in Xcode built by CMake, the recommended way is to 
+  # To use OpenMP in Xcode built by CMake, the recommended way is to
   #   install llvm by 'brew install llvm', which has builtin 'libomp'
   IF (NOT LLVM_ROOT_DIR)
     SET(LLVM_ROOT_DIR "/usr/local/opt/llvm")
@@ -177,7 +181,7 @@ IF(XCODE)
 		HINTS ${LLVM_LIBRARY_DIRS})
     SET(OPENMP_FOUND 1)
   ENDIF ()
-ELSE ()  
+ELSE ()
   FIND_PACKAGE(OpenMP)
 ENDIF ()
 IF(OPENMP_FOUND)
@@ -255,6 +259,14 @@ ADD_CUSTOM_TARGET(install_${PROJECT_NAME}
         $(MAKE) install
         DEPENDS ${CCGLNAME}
         COMMENT "Installing ${PROJECT_NAME}")
+
+### Build doc based on doxygen
+IF(BUILD_DOC)
+  ADD_SUBDIRECTORY(./doc)
+  ADD_CUSTOM_TARGET(travis_doc)
+  ADD_CUSTOM_COMMAND(TARGET travis_doc
+                     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/doc/travis-doxygen.sh)
+ENDIF()
 
 ### Build platform.
 STATUS("")
