@@ -1,0 +1,2 @@
+/usr/bin/ar qc libccgl.a  CMakeFiles/ccgl.dir/src/utils_string.cpp.o CMakeFiles/ccgl.dir/src/utils_math.cpp.o CMakeFiles/ccgl.dir/src/utils_filesystem.cpp.o CMakeFiles/ccgl.dir/src/basic.cpp.o CMakeFiles/ccgl.dir/src/utils_time.cpp.o CMakeFiles/ccgl.dir/src/db_mongoc.cpp.o CMakeFiles/ccgl.dir/src/utils_array.cpp.o
+/usr/bin/ranlib libccgl.a

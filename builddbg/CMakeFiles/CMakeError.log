@@ -1,0 +1,35 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ljzhu/code/CCGL/builddbg/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a0ecf/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a0ecf.dir/build.make CMakeFiles/cmTC_a0ecf.dir/build
+make[1]: Entering directory '/home/ljzhu/code/CCGL/builddbg/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a0ecf.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_a0ecf.dir/CheckSymbolExists.c.o   -c /home/ljzhu/code/CCGL/builddbg/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_a0ecf
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a0ecf.dir/link.txt --verbose=1
+/usr/bin/cc   -fPIC     CMakeFiles/cmTC_a0ecf.dir/CheckSymbolExists.c.o  -o cmTC_a0ecf -rdynamic 
+CMakeFiles/cmTC_a0ecf.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_a0ecf.dir/build.make:97: recipe for target 'cmTC_a0ecf' failed
+make[1]: *** [cmTC_a0ecf] Error 1
+make[1]: Leaving directory '/home/ljzhu/code/CCGL/builddbg/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_a0ecf/fast' failed
+make: *** [cmTC_a0ecf/fast] Error 2
+
+File /home/ljzhu/code/CCGL/builddbg/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

@@ -1,0 +1,35 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ljzhu/code/CCGL/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_bea56/fast 
+/usr/bin/make -f CMakeFiles/cmTC_bea56.dir/build.make CMakeFiles/cmTC_bea56.dir/build
+make[1]: Entering directory '/home/ljzhu/code/CCGL/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_bea56.dir/CheckSymbolExists.c.o
+/usr/bin/cc   -fPIC    -o CMakeFiles/cmTC_bea56.dir/CheckSymbolExists.c.o   -c /home/ljzhu/code/CCGL/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_bea56
+/home/ljzhu/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/191.7479.33/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bea56.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     -rdynamic CMakeFiles/cmTC_bea56.dir/CheckSymbolExists.c.o  -o cmTC_bea56 
+CMakeFiles/cmTC_bea56.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_bea56.dir/build.make:86: recipe for target 'cmTC_bea56' failed
+make[1]: *** [cmTC_bea56] Error 1
+make[1]: Leaving directory '/home/ljzhu/code/CCGL/cmake-build-debug/CMakeFiles/CMakeTmp'
+Makefile:121: recipe for target 'cmTC_bea56/fast' failed
+make: *** [cmTC_bea56/fast] Error 2
+
+File /home/ljzhu/code/CCGL/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
