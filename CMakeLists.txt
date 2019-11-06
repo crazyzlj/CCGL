@@ -11,6 +11,7 @@
 #       $ cmake ..
 #     Optional cmake options:
 #       -DUNITTEST=1  means run unittest based gtest/gmock
+#       -DFORCEDOWNGTEST=1 means download and compile gtest no matter it has existed or not
 #       -DRUNCOV=1    means run code coverage based gcov and lcov
 #       -DLLVM_ROOT_DIR Specific the root directory of brew installed LLVM, e.g., /usr/local/opt/llvm
 #       -DBUILD_DOC=1 means build CCGL documentation based on doxygen
@@ -156,11 +157,15 @@ ENDIF()
 SET(DOWNLOAD_GTEST 0)
 IF (UNITTEST STREQUAL 1)
     ADD_DEFINITIONS(-DUNITTEST)
-    find_package(GTest)
-    IF (GTEST_FOUND)
-        geo_include_directories(${GTEST_INCLUDE_DIRS})
-    ELSE ()
+    IF (FORCEDOWNGTEST STREQUAL 1)
         SET(DOWNLOAD_GTEST 1)
+    ELSE ()
+        find_package(GTest)
+        IF (GTEST_FOUND)
+            geo_include_directories(${GTEST_INCLUDE_DIRS})
+        ELSE ()
+            SET(DOWNLOAD_GTEST 1)
+        ENDIF ()
     ENDIF ()
 ENDIF()
 IF (DOWNLOAD_GTEST)
