@@ -94,7 +94,7 @@ $(document).ready(function(){initNavTree('classccgl_1_1data__raster_1_1cls_raste
 </div><!--header-->
 <div class="contents">
 
-<p>Raster data (1D and 2D) I/O class.  
+<p>Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.  
  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#details">更多...</a></p>
 
 <p><code>#include &lt;<a class="el" href="data__raster_8h_source.html">data_raster.h</a>&gt;</code></p>
@@ -102,7 +102,7 @@ $(document).ready(function(){initNavTree('classccgl_1_1data__raster_1_1cls_raste
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public 成员函数</h2></td></tr>
 <tr class="memitem:a041644de6ae215c84b5fe86ab569b315"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#a041644de6ae215c84b5fe86ab569b315">clsRasterData</a> ()</td></tr>
-<tr class="memdesc:a041644de6ae215c84b5fe86ab569b315"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor an empty <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> instance By default, 1D raster data Set <em>m_rasterPositionData</em>, <em>raster_data_</em>, <em>m_mask</em> to <em>nullptr</em>  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#a041644de6ae215c84b5fe86ab569b315">更多...</a><br /></td></tr>
+<tr class="memdesc:a041644de6ae215c84b5fe86ab569b315"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor an empty <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> instance By default, 1D raster data Set <em>m_rasterPositionData</em>, <em>raster_data_</em>, <em>m_mask</em> to <em>nullptr</em>  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#a041644de6ae215c84b5fe86ab569b315">更多...</a><br /></td></tr>
 <tr class="separator:a041644de6ae215c84b5fe86ab569b315"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae803fce87b4461fa08e547703ed16715"><td class="memItemLeft" align="right" valign="top"><a id="ae803fce87b4461fa08e547703ed16715"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#ae803fce87b4461fa08e547703ed16715">clsRasterData</a> (T *data, int cols, int rows, T nodata, double dx, double xll, double yll, <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
@@ -119,18 +119,18 @@ Public 成员函数</h2></td></tr>
 <tr class="memdesc:aea97dd0667e8d6bf0d47e14ce7f7e403"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construtor 1D raster from necessary data  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#aea97dd0667e8d6bf0d47e14ce7f7e403">更多...</a><br /></td></tr>
 <tr class="separator:aea97dd0667e8d6bf0d47e14ce7f7e403"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8db345fada222afc607034075ce4b1af"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#a8db345fada222afc607034075ce4b1af">clsRasterData</a> (const string &amp;filename, bool calc_pos=true, <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; MASK_T &gt; *mask=nullptr, bool use_mask_ext=true, T default_value=static_cast&lt; T &gt;(<a class="el" href="basic_8h.html#a7f9a29dd05181e9150cc9a1c157ee228">NODATA_VALUE</a>), <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
-<tr class="memdesc:a8db345fada222afc607034075ce4b1af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> instance from TIFF, ASCII, or other GDAL supported format  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#a8db345fada222afc607034075ce4b1af">更多...</a><br /></td></tr>
+<tr class="memdesc:a8db345fada222afc607034075ce4b1af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> instance from TIFF, ASCII, or other GDAL supported format  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#a8db345fada222afc607034075ce4b1af">更多...</a><br /></td></tr>
 <tr class="separator:a8db345fada222afc607034075ce4b1af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaea7010bedfa88bbb0be5c63d893449e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#aaea7010bedfa88bbb0be5c63d893449e">clsRasterData</a> (vector&lt; string &gt; &amp;filenames, bool calc_pos=true, <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; MASK_T &gt; *mask=nullptr, bool use_mask_ext=true, T default_value=static_cast&lt; T &gt;(<a class="el" href="basic_8h.html#a7f9a29dd05181e9150cc9a1c157ee228">NODATA_VALUE</a>), <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
-<tr class="memdesc:aaea7010bedfa88bbb0be5c63d893449e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> instance from TIFF, ASCII, or other GDAL supported raster file Support 1D and/or 2D raster data  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#aaea7010bedfa88bbb0be5c63d893449e">更多...</a><br /></td></tr>
+<tr class="memdesc:aaea7010bedfa88bbb0be5c63d893449e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> instance from TIFF, ASCII, or other GDAL supported raster file Support 1D and/or 2D raster data  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#aaea7010bedfa88bbb0be5c63d893449e">更多...</a><br /></td></tr>
 <tr class="separator:aaea7010bedfa88bbb0be5c63d893449e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add98b62f46b35104f6a023cd2b1fbdf8"><td class="memItemLeft" align="right" valign="top"><a id="add98b62f46b35104f6a023cd2b1fbdf8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#add98b62f46b35104f6a023cd2b1fbdf8">clsRasterData</a> (<a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; MASK_T &gt; *mask, T *const values, <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
-<tr class="memdesc:add98b62f46b35104f6a023cd2b1fbdf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> instance by 1D array data and mask <br /></td></tr>
+<tr class="memdesc:add98b62f46b35104f6a023cd2b1fbdf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> instance by 1D array data and mask <br /></td></tr>
 <tr class="separator:add98b62f46b35104f6a023cd2b1fbdf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a981db7e669d4b993b63eb8b8c8750190"><td class="memItemLeft" align="right" valign="top"><a id="a981db7e669d4b993b63eb8b8c8750190"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#a981db7e669d4b993b63eb8b8c8750190">clsRasterData</a> (<a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; MASK_T &gt; *mask, T **const values, int lyrs, <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
-<tr class="memdesc:a981db7e669d4b993b63eb8b8c8750190"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> instance by 2D array data and mask <br /></td></tr>
+<tr class="memdesc:a981db7e669d4b993b63eb8b8c8750190"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> instance by 2D array data and mask <br /></td></tr>
 <tr class="separator:a981db7e669d4b993b63eb8b8c8750190"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f0b8ab87e73106fdad871c88eca284b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#a2f0b8ab87e73106fdad871c88eca284b">clsRasterData</a> (<a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html">MongoGridFs</a> *gfs, const char *remote_filename, bool calc_pos=true, <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; MASK_T &gt; *mask=nullptr, bool use_mask_ext=true, T default_value=static_cast&lt; T &gt;(<a class="el" href="basic_8h.html#a7f9a29dd05181e9150cc9a1c157ee228">NODATA_VALUE</a>), <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
 <tr class="memdesc:a2f0b8ab87e73106fdad871c88eca284b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor based on mongoDB  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#a2f0b8ab87e73106fdad871c88eca284b">更多...</a><br /></td></tr>
@@ -369,7 +369,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:a24d7fbbb43a4ce43bf89650d9d68e080"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae374718c2489724f2e343b92001f7d12"><td class="memItemLeft" align="right" valign="top"><a id="ae374718c2489724f2e343b92001f7d12"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#ae374718c2489724f2e343b92001f7d12">Initialized</a> () const</td></tr>
-<tr class="memdesc:ae374718c2489724f2e343b92001f7d12"><td class="mdescLeft">&#160;</td><td class="mdescRight">The instance of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> has been initialized or not <br /></td></tr>
+<tr class="memdesc:ae374718c2489724f2e343b92001f7d12"><td class="mdescLeft">&#160;</td><td class="mdescRight">The instance of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> has been initialized or not <br /></td></tr>
 <tr class="separator:ae374718c2489724f2e343b92001f7d12"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae962d1e8f64e0e71073677c8b77507c6"><td class="memItemLeft" align="right" valign="top"><a id="ae962d1e8f64e0e71073677c8b77507c6"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#ae962d1e8f64e0e71073677c8b77507c6">ValidateRasterData</a> ()</td></tr>
@@ -397,7 +397,7 @@ string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cl
 <tr class="separator:a545185203bcb660d6cfb61c9af45e494"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38304a31dc0e8c0772a3589346eefe0f"><td class="memItemLeft" align="right" valign="top"><a id="a38304a31dc0e8c0772a3589346eefe0f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#a38304a31dc0e8c0772a3589346eefe0f">Copy</a> (const <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; T, MASK_T &gt; *orgraster)</td></tr>
-<tr class="memdesc:a38304a31dc0e8c0772a3589346eefe0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> object <br /></td></tr>
+<tr class="memdesc:a38304a31dc0e8c0772a3589346eefe0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> object <br /></td></tr>
 <tr class="separator:a38304a31dc0e8c0772a3589346eefe0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86b4be26dc15016fc790a583550c8b03"><td class="memItemLeft" align="right" valign="top"><a id="a86b4be26dc15016fc790a583550c8b03"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#a86b4be26dc15016fc790a583550c8b03">ReplaceNoData</a> (T replacedv)</td></tr>
@@ -420,24 +420,23 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 静态 Public 成员函数</h2></td></tr>
 <tr class="memitem:af842c194a955c9e40727085baa0a6b02"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; T, MASK_T &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#af842c194a955c9e40727085baa0a6b02">Init</a> (const string &amp;filename, bool calc_pos=true, <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; MASK_T &gt; *mask=nullptr, bool use_mask_ext=true, T default_value=static_cast&lt; T &gt;(<a class="el" href="basic_8h.html#a7f9a29dd05181e9150cc9a1c157ee228">NODATA_VALUE</a>), <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
-<tr class="memdesc:af842c194a955c9e40727085baa0a6b02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation check before the constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a>, i.e., the raster file is existed and supported.  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#af842c194a955c9e40727085baa0a6b02">更多...</a><br /></td></tr>
+<tr class="memdesc:af842c194a955c9e40727085baa0a6b02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation check before the constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a>, i.e., the raster file is existed and supported.  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#af842c194a955c9e40727085baa0a6b02">更多...</a><br /></td></tr>
 <tr class="separator:af842c194a955c9e40727085baa0a6b02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a921dd6e09d0f395261e7eb12d595e298"><td class="memItemLeft" align="right" valign="top"><a id="a921dd6e09d0f395261e7eb12d595e298"></a>
 static <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; T, MASK_T &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#a921dd6e09d0f395261e7eb12d595e298">Init</a> (vector&lt; string &gt; &amp;filenames, bool calc_pos=true, <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; MASK_T &gt; *mask=nullptr, bool use_mask_ext=true, T default_value=static_cast&lt; T &gt;(<a class="el" href="basic_8h.html#a7f9a29dd05181e9150cc9a1c157ee228">NODATA_VALUE</a>), <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
-<tr class="memdesc:a921dd6e09d0f395261e7eb12d595e298"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation check before the constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a>, i.e., the raster files are all existed and supported. <br /></td></tr>
+<tr class="memdesc:a921dd6e09d0f395261e7eb12d595e298"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation check before the constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a>, i.e., the raster files are all existed and supported. <br /></td></tr>
 <tr class="separator:a921dd6e09d0f395261e7eb12d595e298"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3dc3259d260d09b36e796f6723a81405"><td class="memItemLeft" align="right" valign="top"><a id="a3dc3259d260d09b36e796f6723a81405"></a>
 static <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; T, MASK_T &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html#a3dc3259d260d09b36e796f6723a81405">Init</a> (<a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html">MongoGridFs</a> *gfs, const char *remote_filename, bool calc_pos=true, <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">clsRasterData</a>&lt; MASK_T &gt; *mask=nullptr, bool use_mask_ext=true, T default_value=static_cast&lt; T &gt;(<a class="el" href="basic_8h.html#a7f9a29dd05181e9150cc9a1c157ee228">NODATA_VALUE</a>), <a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a> opts=<a class="el" href="namespaceccgl.html#a5588646407ff6170a5c96eff58e21812">STRING_MAP</a>())</td></tr>
-<tr class="memdesc:a3dc3259d260d09b36e796f6723a81405"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation check before the constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a>. <br /></td></tr>
+<tr class="memdesc:a3dc3259d260d09b36e796f6723a81405"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validation check before the constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a>. <br /></td></tr>
 <tr class="separator:a3dc3259d260d09b36e796f6723a81405"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
 <div class="textblock"><h3>template&lt;typename T, typename MASK_T = T&gt;<br />
 class ccgl::data_raster::clsRasterData&lt; T, MASK_T &gt;</h3>
 
-<p>Raster data (1D and 2D) I/O class. </p>
-<pre class="fragment">   Support I/O among ASCII file, TIFF, and MongoBD database.
-</pre> </div><h2 class="groupheader">构造及析构函数说明</h2>
+<p>Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database. </p>
+</div><h2 class="groupheader">构造及析构函数说明</h2>
 <a id="a041644de6ae215c84b5fe86ab569b315"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a041644de6ae215c84b5fe86ab569b315">&#9670;&nbsp;</a></span>clsRasterData() <span class="overload">[1/7]</span></h2>
 
@@ -455,7 +454,7 @@ template&lt;typename T , typename MASK_T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Constructor an empty <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> instance By default, 1D raster data Set <em>m_rasterPositionData</em>, <em>raster_data_</em>, <em>m_mask</em> to <em>nullptr</em> </p>
+<p>Constructor an empty <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> instance By default, 1D raster data Set <em>m_rasterPositionData</em>, <em>raster_data_</em>, <em>m_mask</em> to <em>nullptr</em> </p>
 <dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">待办事项:</a></b></dt><dd>Add some Set functions to make this empty constructor usable.</dd></dl>
 
 </div>
@@ -664,7 +663,7 @@ template&lt;typename T , typename MASK_T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> instance from TIFF, ASCII, or other GDAL supported format </p>
+<p>Constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> instance from TIFF, ASCII, or other GDAL supported format </p>
 <dl class="params"><dt>参数</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>Full path of the raster file </td></tr>
@@ -739,7 +738,7 @@ template&lt;typename T , typename MASK_T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a> instance from TIFF, ASCII, or other GDAL supported raster file Support 1D and/or 2D raster data </p>
+<p>Constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a> instance from TIFF, ASCII, or other GDAL supported raster file Support 1D and/or 2D raster data </p>
 <dl class="section see"><dt>参见</dt><dd>ReadASCFile </dd>
 <dd>
 ReadByGDAL </dd></dl>
@@ -1809,8 +1808,8 @@ template&lt;typename T , typename MASK_T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Validation check before the constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a>, i.e., the raster file is existed and supported. </p>
-<p>This is the recommended way to construct an instance of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a>.</p>
+<p>Validation check before the constructor of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a>, i.e., the raster file is existed and supported. </p>
+<p>This is the recommended way to construct an instance of <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a>.</p>
 <div class="fragment"><div class="line">clsRasterData&lt;T, MASK_T&gt; *rs = <a class="code" href="classccgl_1_1data__raster_1_1cls_raster_data.html#af842c194a955c9e40727085baa0a6b02">clsRasterData&lt;T, MASK_T&gt;::Init</a>(filename)</div>
 <div class="line"><span class="keywordflow">if</span> (<span class="keyword">nullptr</span> == rs) {</div>
 <div class="line">    <span class="keywordflow">throw</span> exception(<span class="stringliteral">&quot;clsRasterData initialization failed!&quot;</span>);</div>
@@ -2095,7 +2094,7 @@ template&lt;typename T , typename MASK_T &gt; </div>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="aclassccgl_1_1data__raster_1_1cls_raster_data_html_af842c194a955c9e40727085baa0a6b02"><div class="ttname"><a href="classccgl_1_1data__raster_1_1cls_raster_data.html#af842c194a955c9e40727085baa0a6b02">ccgl::data_raster::clsRasterData::Init</a></div><div class="ttdeci">static clsRasterData&lt; T, MASK_T &gt; * Init(const string &amp;filename, bool calc_pos=true, clsRasterData&lt; MASK_T &gt; *mask=nullptr, bool use_mask_ext=true, T default_value=static_cast&lt; T &gt;(NODATA_VALUE), STRING_MAP opts=STRING_MAP())</div><div class="ttdoc">Validation check before the constructor of clsRasterData, i.e., the raster file is existed and suppor...</div><div class="ttdef"><b>Definition:</b> data_raster.h:1107</div></div>
+<div class="ttc" id="aclassccgl_1_1data__raster_1_1cls_raster_data_html_af842c194a955c9e40727085baa0a6b02"><div class="ttname"><a href="classccgl_1_1data__raster_1_1cls_raster_data.html#af842c194a955c9e40727085baa0a6b02">ccgl::data_raster::clsRasterData::Init</a></div><div class="ttdeci">static clsRasterData&lt; T, MASK_T &gt; * Init(const string &amp;filename, bool calc_pos=true, clsRasterData&lt; MASK_T &gt; *mask=nullptr, bool use_mask_ext=true, T default_value=static_cast&lt; T &gt;(NODATA_VALUE), STRING_MAP opts=STRING_MAP())</div><div class="ttdoc">Validation check before the constructor of clsRasterData, i.e., the raster file is existed and suppor...</div><div class="ttdef"><b>Definition:</b> data_raster.h:1108</div></div>
 <!-- HTML footer for doxygen 1.8.15-->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

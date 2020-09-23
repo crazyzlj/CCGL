@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('data__raster_8h.html','');});
 </div><!--header-->
 <div class="contents">
 
-<p>Define Raster class to handle raster data.  
+<p>Define Raster class to handle raster data Part of the Common Cross-platform Geographic Library (CCGL)  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;string&gt;</code><br />
 <code>#include &lt;map&gt;</code><br />
@@ -121,7 +121,7 @@ $(document).ready(function(){initNavTree('data__raster_8h.html','');});
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">ccgl::data_raster::clsRasterData&lt; T, MASK_T &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raster data (1D and 2D) I/O class.  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -218,7 +218,7 @@ typedef std::pair&lt; double, double &gt;&#160;</td><td class="memItemRight" val
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ae7d5aa20b93208366beb24e8d3d3bb92"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#ae7d5aa20b93208366beb24e8d3d3bb92">ccgl::data_raster::StatusNoUnitTest</a> (const string &amp;status_str)</td></tr>
-<tr class="memdesc:ae7d5aa20b93208366beb24e8d3d3bb92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common functions independent to <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class.">clsRasterData</a>.  <a href="namespaceccgl_1_1data__raster.html#ae7d5aa20b93208366beb24e8d3d3bb92">More...</a><br /></td></tr>
+<tr class="memdesc:ae7d5aa20b93208366beb24e8d3d3bb92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common functions independent to <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoBD database.">clsRasterData</a>.  <a href="namespaceccgl_1_1data__raster.html#ae7d5aa20b93208366beb24e8d3d3bb92">More...</a><br /></td></tr>
 <tr class="separator:ae7d5aa20b93208366beb24e8d3d3bb92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac827628fb02410f3531421d900ae0183"><td class="memItemLeft" align="right" valign="top"><a id="ac827628fb02410f3531421d900ae0183"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#ac827628fb02410f3531421d900ae0183">ccgl::data_raster::CheckRasterFilesExist</a> (const string &amp;filename)</td></tr>
@@ -234,7 +234,7 @@ template&lt;typename T1 , typename T2 &gt; </td></tr>
 <tr class="separator:a49416919c1b963623aac9baeeb6fd88c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Define Raster class to handle raster data. </p>
+<div class="textblock"><p>Define Raster class to handle raster data Part of the Common Cross-platform Geographic Library (CCGL) </p>
 <p>Features:</p><ul>
 <li>1. Using GDAL and MongoDB (currently, mongo-c-driver 1.5.0+ is supported)</li>
 <li>2. Array1D and Array2D raster data are supported</li>
@@ -252,7 +252,7 @@ template&lt;typename T1 , typename T2 &gt; </td></tr>
 <li>8. Jun. 2018 lj Use emplace and emplace_back rather than insert and push_back whenever possible.</li>
 <li>9. Nov. 2018 lj Add specific field-value as options of raster data, including SRS.</li>
 </ul>
-<dl class="section author"><dt>Author</dt><dd>Liangjun Zhu (<a href="#" onclick="location.href='mai'+'lto:'+'zlj'+'@l'+'rei'+'s.'+'ac.'+'cn'; return false;">zlj@l<span style="display: none;">.nosp@m.</span>reis<span style="display: none;">.nosp@m.</span>.ac.c<span style="display: none;">.nosp@m.</span>n</a>) </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Liangjun Zhu \email <a href="#" onclick="location.href='mai'+'lto:'+'zlj'+'@l'+'rei'+'s.'+'ac.'+'cn'; return false;">zlj@l<span style="display: none;">.nosp@m.</span>reis<span style="display: none;">.nosp@m.</span>.ac.c<span style="display: none;">.nosp@m.</span>n</a> </dd></dl>
 <dl class="section version"><dt>Version</dt><dd>2.3 </dd></dl>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
