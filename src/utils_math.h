@@ -30,7 +30,7 @@ namespace utils_math {
 #ifndef Min
 #define Min(a, b) ((a) >= (b) ? (b) : (a))
 #endif
-/*! Return absoulte value */
+/*! Return absolute value */
 #ifndef Abs
 #define Abs(x) ((x) >= 0 ? (x) : -(x))
 #endif

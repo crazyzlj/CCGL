@@ -1,6 +1,7 @@
 /*!
  * \file data_raster.h
- * \brief Define Raster class to handle raster data.
+ * \brief Define Raster class to handle raster data
+ *        Part of the Common Cross-platform Geographic Library (CCGL)
  *
  * Features:
  *   - 1. Using GDAL and MongoDB (currently, mongo-c-driver 1.5.0+ is supported)
@@ -19,7 +20,8 @@
  *   - 8. Jun. 2018 lj Use emplace and emplace_back rather than insert and push_back whenever possible.
  *   - 9. Nov. 2018 lj Add specific field-value as options of raster data, including SRS.
  *
- * \author Liangjun Zhu (zlj@lreis.ac.cn)
+ * \author Liangjun Zhu
+ * \email zlj@lreis.ac.cn
  * \version 2.3
  */
 #ifndef CCGL_DATA_RASTER_H
@@ -165,8 +167,7 @@ void Copy2DRasterDataTo1DArray(T1* dst, T2* src, const int nr, const int nc) {
 
 /*!
  * \class clsRasterData
- * \brief Raster data (1D and 2D) I/O class.
- *
+ * \brief Raster data (1D and 2D) I/O class
  *        Support I/O among ASCII file, TIFF, and MongoBD database.
  */
 template <typename T, typename MASK_T = T>

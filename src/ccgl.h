@@ -1,6 +1,7 @@
 /*!
  * \file ccgl.h
  * \brief All namespaces in CCGL.
+ *        Part of the Common Cross-platform Geographic Library (CCGL)
  *
  * Changelog:
  *   - 1. 2018-05-02 - lj - Initially implementation.
