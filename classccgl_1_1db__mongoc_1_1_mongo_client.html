@@ -113,10 +113,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9165ef4b38bc4eee1462dc62b524aa29"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_client.html#a9165ef4b38bc4eee1462dc62b524aa29">MongoClient</a> (const char *host, vuint16_t port)</td></tr>
 <tr class="memdesc:a9165ef4b38bc4eee1462dc62b524aa29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor using IP address and port number.  <a href="classccgl_1_1db__mongoc_1_1_mongo_client.html#a9165ef4b38bc4eee1462dc62b524aa29">More...</a><br /></td></tr>
 <tr class="separator:a9165ef4b38bc4eee1462dc62b524aa29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04d617ec23518ad02017ec292f0b0e0e"><td class="memItemLeft" align="right" valign="top"><a id="a04d617ec23518ad02017ec292f0b0e0e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_client.html#a04d617ec23518ad02017ec292f0b0e0e">MongoClient</a> (mongoc_client_t *conn)</td></tr>
+<tr class="memdesc:a04d617ec23518ad02017ec292f0b0e0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor using mongoc_client_t*. <br /></td></tr>
+<tr class="separator:a04d617ec23518ad02017ec292f0b0e0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a519fd30acc7a476b904094f26cf593a1"><td class="memItemLeft" align="right" valign="top"><a id="a519fd30acc7a476b904094f26cf593a1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_client.html#a519fd30acc7a476b904094f26cf593a1">~MongoClient</a> ()</td></tr>
 <tr class="memdesc:a519fd30acc7a476b904094f26cf593a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. <br /></td></tr>
 <tr class="separator:a519fd30acc7a476b904094f26cf593a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc6e3b2c8a2fd8031bd689e13b652bb3"><td class="memItemLeft" align="right" valign="top"><a id="abc6e3b2c8a2fd8031bd689e13b652bb3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_client.html#abc6e3b2c8a2fd8031bd689e13b652bb3">Destroy</a> ()</td></tr>
+<tr class="memdesc:abc6e3b2c8a2fd8031bd689e13b652bb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy explicitly. <br /></td></tr>
+<tr class="separator:abc6e3b2c8a2fd8031bd689e13b652bb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9a0f47edf66c9133c80c69ce555da87"><td class="memItemLeft" align="right" valign="top"><a id="aa9a0f47edf66c9133c80c69ce555da87"></a>
 mongoc_client_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_client.html#aa9a0f47edf66c9133c80c69ce555da87">GetConn</a> ()</td></tr>
 <tr class="memdesc:aa9a0f47edf66c9133c80c69ce555da87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get <code>mongoc_client_t</code> instance. <br /></td></tr>
@@ -190,7 +198,7 @@ Static Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>The constructor should be used with caution, since it does not check the validation of IP address and the status of the database. So, please use the alternative initialization usage, <code><a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_client.html" title="A simple wrapper of the class of MongoDB Client mongoc_client_t.">MongoClient</a> *client = MongoClient::Init(host, port)</code>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The constructor should not be used directly, since it does not check the validation of IP address and the status of the database, and also without <code>mongoc_init()</code>. So, please use the alternative initialization usage, <code><a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_client.html" title="A simple wrapper of the class of MongoDB Client mongoc_client_t.">MongoClient</a> *client = MongoClient::Init(host, port)</code>. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="classccgl_1_1db__mongoc_1_1_mongo_client.html#afe4cdd1a639fd4fab8a3a16a84ce507b" title="Initialization of MongoClient with the validation check of database.">MongoClient::Init()</a> </dd></dl>
 
 </div>
@@ -277,6 +285,7 @@ Static Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<p>TODO: Check start version to use mongoc_client_get_database_names_with_opts()</p>
 
 </div>
 </div>
@@ -387,7 +396,7 @@ Static Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aclassccgl_1_1db__mongoc_1_1_mongo_client_html_a9165ef4b38bc4eee1462dc62b524aa29"><div class="ttname"><a href="classccgl_1_1db__mongoc_1_1_mongo_client.html#a9165ef4b38bc4eee1462dc62b524aa29">ccgl::db_mongoc::MongoClient::MongoClient</a></div><div class="ttdeci">MongoClient(const char *host, vuint16_t port)</div><div class="ttdoc">Constructor using IP address and port number.</div><div class="ttdef"><b>Definition:</b> db_mongoc.cpp:47</div></div>
-<div class="ttc" id="aclassccgl_1_1db__mongoc_1_1_mongo_client_html_afe4cdd1a639fd4fab8a3a16a84ce507b"><div class="ttname"><a href="classccgl_1_1db__mongoc_1_1_mongo_client.html#afe4cdd1a639fd4fab8a3a16a84ce507b">ccgl::db_mongoc::MongoClient::Init</a></div><div class="ttdeci">static MongoClient * Init(const char *host, vuint16_t port)</div><div class="ttdoc">Initialization of MongoClient with the validation check of database.</div><div class="ttdef"><b>Definition:</b> db_mongoc.cpp:74</div></div>
+<div class="ttc" id="aclassccgl_1_1db__mongoc_1_1_mongo_client_html_afe4cdd1a639fd4fab8a3a16a84ce507b"><div class="ttname"><a href="classccgl_1_1db__mongoc_1_1_mongo_client.html#afe4cdd1a639fd4fab8a3a16a84ce507b">ccgl::db_mongoc::MongoClient::Init</a></div><div class="ttdeci">static MongoClient * Init(const char *host, vuint16_t port)</div><div class="ttdoc">Initialization of MongoClient with the validation check of database.</div><div class="ttdef"><b>Definition:</b> db_mongoc.cpp:78</div></div>
 <!-- HTML footer for doxygen 1.8.15-->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

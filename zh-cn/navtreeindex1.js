@@ -1,5 +1,7 @@
 var NAVTREEINDEX1 =
 {
+"functions_func.html":[6,3,1],
+"functions_vars.html":[6,3,2],
 "globals.html":[7,1,0],
 "globals_defs.html":[7,1,1],
 "hierarchy.html":[6,2],
@@ -17,8 +19,8 @@ var NAVTREEINDEX1 =
 "namespaceccgl_1_1utils__filesystem.html":[5,0,0,3],
 "namespaceccgl_1_1utils__math.html":[5,0,0,4],
 "namespaceccgl_1_1utils__string.html":[5,0,0,5],
-"namespaceccgl_1_1utils__time.html":[6,0,0,2],
 "namespaceccgl_1_1utils__time.html":[5,0,0,6],
+"namespaceccgl_1_1utils__time.html":[6,0,0,2],
 "namespacemembers.html":[5,1,0],
 "namespacemembers_func.html":[5,1,1],
 "namespacemembers_type.html":[5,1,2],

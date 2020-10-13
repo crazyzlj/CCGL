@@ -59,7 +59,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"globals.html"
+"functions_func.html"
 ];
 
 var SYNCONMSG = '点击 关闭 面板同步';

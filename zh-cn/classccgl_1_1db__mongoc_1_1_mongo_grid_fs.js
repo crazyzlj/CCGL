@@ -6,7 +6,7 @@ var classccgl_1_1db__mongoc_1_1_mongo_grid_fs =
     [ "GetFileMetadata", "classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html#abc3bf85588430c46ed9719c5b3f3e93d", null ],
     [ "GetFileNames", "classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html#a0a77c6916184e47a598c3bec247feedf", null ],
     [ "GetGridFs", "classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html#a1b7db2fe43afc76d8f8f8741cda8afe9", null ],
-    [ "GetStreamData", "classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html#ac7557b967a4417660e038b56965f91ae", null ],
+    [ "GetStreamData", "classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html#a6cf87a8e2224bb647d7bb1ac8f69ad1e", null ],
     [ "RemoveFile", "classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html#a7027939d4bebbdbada2c5d2181b30f6c", null ],
-    [ "WriteStreamData", "classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html#a48c54091b6f12e00d8d2a66d432a0513", null ]
+    [ "WriteStreamData", "classccgl_1_1db__mongoc_1_1_mongo_grid_fs.html#ae9bd24c2ac1d1989e3889afc2ac842d5", null ]
 ];

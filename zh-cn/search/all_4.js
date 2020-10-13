@@ -10,5 +10,6 @@ var searchData=
   ['db_5fmongoc_2eh_51',['db_mongoc.h',['../db__mongoc_8h.html',1,'']]],
   ['deletedirectory_52',['DeleteDirectory',['../namespaceccgl_1_1utils__filesystem.html#a1cef174b924be3242734865462da7d2f',1,'ccgl::utils_filesystem']]],
   ['deleteexistedfile_53',['DeleteExistedFile',['../namespaceccgl_1_1utils__filesystem.html#a08783cfa1f1152b3ad61adb8d164f0fe',1,'ccgl::utils_filesystem']]],
-  ['directoryexists_54',['DirectoryExists',['../namespaceccgl_1_1utils__filesystem.html#affc9dd086eeab8987daa68544f989857',1,'ccgl::utils_filesystem']]]
+  ['destroy_54',['Destroy',['../classccgl_1_1db__mongoc_1_1_mongo_client.html#abc6e3b2c8a2fd8031bd689e13b652bb3',1,'ccgl::db_mongoc::MongoClient']]],
+  ['directoryexists_55',['DirectoryExists',['../namespaceccgl_1_1utils__filesystem.html#affc9dd086eeab8987daa68544f989857',1,'ccgl::utils_filesystem']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['queryrecordscount_205',['QueryRecordsCount',['../classccgl_1_1db__mongoc_1_1_mongo_collection.html#ac973816a13372811f05543ae48e43a36',1,'ccgl::db_mongoc::MongoCollection']]]
+  ['queryrecordscount_206',['QueryRecordsCount',['../classccgl_1_1db__mongoc_1_1_mongo_collection.html#afecfb3382a922ac4afe6c192dfc4e54e',1,'ccgl::db_mongoc::MongoCollection']]]
 ];

@@ -72,7 +72,7 @@ var classccgl_1_1data__raster_1_1cls_raster_data =
     [ "OutputAscFile", "classccgl_1_1data__raster_1_1cls_raster_data.html#a1ffb52281c699b55124e87362c75e320", null ],
     [ "OutputFileByGdal", "classccgl_1_1data__raster_1_1cls_raster_data.html#a0609d1080e392e87a3ef76c316d109f9", null ],
     [ "OutputToFile", "classccgl_1_1data__raster_1_1cls_raster_data.html#aad9cf7077caeb6f1d706c6aef32d8862", null ],
-    [ "OutputToMongoDB", "classccgl_1_1data__raster_1_1cls_raster_data.html#af6b1ce58bb556511e550abebb0c3a70a", null ],
+    [ "OutputToMongoDB", "classccgl_1_1data__raster_1_1cls_raster_data.html#a5ad2b7bac3ca34821cfa9417f8caf1f2", null ],
     [ "PositionsAllocated", "classccgl_1_1data__raster_1_1cls_raster_data.html#a676c96fb8c377536b91c6f75b2bb4258", null ],
     [ "PositionsCalculated", "classccgl_1_1data__raster_1_1cls_raster_data.html#adaf6663a1367ef0c729f6c66ea354e80", null ],
     [ "ReadFromFile", "classccgl_1_1data__raster_1_1cls_raster_data.html#a918cb28cb2cf5eebbba846b074c1db52", null ],
