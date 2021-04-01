@@ -12,7 +12,7 @@ var searchData=
   ['isint64_425',['IsInt64',['../namespaceccgl_1_1utils__string.html#ab7f78fb75ec9afc76445ce70bdb35612',1,'ccgl::utils_string::IsInt64(const string &amp;num_str, bool &amp;success)'],['../namespaceccgl_1_1utils__string.html#aab39ec3ac1ee1866329abb5d2dae8294',1,'ccgl::utils_string::IsInt64(const wstring &amp;num_str, bool &amp;success)']]],
   ['isipaddress_426',['IsIpAddress',['../namespaceccgl.html#aab46be883ceebb9111d1994c54136fc8',1,'ccgl']]],
   ['isleapyear_427',['IsLeapYear',['../namespaceccgl_1_1utils__time.html#a2f4edbf938e7e7e5a77eb49941c394bc',1,'ccgl::utils_time']]],
-  ['isnodata_428',['IsNoData',['../classccgl_1_1data__raster_1_1cls_raster_data.html#a5b38ab965b6a9c23a06c49970578eab0',1,'ccgl::data_raster::clsRasterData']]],
+  ['isnodata_428',['IsNoData',['../classccgl_1_1data__raster_1_1cls_raster_data.html#ad0d5a2f13e8ab5c53349cbf76d0de22e',1,'ccgl::data_raster::clsRasterData']]],
   ['isnumber_429',['IsNumber',['../namespaceccgl_1_1utils__string.html#ad6982cdb44cd0af93241583cdcabbd2a',1,'ccgl::utils_string']]],
   ['isuint_430',['IsUInt',['../namespaceccgl_1_1utils__string.html#af657d117ac59bb27a146bd37be4c90d5',1,'ccgl::utils_string::IsUInt(const string &amp;num_str, bool &amp;success)'],['../namespaceccgl_1_1utils__string.html#a9242f3fddb6048b7851d20e46a8659fa',1,'ccgl::utils_string::IsUInt(const wstring &amp;num_str, bool &amp;success)']]],
   ['isuint64_431',['IsUInt64',['../namespaceccgl_1_1utils__string.html#a4e1c09f728fd077ea98e92131d928f78',1,'ccgl::utils_string::IsUInt64(const string &amp;num_str, bool &amp;success)'],['../namespaceccgl_1_1utils__string.html#ae6a81db3bd17b1da8e2e502e47b14730',1,'ccgl::utils_string::IsUInt64(const wstring &amp;num_str, bool &amp;success)']]],
