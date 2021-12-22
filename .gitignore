@@ -42,6 +42,8 @@ cmake-build*
 *.vat.cpg
 *.vat.dbf
 *.tif.aux.xml
+*.tif.vat
+*.tif.xml
 *.tfw
 *.tif.ovr
 
