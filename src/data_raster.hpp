@@ -214,7 +214,7 @@ inline RasterDataType StringToRasterDataType(const string& stype) {
 /*!
  * \brief Convert C++ data type to RasterDataType
  */
-inline RasterDataType TypeToRasterDataType(const type_info& t) {
+inline RasterDataType TypeToRasterDataType(const std::type_info& t) {
     if (t == typeid(unsigned char)) return RDT_UByte;
     if (t == typeid(char)) return RDT_Byte;
     if (t == typeid(vuint16_t)) return RDT_UInt16;

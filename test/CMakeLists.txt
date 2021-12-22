@@ -6,7 +6,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.10 FATAL_ERROR)
 include(GoogleTest)
 
 file(GLOB_RECURSE TEST_SRC_FILES *.cpp)
-set(APPNAME UnitTests_CCGL)
+set(APPNAME unittest)
 add_executable(${APPNAME} ${TEST_SRC_FILES})
 SET_TARGET_PROPERTIES(${APPNAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
@@ -29,11 +29,9 @@ install(TARGETS ${APPNAME} DESTINATION ${INSTALL_DIR})
 
 if (RUNCOV STREQUAL 1)
     include(CodeCoverage)
-    APPEND_COVERAGE_COMPILER_FLAGS()
-    set(COVERAGE_EXCLUDES 'test/*' '*test/*')
-    setup_target_for_coverage(
-        NAME UnitTestCoverage               # New target name
-        EXECUTABLE ${APPNAME}               # Executable in PROJECT_BINARY_DIR
-        DEPENDENCIES ${APPNAME}             # Dependencies to build first
+    append_coverage_compiler_flags()
+    setup_target_for_coverage_lcov(
+        NAME coverage
+        EXECUTABLE ctest
         )
 endif ()

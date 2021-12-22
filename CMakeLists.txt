@@ -19,7 +19,8 @@
 #  Routine testing platforms and compilers include:
 #     1. Windows 10 with Visual Studio 2010/2015/2019, mongo-c-driver-1.16.2, GDAL-1.11.4/2.4.4/3.3.3
 #     2. CentOS 6.2 (cluster) with GCC-4.8.4, mongo-c-driver-1.5.5, GDAL-1.9.0
-#     3. macOS 12.1 with Clang-13.0 and GCC, mongo-c-driver-1.16.2, GDAL-3.3.3 (brew installed)
+#     3. Ubuntu 16.04 (VMware) with GCC-5.4.0, mongo-c-driver-1.6.3, GDAL-2.4.4
+#     4. macOS 12.1 with Clang-13.0 and GCC, mongo-c-driver-1.16.2, GDAL-3.3.3 (brew installed)
 #
 #  Created and maintained by Liangjun Zhu (zlj@lreis.ac.cn)
 #  Latest updated: Dec. 21, 2021
@@ -277,8 +278,6 @@ ENDIF()
 ### Set code coverage linkage.
 IF (RUNCOV STREQUAL 1)
     SET(UNITTEST 1) # Code coverage needs the UnitTest
-    SET_TARGET_PROPERTIES(${CCGLNAME} PROPERTIES COMPILE_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-    SET_TARGET_PROPERTIES(${CCGLNAME} PROPERTIES LINK_FLAGS "-coverage -lgcov")
 ENDIF ()
 
 IF (UNITTEST STREQUAL 1)
