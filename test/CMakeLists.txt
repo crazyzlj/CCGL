@@ -8,6 +8,7 @@ include(GoogleTest)
 file(GLOB_RECURSE TEST_SRC_FILES *.cpp)
 set(APPNAME UnitTests_CCGL)
 add_executable(${APPNAME} ${TEST_SRC_FILES})
+SET_TARGET_PROPERTIES(${APPNAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 IF (GTEST_FOUND)
     target_link_libraries(${APPNAME} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main ${CCGLNAME})

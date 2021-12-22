@@ -1,11 +1,12 @@
 /*!
  * \brief Test clsRasterData of blank constructor to make sure no exception thrown.
  *
- * \version 1.2
+ * \version 1.3
  * \authors Liangjun Zhu (zlj@lreis.ac.cn)
  * \revised 2017-12-02 - lj - Original version.
  *          2018-05-03 - lj - Integrated into CCGL.
  *          2021-07-20 - lj - Update after changes of GetValue and GetValueByIndex.
+ *          2021-11-27 - lj - Add more tests.
  *
  */
 #include "gtest/gtest.h"
@@ -16,8 +17,26 @@
 
 using namespace ccgl::data_raster;
 using namespace ccgl::utils_array;
+using namespace ccgl::utils_filesystem;
+
 
 namespace {
+string datapath = GetAppPath() + "./data/raster/";
+
+string not_existed_rs = datapath + "not_existed_rs.tif";
+string not_std_asc = datapath + "tinydemo_not-std-asc_r2c2.asc";
+
+string rs_mask = datapath + "mask_byte_r3c2";
+string rs_byte = datapath + "byte_r3c3.tif";
+string rs_byte_signed = datapath + "byte_signed_r3c3.tif";
+string rs_byte_signed_noneg = datapath + "byte_signed_no-negative_r3c3.tif";
+string rs_uint16 = datapath + "uint16_r3c3.tif";
+string rs_int16 = datapath + "int16_r3c3.tif";
+string rs_uint32 = datapath + "uint32_r3c3.tif";
+string rs_int32 = datapath + "int32_r3c3.tif";
+string rs_float = datapath + "float32_r3c3.tif";
+string rs_double = datapath + "float64_r3c3.tif";
+
 TEST(clsRasterDataTestBlankCtor, ValidateAccess) {
     /// 0. Create an clsRasterData instance with blank ctor
     clsRasterData<float, int>* rs = new clsRasterData<float, int>();
@@ -47,19 +66,19 @@ TEST(clsRasterDataTestBlankCtor, ValidateAccess) {
     /** Get metadata, m_headers **/
     EXPECT_EQ(-9999, rs->GetRows());
     EXPECT_EQ(-9999, rs->GetCols());
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetXllCenter());
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetYllCenter());
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetCellWidth());
+    EXPECT_DOUBLE_EQ(-9999., rs->GetXllCenter());
+    EXPECT_DOUBLE_EQ(-9999., rs->GetYllCenter());
+    EXPECT_DOUBLE_EQ(-9999., rs->GetCellWidth());
     EXPECT_EQ(-1, rs->GetLayers());
     EXPECT_EQ("", rs->GetSrsString());
 
     /** Calc and get basic statistics, m_statsMap **/
     EXPECT_EQ(-9999, rs->GetValidNumber());
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetMinimum());
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetMaximum());
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetAverage());
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetStd());
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetRange());
+    EXPECT_DOUBLE_EQ(-9999., rs->GetMinimum());
+    EXPECT_DOUBLE_EQ(-9999., rs->GetMaximum());
+    EXPECT_DOUBLE_EQ(-9999., rs->GetAverage());
+    EXPECT_DOUBLE_EQ(-9999., rs->GetStd());
+    EXPECT_DOUBLE_EQ(-9999., rs->GetRange());
     EXPECT_FALSE(rs->StatisticsCalculated());
 
     EXPECT_EQ(nullptr, rs->GetMask()); // m_mask
@@ -140,4 +159,31 @@ TEST(clsRasterDataTestBlankCtor, ValidateAccess) {
 
     delete rs;
 }
+
+TEST(clsRasterDataFailedConstructor, FailedCases) {
+    FltIntRaster* noexisted_rs = FltIntRaster::Init(not_existed_rs);
+    EXPECT_EQ(nullptr, noexisted_rs);
+
+    vector<string> files;
+    files.push_back(not_existed_rs);
+    files.push_back(not_std_asc);
+    noexisted_rs = FltIntRaster::Init(files);
+    EXPECT_EQ(nullptr, noexisted_rs);
+}
+
+#ifdef USE_GDAL
+TEST(clsRasterDataUnsignedByte, FullIO) {
+    clsRasterData<unsigned char>* mask_rs = clsRasterData<unsigned char>::Init(rs_mask);
+    clsRasterData<unsigned char>* byte_rs = clsRasterData<unsigned char>
+            ::Init(rs_byte, true, mask_rs, true);
+
+    // Situation 1:
+    string rs_out1 = AppendCoreFileName(rs_byte, "masked");
+    EXPECT_TRUE(byte_rs->GetDataType() == RDT_UByte);
+    EXPECT_TRUE(byte_rs->GetOutDataType() == RDT_UByte);
+    byte_rs->OutputToFile(rs_out1);
+    EXPECT_TRUE(FileExists(rs_out1));
+}
+#endif
+
 } /* namespace */

@@ -2,9 +2,9 @@
  * \brief The main function should only be present once under the gtest framework.
  *
  * \version 1.0
- * \authors Liangjun Zhu (crazyzlj)
+ * \authors Liangjun Zhu (zlj@lreis.ac.cn; crazyzlj@gmail.com)
  * \revised 2017-12-02 - lj - Initial version.
- *          2019-11-06 - lj - Add global test environment to intialize input arguments.
+ *          2019-11-06 - lj - Add global test environment to initialize input arguments.
  */
 #if (defined _DEBUG) && (defined _MSC_VER) && (defined VLD)
 #include "vld.h"
@@ -57,9 +57,8 @@ int main(int argc, char** argv) {
     GlobalEnv = new GlobalEnvironment(mongo_host, mongo_port);
     ::testing::AddGlobalTestEnvironment(GlobalEnv);
 
-#ifdef SUPPORT_OMP
     SetDefaultOpenMPThread();
-#endif
+
 #ifdef USE_GDAL
     GDALAllRegister(); // Register GDAL drivers!
 #endif
