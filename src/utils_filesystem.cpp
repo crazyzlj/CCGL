@@ -58,7 +58,7 @@ int FindFiles(const char* lp_path, const char* expression, vector<string>& vec_f
 #ifdef WINDOWS
     char sz_find[MAX_PATH];
     stringcpy(sz_find, newlp_path);
-    stringcat(sz_find, SEP);
+    stringcat(sz_find, SEPSTR);
     stringcat(sz_find, expression);
 
     WIN32_FIND_DATA find_file_data;
@@ -72,7 +72,7 @@ int FindFiles(const char* lp_path, const char* expression, vector<string>& vec_f
         }
         char fullpath[MAX_PATH];
         stringcpy(fullpath, newlp_path);
-        stringcat(fullpath, SEP);
+        stringcat(fullpath, SEPSTR);
         stringcat(fullpath, find_file_data.cFileName);
 
         vec_files.emplace_back(fullpath);
@@ -119,6 +119,17 @@ bool DirectoryExists(const string& dirpath) {
 #endif /* WINDOWS */
 }
 
+bool MakeDirectory(const string& dirpath) {
+    string abspath = GetAbsolutePath(dirpath);
+    if (DirectoryExists(abspath)) return true;
+#ifdef WINDOWS
+    LPSECURITY_ATTRIBUTES att = nullptr;
+    return ::CreateDirectory(abspath.c_str(), att);
+#else
+    return mkdir(abspath.c_str(), 0777) == 0;
+#endif /* WINDOWS */
+}
+
 bool CleanDirectory(const string& dirpath) {
     string abspath = GetAbsolutePath(dirpath);
     try {
@@ -126,19 +137,13 @@ bool CleanDirectory(const string& dirpath) {
             /// empty the directory
             vector<string> existed_files;
             FindFiles(abspath.c_str(), "*.*", existed_files);
+            int err_count = 0;
             for (auto it = existed_files.begin(); it != existed_files.end(); ++it) {
-                remove((*it).c_str());
+                if (remove((*it).c_str()) < 0) { err_count += 1; }
             }
-        } else {
-            /// create new directory
-#ifdef WINDOWS
-            LPSECURITY_ATTRIBUTES att = nullptr;
-            ::CreateDirectory(abspath.c_str(), att);
-#else
-            mkdir(abspath.c_str(), 0777);
-#endif /* WINDOWS */
+            return err_count == 0;
         }
-        return true;
+        return MakeDirectory(abspath);
     } catch (...) {
         cout << "Create or clean directory: " << abspath << " failed!" << endl;
         return false;
@@ -293,8 +298,17 @@ string ReplaceSuffix(string const& full_filename, string const& new_suffix) {
     string filedir = GetPathFromFullName(full_filename);
     string corename = GetCoreFileName(full_filename);
     string old_suffix = GetSuffix(full_filename);
-    if (filedir.empty() || old_suffix.empty()) return "";
+    if (filedir.empty() || old_suffix.empty()) { return ""; }
     return filedir + corename + "." + new_suffix;
+}
+
+string AppendCoreFileName(string const& full_filename, string const& endstr,
+                          char deli /* = '_' */) {
+    string filedir = GetPathFromFullName(full_filename);
+    string corename = GetCoreFileName(full_filename);
+    string old_suffix = GetSuffix(full_filename);
+    if (old_suffix.empty()) return filedir + corename + deli + endstr;
+    return filedir + corename + deli + endstr + "." + old_suffix;
 }
 
 string GetPathFromFullName(string const& full_filename) {
@@ -305,6 +319,17 @@ string GetPathFromFullName(string const& full_filename) {
         return "";
     }
     return abspath.substr(0, i + 1);
+}
+
+string ConcatFullName(string const& fdir, string const& corename,
+                      string const& suffix /* = std::string() */) {
+    string concatpath = GetAbsolutePath(fdir);
+    if (concatpath.find_last_of(SEP) != concatpath.length() - 1) {
+        concatpath += SEP;
+    }
+    concatpath += corename;
+    if (!suffix.empty()) { concatpath += "." + suffix; }
+    return concatpath;
 }
 
 bool LoadPlainTextFile(const string& filepath, vector<string>& content_strs) {
@@ -335,6 +360,7 @@ bool LoadPlainTextFile(const string& filepath, vector<string>& content_strs) {
     } catch (...) {
         myfile.close();
         cout << "Load plain text file: " << filepath << " failed!" << endl;
+        b_status = false;
     }
     return b_status;
 }

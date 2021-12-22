@@ -45,6 +45,7 @@
 #endif /* __APPLE__ */
 #endif /* __GNUC__ */
 
+#include <stdint.h>
 #include <memory>
 #include <stdexcept>
 #include <cfloat>
@@ -233,7 +234,7 @@ typedef vint64_t pos_t;
 
 /*! Default NoData value for raster data etc. */
 #ifndef NODATA_VALUE
-#define NODATA_VALUE    (-9999.0f)
+#define NODATA_VALUE    (-9999.)
 #endif /* NODATA_VALUE */
 
 /*! Missing float value */
@@ -253,27 +254,29 @@ typedef vint64_t pos_t;
 
 /*! A approximation of Zero */
 #ifndef UTIL_ZERO
-#define UTIL_ZERO       1.0e-6f
+#define UTIL_ZERO       1.0e-6
 #endif /* UTIL_ZERO */
 
 /*! A approximation of PI */
 #ifndef PI
-#define PI              3.14159265358979323846f
+#define PI              3.14159265358979323846
 #endif /* PI */
 
 /*! Minimum slope(radian) value */
 #ifndef MINI_SLOPE
-#define MINI_SLOPE      0.0001f
+#define MINI_SLOPE      0.0001
 #endif /* MINI_SLOPE */
 
 #ifdef WINDOWS
-#define SEP             "\\"
+#define SEP             '\\'
+#define SEPSTR          "\\"
 #ifndef MSVC
 #define LIBPREFIX       "lib"
 #endif
 #define LIBSUFFIX       ".dll"
 #else
-#define SEP             "/"
+#define SEP             '/'
+#define SEPSTR          "/"
 #define LIBPREFIX       "lib"
 #endif /* Windows */
 #ifdef LINUX
@@ -456,6 +459,12 @@ void SetOpenMPThread(int n);
  * \param[in] msg \a char* Message
  */
 void StatusMessage(const char* msg);
+
+/*!
+ * \brief Print status messages for Debug
+ * \param[in] msg \a char* Message
+ */
+void StatusMessage(const string& msg);
 
 /*!
  * \brief Sleep milliseconds

@@ -30,6 +30,11 @@ namespace utils_filesystem {
 bool DirectoryExists(const string& dirpath);
 
 /*!
+ * \brief Make directory if not exists
+ */
+bool MakeDirectory(const string& dirpath);
+
+/*!
  * \brief Clean a directory if exists, otherwise create it.
  */
 bool CleanDirectory(const string& dirpath);
@@ -82,12 +87,26 @@ string GetSuffix(string const& full_filename);
 string ReplaceSuffix(string const& full_filename, string const& new_suffix);
 
 /*!
+ * \brief Append a given string to the core filename
+ * \param[in] full_filename Full path
+ * \param[in] endstr End string
+ * \param[in] deli Delimiter
+ * \return new full_filename
+ */
+string AppendCoreFileName(string const& full_filename, string const& endstr, char deli = '_');
+
+/*!
  * \brief Get Path From full file path string
  * \param[in] full_filename \a string
  * \return filePath string
  * \sa GetCoreFileName
  */
 string GetPathFromFullName(string const& full_filename);
+
+/*!
+ * \brief Concatenate directory, core file name, and suffix
+ */
+string ConcatFullName(string const& fdir, string const& corename, string const& suffix = std::string());
 
 /*!
  * \brief Return a flag indicating if the given file exists
