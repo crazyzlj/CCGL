@@ -109,7 +109,7 @@ int GetAvailableThreadNum() {
 #ifdef LINUX
     return CVT_INT(sysconf(_SC_NPROCESSORS_ONLN));
 #endif /* LINUX */
-#ifdef MACOSX
+#ifdef MACOS
     return CVT_INT(sysconf(_SC_NPROCESSORS_ONLN));
 #endif /* macOS X 10.5 and later */
 }

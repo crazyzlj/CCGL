@@ -2,7 +2,7 @@
 # mask raster
 SET(MASKFILES mask_rasters.cpp)
 # combine raster
-SET(COMBINEFILES CombineRaster.cpp CombineRasterMain.cpp)
+#SET(COMBINEFILES CombineRaster.cpp CombineRasterMain.cpp)
 # reclassify raster
 SET(RECLASSIFYFILES reclassify_raster.cpp)
 # import raster to MongoDB if found mongo-c-driver
@@ -20,14 +20,14 @@ ENDIF ()
 geo_include_directories(${CCGL_DIR})
 
 ADD_EXECUTABLE(mask_raster ${MASKFILES})
-ADD_EXECUTABLE(combine_raster ${COMBINEFILES})
+#ADD_EXECUTABLE(combine_raster ${COMBINEFILES})
 ADD_EXECUTABLE(reclassify_raster ${RECLASSIFYFILES})
 IF (BSON_FOUND AND MONGOC_FOUND)
     ADD_EXECUTABLE(import_raster ${IMPORTMONGOFILES})
 ENDIF ()
 
 SET(APPS_TARGETS mask_raster
-                 combine_raster
+#                 combine_raster
                  reclassify_raster
                 )
 IF (BSON_FOUND AND MONGOC_FOUND)
@@ -45,11 +45,8 @@ foreach (c_target ${APPS_TARGETS})
         SET_TARGET_PROPERTIES(${c_target} PROPERTIES LINKER_LANGUAGE CXX)
     ENDIF ()
     ### For Xcode generator, specific LLVM-Clang installed by brew, and add link library of OpenMP explicitly.
-    IF(XCODE AND LLVM_FOUND)
+    IF(CV_CLANG AND LLVM_VERSION_MAJOR)
         TARGET_LINK_LIBRARIES(${c_target} ${OpenMP_LIBRARY})
-        SET_TARGET_PROPERTIES(${c_target} PROPERTIES XCODE_ATTRIBUTE_CC ${LLVM_ROOT_DIR}/bin/clang)
-        SET_TARGET_PROPERTIES(${c_target} PROPERTIES XCODE_ATTRIBUTE_CXX ${LLVM_ROOT_DIR}/bin/clang++)
-        SET_TARGET_PROPERTIES(${c_target} PROPERTIES XCODE_ATTRIBUTE_COMPILER_INDEX_STORE_ENABLE "No")
     ENDIF()
     install(TARGETS ${c_target} DESTINATION ${INSTALL_DIR})
     LIST(APPEND APP_TARGETS ${c_target})

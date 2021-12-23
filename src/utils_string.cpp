@@ -113,7 +113,7 @@ void _itow_s(vint32_t value, wchar_t* buffer, size_t size, vint radix) {
 }
 
 void _i64toa_s(vint64_t value, char* buffer, size_t size, vint radix) {
-    strprintf(buffer, size, "%ld", value);
+    strprintf(buffer, size, "%lld", value);
 }
 
 void _i64tow_s(vint64_t value, wchar_t* buffer, size_t size, vint radix) {
@@ -129,7 +129,7 @@ void _uitow_s(vuint32_t value, wchar_t* buffer, size_t size, vint radix) {
 }
 
 void _ui64toa_s(vuint64_t value, char* buffer, size_t size, vint radix) {
-    strprintf(buffer, size, "%lu", value);
+    strprintf(buffer, size, "%llu", value);
 }
 
 void _ui64tow_s(vuint64_t value, wchar_t* buffer, size_t size, vint radix) {

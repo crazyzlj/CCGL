@@ -9,7 +9,7 @@
 #ifdef WINDOWS
 #include <io.h>
 #endif
-#ifdef MACOSX
+#ifdef MACOS
 #include <libproc.h>
 #endif
 
@@ -236,7 +236,7 @@ string GetAppPath() {
     TCHAR buffer[PATH_MAX];
     GetModuleFileName(nullptr, buffer, PATH_MAX);
     root_path = CVT_STR(static_cast<char *>(buffer));
-#elif defined MACOSX
+#elif defined MACOS
     /// http://stackoverflow.com/a/8149380/4837280
     int ret;
     pid_t pid;

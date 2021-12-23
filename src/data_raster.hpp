@@ -337,7 +337,11 @@ public:
         if (lyr != n_lyrs) { return false; }
         if (nullptr == data2d) { return false; }
         if (nullptr != data2d_) {
-            for (int i = 0; i < n_cells * n_lyrs; i++) { data2d_[i] = CVT_DBL(data2d[i]); }
+            for (int i = 0; i < n_cells; i++) {
+                for (int j = 0; j < n_lyrs; j++) {
+                    data2d_[i][j] = CVT_DBL(data2d[i][j]);
+                }
+            }
         }
         else {
             Initialize2DArray(n_cells, n_lyrs, data2d_, data2d);
