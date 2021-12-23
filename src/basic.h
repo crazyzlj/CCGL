@@ -204,7 +204,6 @@ typedef unsigned __int32 vuint32_t;
 typedef signed __int64 vint64_t;
 /// 8-byte (64-bit) unsigned integer
 typedef unsigned __int64 vuint64_t;
-
 #else
 typedef          int8_t            vint8_t;
 typedef          uint8_t           vuint8_t;
@@ -214,6 +213,15 @@ typedef          int32_t           vint32_t;
 typedef          uint32_t          vuint32_t;
 typedef          int64_t           vint64_t;
 typedef          uint64_t          vuint64_t;
+#endif
+
+#ifdef _WIN32
+/*! Format of integers */
+#define LLD "%I64d"
+#define LLU "%I64u"
+#else
+#define LLD "%lld"
+#define LLU "%llu"
 #endif
 
 #ifdef CPP_64
