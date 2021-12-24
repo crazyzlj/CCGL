@@ -2242,6 +2242,7 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
                 WriteRasterToFile(tmpfname, subheader, options_, data);
             }
         }
+        Release1DArray(data);
     }
 
     return true;
@@ -3771,6 +3772,7 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
                 count++;
             }
             if (count == 0) {
+                delete it->second;
                 subset_.erase(it++);
                 continue;
             }
@@ -3789,8 +3791,8 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
                 for (int ii = 0; ii < count; ii++) {
                     it->second->global_[ii] = globalpos[ii];
                     if (nullptr == pos_data_) {
-                        it->second->local_pos_[ii][0] = globalpos[ii] / ncols;
-                        it->second->local_pos_[ii][1] = globalpos[ii] % ncols;
+                        it->second->local_pos_[ii][0] = globalpos[ii] / ncols - it->second->g_srow;
+                        it->second->local_pos_[ii][1] = globalpos[ii] % ncols - it->second->g_scol;
                     } else {
                         it->second->local_pos_[ii][0] = pos_data_[globalpos[ii]][0] - it->second->g_srow;
                         it->second->local_pos_[ii][1] = pos_data_[globalpos[ii]][1] - it->second->g_scol;
@@ -3798,6 +3800,7 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
                 }
                 it->second->data_ = nullptr;
                 it->second->data2d_ = nullptr;
+                it->second->alloc_ = true;
             }
             ++it;
         }
