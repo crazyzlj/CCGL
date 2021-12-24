@@ -1,10 +1,11 @@
 /*!
- * \brief Get subset of input raster(s) according to a mask layer
+ * \brief Output single or multiple subsets of input raster(s) according to a mask layer
  *
  * \author Liang-Jun Zhu
  * \date Feb. 2017
  * \changelog
  *     - 1. 2021-11-25 - lj - Rewrite as an stand-alone application inside CCGL
+ *     - 2. 2021-12-24 - lj - Support multiple subsets
  * 
  * E-mail:  zlj@lreis.ac.cn
  * Copyright (c) 2017-2021. LREIS, IGSNRR, CAS
@@ -23,22 +24,23 @@ using namespace data_raster;
 /*!
  * \class InputArgs
  * \ingroup module_setting
- * \brief Parse the input arguments of SEIMS.
+ * \brief Parse the input arguments of mask_raster.
  */
 class InputArgs : Interface {
 public:
     /*!
      * \brief Constructor by detail parameters.
-     * \param[in] mask_path Path of mask raster
-     * \param[in] input_rasters Paths of input rasters
-     * \param[in] out_rasters Paths of output rasters
+     * \param[in] mask_path Full path of mask raster
+     * \param[in] input_rasters Paths of one or more input raster
+     * \param[in] out_rasters Paths of one or more output raster
      * \param[in] defvalues Default values for locations that covered by mask but nodata in input raster
-     * \param[in] out_datatypes Data types of output rasters
+     * \param[in] out_datatypes Data types of one or more output raster
+     * \param[in] subset_mode Single (false, default) or multiple (true) subsets of mask
      * \param[in] thread_num thread or processor number, which must be greater or equal than 1
      */
     InputArgs(string& mask_path, vector<string>& input_rasters, vector<string>& out_rasters,
               vector<double>& defvalues, vector<string>& out_datatypes,
-              int thread_num = 1);
+              bool subset_mode = true, int thread_num = 1);
 
     /*!
      * \brief Initializer of input arguments.
@@ -50,10 +52,11 @@ public:
 public:
     int thread_num;                    ///< thread number for OpenMP
     string mask_path;                  ///< Path of mask raster
-    vector<string> rs_paths;           ///< Paths of input rasters
-    vector<string> out_paths;          ///< Paths of output rasters
+    bool subset_mode;                  ///< Single (false) or multiple (true) subsets of mask
+    vector<string> rs_paths;           ///< Paths of one or more input raster
+    vector<string> out_paths;          ///< Paths of one or more output raster
     vector<double> default_values;     ///< Default values
-    vector<string> out_types;          ///< Data types of output rasters
+    vector<string> out_types;          ///< Data types of one or more output raster
 };
 
 void Usage(const string& appname, const string& error_msg = std::string()) {
@@ -63,19 +66,21 @@ void Usage(const string& appname, const string& error_msg = std::string()) {
     string corename = GetCoreFileName(appname);
     cout << "Simple Usage:\n    " << corename << " <configFile>\n\n";
     cout << "Two complete usage modes are supported:\n";
-    cout << "1. " << corename << " -infile <inputRaster> -mask <maskRaster> -defaultvalue <defaultValue>"
+    cout << "1. " << corename << " -infile <inputRaster> [-defaultvalue <defaultValue>]"
+            " -mask <maskRaster> [-maskmode <maskMode>]"
             " [-outfile <outputRaster>] [-outtype <outType>] [-thread <threadsNum>]\n\n";
     cout << "2. " << corename << " -configfile <configFile> [-thread <threadsNum>]\n\n";
     cout << "\t<inputRaster> is full path of input raster.\n";
-    cout << "\t<maskRaster> is full path of mask raster.\n";
     cout << "\t<defaultValue> is default value for nodata locations that covered by mask.\n";
+    cout << "\t<maskRaster> is full path of mask raster.\n";
+    cout << "\t<maskMode> can be SINGLE (default) or MULTIPLE, corresponding one and more subsets.\n";
     cout << "\t<outputRaster> is full path of output raster, if not specified,"
             "<inputRaster>_masked.tif will be generated.\n";
     cout << "\t<outType> is the datatype of <outputRaster>, uint8, int8, uint16,"
             " int16, uint32, int32, float, and double are supported.\n";
     cout << "\t<threadsNum> is the number of thread used by OpenMP, which must be >= 1 (default).\n";
     cout << "\t<configFile> is a plain text file that defines all input parameters, the format is:\n";
-    cout << "\t\t<maskRaster>\n";
+    cout << "\t\t<maskRaster>\t[maskMode]\n";
     cout << "\t\t<rasterCount>\n";
     cout << "\t\t<inputRaster>\t<defaultValue>\t<outputRaster>\t[outType]\n";
     cout << "\t\t...\n\n";
@@ -84,6 +89,7 @@ void Usage(const string& appname, const string& error_msg = std::string()) {
 InputArgs* InputArgs::Init(const int argc, const char** argv) {
     int thread_num = 1;
     string mask_path;
+    bool multi_subset = false;
     vector<string> rs_paths;
     vector<string> out_paths;
     vector<double> default_values;
@@ -133,6 +139,17 @@ InputArgs* InputArgs::Init(const int argc, const char** argv) {
             i++;
             if (argc > i) {
                 mask_path = argv[i];
+                i++;
+            }
+            else {
+                Usage(argv[0]);
+                return nullptr;
+            }
+        }
+        else if (StringMatch(argv[i], "-maskmode")) {
+            i++;
+            if (argc > i) {
+                if (StringMatch(argv[i], "MULTIPLE")) { multi_subset = true; }
                 i++;
             }
             else {
@@ -212,7 +229,12 @@ InputArgs* InputArgs::Init(const int argc, const char** argv) {
             Usage(argv[0], "Error: Configuration file MUST have at least 3 lines!");
             return nullptr;
         }
-        string mask_from_cfg = GetAbsolutePath(Trim(config_strs[0]));
+        vector<string> maskconfigstrs = SplitString(config_strs[0], '\t'); // Only support \t!!!
+        if (maskconfigstrs.empty()) {
+            Usage(argv[0], "Error: Wrong format of mask raster file in the 1st line of config file!");
+            return nullptr;
+        }
+        string mask_from_cfg = GetAbsolutePath(Trim(maskconfigstrs[0]));
         if (!FileExists(mask_from_cfg)) {
             Usage(argv[0], "Error: Mask file defined in conf. file does not existed!");
             return nullptr;
@@ -223,8 +245,11 @@ InputArgs* InputArgs::Init(const int argc, const char** argv) {
             return nullptr;
         }
         mask_path = mask_from_cfg;
+        if (maskconfigstrs.size() > 1 && StringMatch(maskconfigstrs[1], "MULTIPLE")) {
+            multi_subset = false;
+        }
 
-        size_t inraster_count = CVT_SIZET(IsInt(config_strs[1], str2num_flag));
+        vint inraster_count = IsInt(config_strs[1], str2num_flag);
         if (!str2num_flag) {
             Usage(argv[0], "Error: The 2nd line in config file MUST be an integer!");
             return nullptr;
@@ -233,12 +258,12 @@ InputArgs* InputArgs::Init(const int argc, const char** argv) {
         for (size_t si = 2; si < line_count; si++) {
             vector<string> item_strs = SplitString(config_strs[si]);
             size_t item_count = item_strs.size();
-            if (item_count < 1) continue;
-            if (!FileExists(item_strs[0])) continue;
+            if (item_count < 1) { continue; }
+            if (!FileExists(item_strs[0])) { continue; }
             rs_paths.emplace_back(item_strs[0]);
             if (item_count >= 2) {
                 double tmpdefv = IsDouble(item_strs[1], str2num_flag);
-                if (!str2num_flag) default_values.emplace_back(NODATA_VALUE);
+                if (!str2num_flag) { default_values.emplace_back(NODATA_VALUE); }
                 else default_values.emplace_back(tmpdefv);
             } else {
                 default_values.emplace_back(NODATA_VALUE);
@@ -265,14 +290,14 @@ InputArgs* InputArgs::Init(const int argc, const char** argv) {
         return nullptr;
     }
     return new InputArgs(mask_path, rs_paths, out_paths,
-                         default_values, out_types, thread_num);
+                         default_values, out_types, multi_subset, thread_num);
 }
 
 InputArgs::InputArgs(string& mask_path, vector<string>& input_rasters, vector<string>& out_rasters,
                      vector<double>& defvalues, vector<string>& out_datatypes,
-                     const int thread_num /* = 1 */) :
-    thread_num(thread_num), mask_path(mask_path), rs_paths(input_rasters),
-    out_paths(out_rasters), default_values(defvalues), out_types(out_datatypes) {
+                     const bool subset_mode /* = true */, const int thread_num /* = 1 */) :
+    thread_num(thread_num), mask_path(mask_path), subset_mode(subset_mode),
+    rs_paths(input_rasters), out_paths(out_rasters), default_values(defvalues), out_types(out_datatypes) {
 }
 
 int main(const int argc, const char** argv) {
@@ -287,6 +312,7 @@ int main(const int argc, const char** argv) {
 
     IntRaster* mask_layer = IntRaster::Init(input_args->mask_path);
     if (nullptr == mask_layer) { return EXIT_FAILURE; }
+    if (input_args->subset_mode) { mask_layer->BuildSubSet(); }
 
     STRING_MAP opts;
 #ifdef HAS_VARIADIC_TEMPLATES
@@ -297,14 +323,21 @@ int main(const int argc, const char** argv) {
     for (int i = 0; i < CVT_INT(input_args->rs_paths.size()); i++) {
         cout << input_args->rs_paths[i] << endl;
         opts[HEADER_RSOUT_DATATYPE] = input_args->out_types[i];
-        DblIntRaster* rs = DblIntRaster::Init(input_args->rs_paths[i], false,
-                                              mask_layer, true,
-                                              input_args->default_values[i], opts);
+        DblIntRaster* rs = DblIntRaster::Init(input_args->rs_paths[i],
+                                              false, // No need to calculate valid positions
+                                              mask_layer, true, // Use entire extent of Mask
+                                              input_args->default_values[i], // For masked nodata areas
+                                              opts // Additional options, e.g., out data type
+                                             );
         if (nullptr == rs) {
-            cout << "\tError occurred! No masked ouput raster!\n";
+            cout << "\tError occurred! No masked raster be output!\n";
             continue;
         }
-        rs->OutputToFile(input_args->out_paths[i]);
+        if (input_args->subset_mode) {
+            rs->OutputSubsetToFile(true, false, input_args->out_paths[i]);
+        } else {
+            rs->OutputToFile(input_args->out_paths[i]);
+        }
         delete rs;
     }
     delete mask_layer;

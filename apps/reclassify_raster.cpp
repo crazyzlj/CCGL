@@ -348,9 +348,9 @@ InputArgs* InputArgs::Init(const int argc, const char** argv) {
 
 InputArgs::InputArgs(string& in_raster, vector<map<vint, double> >& recls,
                      vector<double>& defvalues, vector<string>& out_rasters,
-                     vector<string>& outtype, const int thread_num /* = 1 */)
-    :thread_num(thread_num), rs_path(in_raster), recls(recls),
-     out_paths(out_rasters), def_values(defvalues), out_types(outtype) {
+                     vector<string>& outtype, const int thread_num /* = 1 */) :
+    thread_num(thread_num), rs_path(in_raster), recls(recls),
+    out_paths(out_rasters), def_values(defvalues), out_types(outtype) {
     // Do nothing
 }
 
@@ -373,8 +373,8 @@ int main(const int argc, const char** argv) {
     for (auto it = input_args->recls.begin(); it != input_args->recls.end(); ++it) {
         size_t idx = it - input_args->recls.begin();
         category_rs->SetOutDataType(input_args->out_types[idx]);
-        category_rs->OutputSubsetToFile(false,
-                                        true,
+        category_rs->OutputSubsetToFile(false, // Not original raster data
+                                        true, // Output combined data
                                         input_args->out_paths[idx],
                                         input_args->recls[idx],
                                         input_args->def_values[idx]);

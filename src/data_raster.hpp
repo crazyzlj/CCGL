@@ -2185,7 +2185,8 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
         }
         return true;
     }
-    string subfname = outpath.empty() ? GetPathFromFullName(full_path_) : outpath;
+    string subfname = outpath.empty() ? GetPathFromFullName(full_path_)
+                                      : GetPathFromFullName(outpath);
     subfname += core_name_;
     subfname += "_";
     map<string, double> subheader;
@@ -2211,12 +2212,20 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
         T* data = nullptr;
         Initialize1DArray(nrows * ncols, data, no_data_value_);
         for (int ilyr = 0; ilyr < n_lyrs_; ilyr++) {
+            int valid_count = 0;
             if (nullptr != it->second->data2d_) {
-                string subfnamelyr = tmpfname + itoa(CVT_VINT(ilyr)) + "." + filetype;
+                string subfnamelyr = tmpfname + itoa(CVT_VINT(ilyr));
+                subfnamelyr += "." + filetype;
                 for (int vi = 0; vi < it->second->n_cells; vi++) {
                     int j = it->second->local_pos_[vi][0] * ncols + it->second->local_pos_[vi][1];
-                    data[j] = static_cast<T>(it->second->data2d_[vi][ilyr]);
+                    if (!out_origin && nullptr != it->second->data2d_) {
+                        data[j] = static_cast<T>(it->second->data2d_[vi][ilyr]);
+                    } else {
+                        data[j] = raster_2d_[it->second->global_[vi]][ilyr];
+                    }
+                    if (!FloatEqual(no_data_value_, data[j])) { valid_count++; }
                 }
+                if (valid_count == 0) { continue; }
                 WriteRasterToFile(subfnamelyr, subheader, options_, data);
             } else {
                 tmpfname += "." + filetype;
@@ -2227,7 +2236,9 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
                     } else {
                         data[j] = raster_[it->second->global_[vi]];
                     }
+                    if (!FloatEqual(no_data_value_, data[j])) { valid_count++; }
                 }
+                if (valid_count == 0) { continue; }
                 WriteRasterToFile(tmpfname, subheader, options_, data);
             }
         }
@@ -3761,6 +3772,7 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
             }
             if (count == 0) {
                 subset_.erase(it++);
+                continue;
             }
             if (recalc_subset) {
                 it->second->g_srow = srow;
