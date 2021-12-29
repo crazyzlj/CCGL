@@ -313,6 +313,7 @@ string AppendCoreFileName(string const& full_filename, string const& endstr,
 
 string GetPathFromFullName(string const& full_filename) {
     string abspath = GetAbsolutePath(full_filename);
+    if (PathExists(abspath)) { return abspath; } // already be a path
     string::size_type i = abspath.find_last_of(SEP);
     if (i == string::npos) {
         cout << "No valid path in " << full_filename << ", please check!" << endl;

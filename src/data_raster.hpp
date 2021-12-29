@@ -2186,6 +2186,7 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
     }
     string subfname = outpath.empty() ? GetPathFromFullName(full_path_)
                                       : GetPathFromFullName(outpath);
+    if (subfname.back() != SEP) { subfname += SEP; }
     subfname += core_name_;
     subfname += "_";
     map<string, double> subheader;
