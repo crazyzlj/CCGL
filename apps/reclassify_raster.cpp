@@ -3,13 +3,12 @@
  *        For example, Byte, Int16, and Int32, etc.
  *        Output raster data type can be integer or float. 
  *
- * \author Liang-Jun Zhu
+ * \author Liang-Jun Zhu, zlj(at)lreis.ac.cn
  * \date Feb. 2017
- * \changelog
+ * \remarks
  *     - 1. 2021-12-21 - lj - Rewrite as an stand-alone application inside CCGL
  *
- * E-mail:  zlj(at)lreis.ac.cn
- * Copyright (c) 2017-2021. LREIS, IGSNRR, CAS
+ * \copyright 2017-2021. LREIS, IGSNRR, CAS
  *
  */
 

@@ -1,14 +1,13 @@
 /*!
  * \brief Output single or multiple subsets of input raster(s) according to a mask layer
  *
- * \author Liang-Jun Zhu
+ * \author Liang-Jun Zhu, zlj(at)lreis.ac.cn
  * \date Feb. 2017
- * \changelog
+ * \remarks
  *     - 1. 2021-11-25 - lj - Rewrite as an stand-alone application inside CCGL
  *     - 2. 2021-12-29 - lj - Support multiple subsets, support IO of file and MongoDB
  * 
- * E-mail:  zlj(at)lreis.ac.cn
- * Copyright (c) 2017-2021. LREIS, IGSNRR, CAS
+ * \copyright 2017-2021. LREIS, IGSNRR, CAS
  *
  */
 

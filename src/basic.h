@@ -3,12 +3,12 @@
  * \brief Basic definitions.
  *        Part of the Common Cross-platform Geographic Library (CCGL)
  *
- * Changelog:
+ * \remarks
  *   - 1. 2018-05-02 - lj - Initially implementation.
  *   - 2. 2018-06-21 - lj - Test on Intel C++ compiler.
  *   - 3. 2018-08-21 - lj - Doxygen comment style check.
  *
- * \author Liangjun Zhu (crazyzlj)
+ * \author Liangjun Zhu, zlj(at)lreis.ac.cn
  * \version 1.1
  */
 #ifndef CCGL_BASIC_H
