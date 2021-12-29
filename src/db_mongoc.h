@@ -3,14 +3,14 @@
  * \brief Simple wrappers of the API of MongoDB C driver `mongo-c-driver`,
  * see <a href="http://mongoc.org/">MongoDB C Driver</a> for more information.
  *
- * Changelog:
+ * \remarks
  *   - 1. 2017-12-02 - lj - Add unittest based on gtest/gmock.
  *   - 2. 2018-05-02 - lj - Make part of CCGL.
  *   - 3. 2019-08-16 - lj - Simplify brief desc. and move detail desc. to implementation.
  *
  * \note No exceptions will be thrown.
- * \author Liangjun Zhu (zlj@lreis.ac.cn)
- * \version 1.1
+ * \author Liangjun Zhu, zlj(at)lreis.ac.cn
+ * \version 1.2
  */
 #ifndef CCGL_DB_MONGOC_H
 #define CCGL_DB_MONGOC_H
