@@ -8,8 +8,8 @@
  *        value-parameterized tests of Google Test will be used.
  * \cite https://github.com/google/googletest/blob/master/googletest/samples/sample7_unittest.cc
  * \version 1.3
- * \authors Liangjun Zhu (zlj@lreis.ac.cn)
- * \revised 2017-12-02 - lj - Original version.
+ * \authors Liangjun Zhu, zlj(at)lreis.ac.cn; crazyzlj(at)gmail.com
+ * \remarks 2017-12-02 - lj - Original version.
  *          2018-05-03 - lj - Integrated into CCGL.
  *          2021-07-20 - lj - Update after changes of GetValue and GetValueByIndex.
  *          2021-11-18 - lj - Rewrite unittest cases, avoid redundancy. 

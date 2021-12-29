@@ -2,11 +2,11 @@
  * \file utils_array.h
  * \brief Template functions to initialize and release arrays.
  *
- * Changelog:
+ * \remarks
  *   - 1. 2018-05-02 - lj - Make part of CCGL.
  *   - 2. 2021-07-20 - lj - Initialize 2D array in a succesive memory.
  *
- * \author Liangjun Zhu (zlj@lreis.ac.cn)
+ * \author Liangjun Zhu, zlj(at)lreis.ac.cn
  * \version 1.1
  */
 #ifndef CCGL_UTILS_ARRAY_H

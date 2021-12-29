@@ -3,13 +3,13 @@
  * \brief Define Raster class to handle raster data
  *        Part of the Common Cross-platform Geographic Library (CCGL)
  *
- * Features:
+ * \details
  *   - 1. Using GDAL and MongoDB (currently, up to mongo-c-driver 1.16.2 was tested)
  *   - 2. Array1D and Array2D raster data are supported
  *   - 3. C++11 supported
  *   - 4. Unit Tests based Google Test.
  *
- * Changelog:
+ * \remarks
  *   - 1. Dec. 2016 lj Separated from SEIMS to a common library for widely use.
  *   - 2. Mar. 2017 lj VLD check, bug fixed, function enhanced.
  *   - 3. Apr. 2017 lj Avoid try...catch block
@@ -23,8 +23,7 @@
  *   -11. Dec. 2021 lj Comprehensive functional testing, bug fixing, and robustness improving.
  *                     Add subset feature to support data decomposition and combination.
  *
- * \author Liangjun Zhu
- * \email zlj@lreis.ac.cn
+ * \author Liangjun Zhu, zlj(at)lreis.ac.cn
  * \version 2.5
  */
 #ifndef CCGL_DATA_RASTER_H

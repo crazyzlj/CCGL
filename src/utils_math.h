@@ -2,11 +2,11 @@
  * \file utils_math.h
  * \brief Useful math equations in CCGL.
  *
- * Changelog:
+ * \remarks
  *   - 1. 2018-05-02 - lj - Make part of CCGL.
  *   - 2. 2021-07-15 - lj - Integrate pal.math for fast pow, exp, and ln
  *
- * \author Liangjun Zhu (zlj@lreis.ac.cn)
+ * \author Liangjun Zhu, zlj(a)lreis.ac.cn
  * \version 1.1
  */
 #ifndef CCGL_UTILS_MATH_H

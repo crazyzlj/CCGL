@@ -23,7 +23,7 @@
 #     4. macOS 12.1 with AppleClang-13.0 (Xcode built-in and brew installed) and GCC-11.2 (brew installed),
 #              mongo-c-driver-1.16.2, GDAL-3.3.3 (brew installed and framework by kyngchaos.com)
 #
-#  Created and maintained by Liangjun Zhu (zlj@lreis.ac.cn)
+#  Created and maintained by Liangjun Zhu, zlj(a)lreis.ac.cn
 #  Latest updated: Dec. 23, 2021
 #  Copyright (C) 2017-2021 Lreis, IGSNRR, CAS
 # ----------------------------------------------------------------------------
