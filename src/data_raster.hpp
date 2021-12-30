@@ -2885,7 +2885,7 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
             }
         }
     }
-    bson_destroy(bmeta); // Destory bson of metadata immediately after use
+    bson_destroy(bmeta); // Destroy bson of metadata immediately after use
 
     // Check if "SRS" is existed in `options_`
     if (options_.find(HEADER_RS_SRS) == options_.end()) {
@@ -2902,40 +2902,71 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
     no_data_value_ = static_cast<T>(headers_.at(HEADER_RS_NODATA));
     n_lyrs_ = CVT_INT(headers_.at(HEADER_RS_LAYERS));
 
-    assert(n_cells_ == length / sizeof(T) / n_lyrs_);
-
+    // assert(n_cells_ == length / sizeof(T) / n_lyrs_); // Avoid assert()!
+    
     int validcount = -1;
     if (headers_.find(HEADER_RS_CELLSNUM) != headers_.end()) {
         validcount = CVT_INT(headers_.at(HEADER_RS_CELLSNUM));
+    } else {
+        validcount = n_cells_;
     }
+
+    T* tmpdata = nullptr;
+    int size_dtype = length / n_cells_ / n_lyrs_;
+    int value_count = n_cells_ * n_lyrs_;
+    // Preferred sequence: double, float, int32, int16, and int8.
+    if (size_dtype == sizeof(double)) {
+        double* data_dbl = reinterpret_cast<double*>(buf);
+        Initialize1DArray(value_count, tmpdata, data_dbl);
+        Release1DArray(data_dbl);
+    } else if (size_dtype == sizeof(float)) {
+        float* data_flt = reinterpret_cast<float*>(buf);
+        Initialize1DArray(value_count, tmpdata, data_flt);
+        Release1DArray(data_flt);
+    } else if (size_dtype == sizeof(vint32_t)) {
+        vint32_t* data_int32 = reinterpret_cast<vint32_t*>(buf);
+        Initialize1DArray(value_count, tmpdata, data_int32);
+        Release1DArray(data_int32);
+    } else if (size_dtype == sizeof(vint16_t)) {
+        vint16_t* data_int16 = reinterpret_cast<vint16_t*>(buf);
+        Initialize1DArray(value_count, tmpdata, data_int16);
+        Release1DArray(data_int16);
+    } else if (size_dtype == sizeof(vint8_t)) {
+        vint8_t* data_int8 = reinterpret_cast<vint8_t*>(buf);
+        Initialize1DArray(value_count, tmpdata, data_int8);
+        Release1DArray(data_int8);
+    } else {
+        StatusMessage("Unknown data type!");
+        return false;
+    }
+    buf = nullptr;
+
     // 3. Store data.
     // check the valid values count and determine whether can read directly.
-    bool re_build_data = true;
+    bool mask_pos_subset = true;
     if (validcount <= n_cells_ && calc_pos_ && use_mask_ext_ &&
         nullptr != mask_ && validcount == mask_->GetCellNumber()) {
-        re_build_data = false;
+        mask_pos_subset = false;
         store_pos_ = false;
         mask_->GetRasterPositionData(&n_cells_, &pos_data_);
     }
-    // read data directly
+    // read data directly in two ways of getting indexes 
     if (n_lyrs_ == 1) {
-        T* tmpdata = reinterpret_cast<T *>(buf);
         Initialize1DArray(n_cells_, raster_, no_data_value_);
 #pragma omp parallel for
         for (int i = 0; i < n_cells_; i++) {
             int tmpidx = i;
-            if (!re_build_data) tmpidx = pos_data_[i][0] * GetCols() + pos_data_[i][1];
+            if (!mask_pos_subset) { tmpidx = pos_data_[i][0] * GetCols() + pos_data_[i][1]; }
             raster_[i] = static_cast<T>(tmpdata[tmpidx]);
         }
         Release1DArray(tmpdata);
         is_2draster = false;
     } else {
-        T* tmpdata = reinterpret_cast<T *>(buf);
         Initialize2DArray(n_cells_, n_lyrs_, raster_2d_, no_data_value_);
 #pragma omp parallel for
         for (int i = 0; i < n_cells_; i++) {
             int tmpidx = i;
-            if (!re_build_data) tmpidx = pos_data_[i][0] * GetCols() + pos_data_[i][1];
+            if (!mask_pos_subset) { tmpidx = pos_data_[i][0] * GetCols() + pos_data_[i][1]; }
             for (int j = 0; j < n_lyrs_; j++) {
                 int idx = tmpidx * n_lyrs_ + j;
                 raster_2d_[i][j] = static_cast<T>(tmpdata[idx]);
@@ -2944,9 +2975,8 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
         is_2draster = true;
         Release1DArray(tmpdata);
     }
-    buf = nullptr;
     CheckDefaultValue();
-    if (re_build_data) {
+    if (mask_pos_subset) {
         return MaskAndCalculateValidPosition() >= 0;
     }
     return true;
