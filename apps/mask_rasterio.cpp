@@ -1,14 +1,13 @@
 /*!
  * \brief Output single or multiple subsets of input raster(s) according to a mask layer
  *
- * \author Liang-Jun Zhu
+ * \author Liang-Jun Zhu, zlj(at)lreis.ac.cn
  * \date Feb. 2017
- * \changelog
+ * \remarks
  *     - 1. 2021-11-25 - lj - Rewrite as an stand-alone application inside CCGL
- *     - 2. 2021-12-24 - lj - Support multiple subsets
+ *     - 2. 2021-12-29 - lj - Support multiple subsets, support IO of file and MongoDB
  * 
- * E-mail:  zlj@lreis.ac.cn
- * Copyright (c) 2017-2021. LREIS, IGSNRR, CAS
+ * \copyright 2017-2021. LREIS, IGSNRR, CAS
  *
  */
 
@@ -16,50 +15,9 @@
 #include "vld.h"
 #endif /* Run Visual Leak Detector during Debug */
 
-#include "data_raster.hpp"
+#include "mask_rasterio.h"
 
-using namespace ccgl;
-using namespace data_raster;
-
-/*!
- * \class InputArgs
- * \ingroup module_setting
- * \brief Parse the input arguments of mask_raster.
- */
-class InputArgs : Interface {
-public:
-    /*!
-     * \brief Constructor by detail parameters.
-     * \param[in] mask_path Full path of mask raster
-     * \param[in] input_rasters Paths of one or more input raster
-     * \param[in] out_rasters Paths of one or more output raster
-     * \param[in] defvalues Default values for locations that covered by mask but nodata in input raster
-     * \param[in] out_datatypes Data types of one or more output raster
-     * \param[in] subset_mode Single (false, default) or multiple (true) subsets of mask
-     * \param[in] thread_num thread or processor number, which must be greater or equal than 1
-     */
-    InputArgs(string& mask_path, vector<string>& input_rasters, vector<string>& out_rasters,
-              vector<double>& defvalues, vector<string>& out_datatypes,
-              bool subset_mode = true, int thread_num = 1);
-
-    /*!
-     * \brief Initializer of input arguments.
-     * \param[in] argc Number of arguments
-     * \param[in] argv \a char* Arguments
-     */
-    static InputArgs* Init(int argc, const char** argv);
-
-public:
-    int thread_num;                    ///< thread number for OpenMP
-    string mask_path;                  ///< Path of mask raster
-    bool subset_mode;                  ///< Single (false) or multiple (true) subsets of mask
-    vector<string> rs_paths;           ///< Paths of one or more input raster
-    vector<string> out_paths;          ///< Paths of one or more output raster
-    vector<double> default_values;     ///< Default values
-    vector<string> out_types;          ///< Data types of one or more output raster
-};
-
-void Usage(const string& appname, const string& error_msg = std::string()) {
+void Usage(const string& appname, const string& error_msg /* = std::string() */) {
     if (!error_msg.empty()) {
         cout << "FAILURE: " << error_msg << endl;
     }
@@ -300,6 +258,37 @@ InputArgs::InputArgs(string& mask_path, vector<string>& input_rasters, vector<st
     rs_paths(input_rasters), out_paths(out_rasters), default_values(defvalues), out_types(out_datatypes) {
 }
 
+void mask_rasterio(IntRaster* mask_rs, vector<string>& infiles,
+                   vector<string>& outtypes, vector<double>& defvalues, vector<string>& outfiles,
+                   bool subset_mode /* = false */) {
+    STRING_MAP opts;
+#ifdef HAS_VARIADIC_TEMPLATES
+    opts.emplace(HEADER_RSOUT_DATATYPE, "");
+#else
+    opts.insert(make_pair(HEADER_RSOUT_DATATYPE, ""));
+#endif
+    for (size_t i = 0; i < infiles.size(); i++) {
+        cout << infiles[i] << endl;
+        opts[HEADER_RSOUT_DATATYPE] = outtypes[i];
+        DblIntRaster* rs = DblIntRaster::Init(infiles[i],
+                                              false, // No need to calculate valid positions
+                                              mask_rs, true, // Use entire extent of Mask
+                                              defvalues[i], // For masked nodata areas
+                                              opts // Additional options, e.g., out data type
+        );
+        if (nullptr == rs) {
+            cout << "\tError occurred! No masked raster be output!\n";
+            continue;
+        }
+        if (subset_mode) {
+            rs->OutputSubsetToFile(true, false, outfiles[i]);
+        } else {
+            rs->OutputToFile(outfiles[i]);
+        }
+        delete rs;
+    }
+}
+
 int main(const int argc, const char** argv) {
     InputArgs* input_args = InputArgs::Init(argc, argv);
     if (nullptr == input_args) { return EXIT_FAILURE; }
@@ -314,32 +303,11 @@ int main(const int argc, const char** argv) {
     if (nullptr == mask_layer) { return EXIT_FAILURE; }
     if (input_args->subset_mode) { mask_layer->BuildSubSet(); }
 
-    STRING_MAP opts;
-#ifdef HAS_VARIADIC_TEMPLATES
-    opts.emplace(HEADER_RSOUT_DATATYPE, "");
-#else
-    opts.insert(make_pair(HEADER_RSOUT_DATATYPE, ""));
-#endif
-    for (int i = 0; i < CVT_INT(input_args->rs_paths.size()); i++) {
-        cout << input_args->rs_paths[i] << endl;
-        opts[HEADER_RSOUT_DATATYPE] = input_args->out_types[i];
-        DblIntRaster* rs = DblIntRaster::Init(input_args->rs_paths[i],
-                                              false, // No need to calculate valid positions
-                                              mask_layer, true, // Use entire extent of Mask
-                                              input_args->default_values[i], // For masked nodata areas
-                                              opts // Additional options, e.g., out data type
-                                             );
-        if (nullptr == rs) {
-            cout << "\tError occurred! No masked raster be output!\n";
-            continue;
-        }
-        if (input_args->subset_mode) {
-            rs->OutputSubsetToFile(true, false, input_args->out_paths[i]);
-        } else {
-            rs->OutputToFile(input_args->out_paths[i]);
-        }
-        delete rs;
-    }
+    mask_rasterio(mask_layer,
+                  input_args->rs_paths, input_args->out_types,
+                  input_args->default_values, input_args->out_paths,
+                  input_args->subset_mode);
+
     delete mask_layer;
     delete input_args;
     return 0;

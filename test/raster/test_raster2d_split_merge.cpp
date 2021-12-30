@@ -8,8 +8,8 @@
  *        value-parameterized tests of Google Test will be used.
  * \cite https://github.com/google/googletest/blob/master/googletest/samples/sample7_unittest.cc
  * \version 1.0
- * \authors Liangjun Zhu (zlj@lreis.ac.cn)
- * \revised 2021-12-12 - lj - Original version.
+ * \authors Liangjun Zhu, zlj(at)lreis.ac.cn; crazyzlj(at)gmail.com
+ * \remarks 2021-12-12 - lj - Original version.
  *
  */
 #include "gtest/gtest.h"

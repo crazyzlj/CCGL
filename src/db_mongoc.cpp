@@ -2,13 +2,13 @@
  * \file db_mongoc.cpp
  * \brief Implementation of utility functions of MongoDB.
  *
- *  * Changelog:
+ * \remarks
  *   - 1. 2017-12-02 - lj - Add unittest based on gtest/gmock.
  *   - 2. 2018-05-02 - lj - Make part of CCGL.
  *   - 3. 2019-08-16 - lj - Add or move detail description in the implementation code.
  *
- * \author Liangjun Zhu (zlj@lreis.ac.cn)
- * \version 1.1
+ * \author Liangjun Zhu, zlj(at)lreis.ac.cn
+ * \version 1.2
  */
 #include "db_mongoc.h"
 
@@ -115,8 +115,11 @@ void MongoClient::Destroy() {
 void MongoClient::GetDatabaseNames(vector<string>& dbnames) {
     char** dbnames_char = NULL;
     bson_error_t err;
+#if MONGOC_CHECK_VERSION(1, 9, 0)
+    dbnames_char = mongoc_client_get_database_names_with_opts (conn_, NULL, &err);
+#else // deprecated from 1.9.0
     dbnames_char = mongoc_client_get_database_names(conn_, &err);
-    /// TODO: Check start version to use mongoc_client_get_database_names_with_opts()
+#endif
     if (dbnames_char) {
         if (!dbnames.empty()) {
             dbnames.clear(); // get clean vector before push database names
@@ -154,8 +157,6 @@ mongoc_collection_t* MongoClient::GetCollection(string const& dbname, string con
                 << ") failed! Error message: " << err.message << endl;
         return NULL;
     }
-    // Get collection directly from mongoc_client_t rather than database_t. -LJ.
-    // mongoc_collection_t* collection = mongoc_database_get_collection(db, collectionname.c_str());
     mongoc_database_destroy(db);
     mongoc_collection_t* collection = mongoc_client_get_collection(conn_, dbname.c_str(),
                                                                    collectionname.c_str());
@@ -213,8 +214,11 @@ MongoDatabase::~MongoDatabase() {
 void MongoDatabase::GetCollectionNames(vector<string>& collnames) {
     char **collnames_chars = NULL;
     bson_error_t err;
+#if MONGOC_CHECK_VERSION(1, 9, 0)
+    collnames_chars = mongoc_database_get_collection_names_with_opts (db_, NULL, &err);
+#else // deprecated from 1.9.0
     collnames_chars = mongoc_database_get_collection_names(db_, &err);
-    /// TODO: Use mongoc_database_get_collection_names_with_opts()
+#endif
     if (collnames_chars) {
         if (!collnames.empty()) {
             collnames.clear(); // get clean vector before push database names
@@ -268,29 +272,34 @@ MongoCollection::~MongoCollection() {
 }
 
 mongoc_cursor_t* MongoCollection::ExecuteQuery(const bson_t* b) {
-    // printf("%s\n", bson_as_json(b, NULL));
-    // TODO: mongoc_collection_find should be deprecated, however, mongoc_collection_find_with_opts
-    //       may not work in my Windows 10 both by MSVC and MINGW64.
-    //       So, remove `&& !defined(WINDOWS)` when this bug fixed. LJ
-    //       Upd 12/13/2017 The new method also failed in our linux cluster (redhat 6.2 and Intel C++ 12.1)
-    //                      So, I will uncomment these code later.
-    //#if MONGOC_CHECK_VERSION(1, 5, 0) && !defined(WINDOWS)
-    //    mongoc_cursor_t* cursor = mongoc_collection_find_with_opts(collection_, b, NULL, NULL);
-    //#else
-    mongoc_cursor_t* cursor = mongoc_collection_find(collection_, MONGOC_QUERY_NONE, 0, 0, 0, b, NULL, NULL);
-    //#endif /* MONGOC_CHECK_VERSION */
+    // NOTE: mongoc_collection_find should be deprecated from v1.5.0, however, mongoc_collection_find_with_opts
+    //       do not work in my Windows 10 both by MSVC and MINGW64.
+    //       Upd 12/13/2017 The new method also failed in our linux cluster (redhat 6.2 and Intel C++ 12.1).
+    //       Upd 12/29/2021 I decide to use new method from a quite later version such as v1.8.0.
+    //                      Maybe a precise version can be determined after a thorough test.
+    mongoc_cursor_t* cursor = nullptr;
+#if MONGOC_CHECK_VERSION(1, 8, 0)
+    cursor = mongoc_collection_find_with_opts(collection_, b, NULL, NULL);
+#else // Deprecated from 1.5.0
+    cursor = mongoc_collection_find(collection_, MONGOC_QUERY_NONE, 0, 0, 0, b, NULL, NULL);
+#endif
     return cursor;
 }
 
 vint MongoCollection::QueryRecordsCount() {
     const bson_t* q_count = bson_new();
     bson_error_t err;
-    vint count = CVT_VINT(mongoc_collection_count(collection_, MONGOC_QUERY_NONE, q_count, 0, 0, NULL, &err));
+#if MONGOC_CHECK_VERSION(1, 11, 0)
+    int64_t count = mongoc_collection_count_documents(collection_, q_count,
+                                                      NULL, NULL, NULL, &err);
+#else
+    int64_t count = mongoc_collection_count(collection_, MONGOC_QUERY_NONE, q_count, 0, 0, NULL, &err);
+#endif
     if (count < 0) {
         cout << "MongoCollection::QueryRecordsCount failed: " << err.message << endl;
         return -1;
     }
-    return count;
+    return CVT_VINT(count);
 }
 
 ///////////////////////////////////////////////////
@@ -316,7 +325,6 @@ mongoc_gridfs_file_t* MongoGridFs::GetFile(string const& gfilename, mongoc_gridf
     bson_t filter = BSON_INITIALIZER;
     BSON_APPEND_UTF8(&filter, "filename", gfilename.c_str());
     AppendStringOptionsToBson(&filter, opts);
-    // Replace `mongoc_gridfs_find_one_by_filename` by `mongoc_gridfs_find_one_with_opts`
     int count = 0;
     while (count < 5) {
         gfile = mongoc_gridfs_find_one_with_opts(gfs, &filter, NULL, &err);

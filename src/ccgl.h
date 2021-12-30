@@ -3,12 +3,12 @@
  * \brief All namespaces in CCGL.
  *        Part of the Common Cross-platform Geographic Library (CCGL)
  *
- * Changelog:
+ * \remarks
  *   - 1. 2018-05-02 - lj - Initially implementation.
  *   - 2. 2018-08-21 - lj - Doxygen comment style check.
  *   - 2. 2021-11-30 - lj - Version 2.0 released!
  *
- * \author Liangjun Zhu (crazyzlj)
+ * \author Liangjun Zhu, zlj(at)lreis.ac.cn
  * \version 2.0
  */
 #ifndef CCGL_H

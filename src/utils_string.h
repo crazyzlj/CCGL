@@ -2,11 +2,11 @@
  * \file utils_string.h
  * \brief Handling string related issues in CCGL.
  *
- * Changelog:
+ * \remarks
  *   - 1. 2018-05-02 - lj - Make part of CCGL.
  *   - 2. 2018-11-12 - lj - Add check and conversion between string and number (int, float, double)
  *
- * \author Liangjun Zhu (zlj@lreis.ac.cn)
+ * \author Liangjun Zhu, zlj(at)lreis.ac.cn
  * \version 1.1
  */
 #ifndef CCGL_UTILS_STRING_H

@@ -3,13 +3,12 @@
  *        For example, Byte, Int16, and Int32, etc.
  *        Output raster data type can be integer or float. 
  *
- * \author Liang-Jun Zhu
+ * \author Liang-Jun Zhu, zlj(at)lreis.ac.cn
  * \date Feb. 2017
- * \changelog
+ * \remarks
  *     - 1. 2021-12-21 - lj - Rewrite as an stand-alone application inside CCGL
  *
- * E-mail:  zlj@lreis.ac.cn
- * Copyright (c) 2017-2021. LREIS, IGSNRR, CAS
+ * \copyright 2017-2021. LREIS, IGSNRR, CAS
  *
  */
 
@@ -17,12 +16,9 @@
 #include "vld.h"
 #endif /* Run Visual Leak Detector during Debug */
 
-#include "data_raster.hpp"
+#include "reclassify_raster.h"
 
-using namespace ccgl;
-using namespace data_raster;
-
-bool ReadReclassMap(const string& filename, map<vint, double>& reclass_map) {
+bool read_reclassification(const string& filename, map<vint, double>& reclass_map) {
     vector<string> strs;
     if (!LoadPlainTextFile(filename, strs)) { return false; }
     for (auto it = strs.begin(); it != strs.end(); ++it) {
@@ -40,38 +36,7 @@ bool ReadReclassMap(const string& filename, map<vint, double>& reclass_map) {
     return !reclass_map.empty();
 }
 
-class InputArgs : Interface {
-public:
-    /*!
-     * \brief Constructor by detail parameters.
-     * \param[in] in_raster Paths of input raster (could be 1D or 2D raster)
-     * \param[in] recls Reclassification map
-     * \param[in] defvalues Default values for locations that not covered classification
-     * \param[in] out_rasters Paths of output rasters
-     * \param[in] outtype Data types of output raster
-     * \param[in] thread_num thread or processor number, which must be greater or equal than 1
-     */
-    InputArgs(string& in_raster, vector<map<vint, double> >& recls,
-              vector<double>& defvalues, vector<string>& out_rasters, vector<string>& outtype,
-              int thread_num = 1);
-
-    /*!
-     * \brief Initializer of input arguments.
-     * \param[in] argc Number of arguments
-     * \param[in] argv \a char* Arguments
-     */
-    static InputArgs* Init(int argc, const char** argv);
-
-public:
-    int thread_num;                     ///< thread number for OpenMP
-    string rs_path;                     ///< Path of categorized raster layer
-    vector<map<vint, double> > recls;   ///< Reclassification maps
-    vector<string> out_paths;           ///< Path of output raster
-    vector<double> def_values;          ///< Default value
-    vector<string> out_types;           ///< Data type of output raster
-};
-
-void Usage(const string& appname, const string& error_msg = std::string()) {
+void Usage(const string& appname, const string& error_msg /* = std::string() */) {
     if (!error_msg.empty()) {
         cout << "FAILURE: " << error_msg << endl;
     }
@@ -310,7 +275,7 @@ InputArgs* InputArgs::Init(const int argc, const char** argv) {
             if (item_count < 1) { continue; }
             string lookupf = ConcatFullName(lookup_dir, item_strs[0], "txt");
             map<vint, double> tmprecls;
-            if (!FileExists(lookupf) || !ReadReclassMap(lookupf, tmprecls)) {
+            if (!FileExists(lookupf) || !read_reclassification(lookupf, tmprecls)) {
                 StatusMessage("Warning: " + lookupf + " is not existed or has waring format!");
                 continue;
             }
@@ -354,32 +319,37 @@ InputArgs::InputArgs(string& in_raster, vector<map<vint, double> >& recls,
     // Do nothing
 }
 
+bool reclassify_raster(string& infile, vector<map<vint, double> >& reclsmap,
+                       vector<string>& outtypes, vector<double>& defvalues,
+                       vector<string>& outfiles){
+    DblRaster* category_rs = DblRaster::Init(infile, true);
+    if (nullptr == category_rs) {
+        cout << "Error: Initialize input categorized raster failed!" << endl;
+        return false;
+    }
+    category_rs->BuildSubSet();
+    for (auto it = reclsmap.begin(); it != reclsmap.end(); ++it) {
+        size_t idx = it - reclsmap.begin();
+        category_rs->SetOutDataType(outtypes[idx]);
+        category_rs->OutputSubsetToFile(false, // Not original raster data
+                                        true, // Output combined data
+                                        outfiles[idx], *it, defvalues[idx]);
+    }
+    delete category_rs;
+    return true;
+}
+
 int main(const int argc, const char** argv) {
     InputArgs* input_args = InputArgs::Init(argc, argv);
-    if (nullptr == input_args) { return EXIT_FAILURE; }
-
+    if (nullptr == input_args) { return 0; }
 #ifdef USE_GDAL
     GDALAllRegister();
 #endif
-
     SetOpenMPThread(input_args->thread_num);
 
-    DblRaster* category_rs = DblRaster::Init(input_args->rs_path, true);
-    if (nullptr == category_rs) {
-        delete input_args;
-        return EXIT_FAILURE;
-    }
-    category_rs->BuildSubSet();
-    for (auto it = input_args->recls.begin(); it != input_args->recls.end(); ++it) {
-        size_t idx = it - input_args->recls.begin();
-        category_rs->SetOutDataType(input_args->out_types[idx]);
-        category_rs->OutputSubsetToFile(false, // Not original raster data
-                                        true, // Output combined data
-                                        input_args->out_paths[idx],
-                                        input_args->recls[idx],
-                                        input_args->def_values[idx]);
-    }
-    delete category_rs;
+    reclassify_raster(input_args->rs_path, input_args->recls,
+                      input_args->out_types, input_args->def_values,
+                      input_args->out_paths);
     delete input_args;
     return 0;
 }

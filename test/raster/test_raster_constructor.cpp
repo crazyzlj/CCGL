@@ -2,8 +2,8 @@
  * \brief Test clsRasterData of blank constructor to make sure no exception thrown.
  *
  * \version 1.3
- * \authors Liangjun Zhu (zlj@lreis.ac.cn)
- * \revised 2017-12-02 - lj - Original version.
+ * \authors Liangjun Zhu, zlj(at)lreis.ac.cn; crazyzlj(at)gmail.com
+ * \remarks 2017-12-02 - lj - Original version.
  *          2018-05-03 - lj - Integrated into CCGL.
  *          2021-07-20 - lj - Update after changes of GetValue and GetValueByIndex.
  *          2021-11-27 - lj - Add more tests.
