@@ -143,7 +143,7 @@ INCLUDE(AddFindPaths)
 INCLUDE(GNUInstallDirs)
 
 ### Find OMP which is optional
-IF(CV_CLANG AND NOT XCODE)
+IF(CV_CLANG AND NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
   message(STATUS "Find OpenMP from LLVM")
   # To use OpenMP in Clang built by CMake, the recommended way is to
   #   install llvm alone by 'brew install llvm', which has builtin 'libomp'

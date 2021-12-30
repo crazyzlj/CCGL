@@ -41,15 +41,12 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}}
   build-windows:
     runs-on: windows-latest
-    env:
-        architecture: x64
-        generator: Visual Studio 16 2019
     steps:
     - name: Checkout CCGL
       uses: actions/checkout@v2
 
     - name: Configure CMake
-      run: cmake -A ${architecture} -G "${generator}" -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
+      run: cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
@@ -63,8 +60,7 @@ jobs:
     steps:
     - name: Setup xcode
       uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: 12.4
+
     - name: Checkout CCGL
       uses: actions/checkout@v2
 
