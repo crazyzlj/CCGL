@@ -20,13 +20,26 @@ jobs:
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:5.0
+
     steps:
     - name: Checkout CCGL
       uses: actions/checkout@v2
 
-    # https://github.com/supercharge/mongodb-github-action
-    - name: MongoDB in GitHub Actions
-      uses: supercharge/mongodb-github-action@1.7.0
+    # 1. https://github.com/supercharge/mongodb-github-action
+    # - name: MongoDB in GitHub Actions
+    #   uses: supercharge/mongodb-github-action@1.7.0
+    # 2. launch manually (untested)
+    # - name: launch
+    #   shell: bash
+    #   run: |
+    #     mkdir /tmp/d
+    #     mongod --dbpath /tmp/d --fork --logpath /tmp/log
+    #     sleep 5
+    #     echo 'db'  | mongo 127.0.0.1
 
     - name: Install mongo-c-driver
       run: sudo apt-get install -qq libmongoc-1.0-0 libmongoc-dev
@@ -48,11 +61,14 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+
+    services:
+      mongo:
+        image: mongo:5.0
+
     steps:
     - name: Checkout CCGL
       uses: actions/checkout@v2
-    - name: test mongodb
-      run: where mongod  
 
     - name: Configure CMake
       run: cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
@@ -66,6 +82,11 @@ jobs:
 
   build-mac:
     runs-on: macos-latest
+
+    services:
+      mongo:
+        image: mongo:5.0
+
     steps:
     - name: Setup xcode
       uses: maxim-lobanov/setup-xcode@v1
