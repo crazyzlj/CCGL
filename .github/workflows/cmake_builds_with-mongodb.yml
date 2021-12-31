@@ -29,7 +29,7 @@ jobs:
       uses: supercharge/mongodb-github-action@1.7.0
 
     - name: Install mongo-c-driver
-      run: sudo apt-get install -qq libssl-dev libsasl2-dev libbson-1.0-0 libmongoc-1.0-0
+      run: sudo apt-get install -qq libmongoc-1.0-0 libmongoc-dev
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -51,6 +51,8 @@ jobs:
     steps:
     - name: Checkout CCGL
       uses: actions/checkout@v2
+    - name: test mongodb
+      run: where mongod  
 
     - name: Configure CMake
       run: cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
