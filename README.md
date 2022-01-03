@@ -2,7 +2,9 @@
 
 
 [![Build on native C++](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds.yml/badge.svg)](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds.yml)
+[![Build with GDAL](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds_with-gdal.yml/badge.svg)](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds_with-gdal.yml)
 [![Build with MongoDB](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds_with-mongodb.yml/badge.svg)](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds_with-mongodb.yml)
+[![Build with GDAL and MongoDB](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds_with-gdal-mongodb.yml/badge.svg)](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds_with-gdal-mongodb.yml)
 
 
 ## UnitTest
