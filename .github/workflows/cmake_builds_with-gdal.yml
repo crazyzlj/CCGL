@@ -36,7 +36,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j 4
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -68,7 +68,7 @@ jobs:
 
     - name: Build
       shell: cmd
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:2
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:4
 
     - name: Test
       shell: cmd
@@ -81,8 +81,8 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    # - name: Setup xcode
-    #   uses: maxim-lobanov/setup-xcode@v1
+    - name: Setup xcode
+      uses: maxim-lobanov/setup-xcode@v1
 
     - name: Install GDAL
       run: brew list gdal &>/dev/null || brew install gdal
@@ -94,7 +94,7 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j 4
 
     - name: Test
       working-directory: ${{github.workspace}}/build
