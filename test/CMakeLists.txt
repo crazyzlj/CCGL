@@ -22,9 +22,10 @@ ELSE ()
     target_link_libraries(${APPNAME} ${TARGET_VISIBILITY} gtest gtest_main ${CCGLNAME})
 ENDIF ()
 
-IF (XCODE)
+IF (XCODE OR MSVC)
     # Xcode failed with gtest_discover_tests()
     # Stay tuned https://github.com/google/googletest/issues/3475#issuecomment-873690957
+    # MSVC 2019 on Github Actions also failed.
     gtest_add_tests(TARGET      ${APPNAME}
                     TEST_SUFFIX .noArgs
                     TEST_LIST   noArgsTests
