@@ -62,7 +62,7 @@ jobs:
         -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:2
 
     - name: Test
       working-directory: ${{github.workspace}}/build

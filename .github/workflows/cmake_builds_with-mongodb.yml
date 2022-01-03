@@ -82,11 +82,11 @@ jobs:
       run: |
         cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
-        -DMONGOC_ROOT= ${{github.workspace}}/mongolib `
+        -DMONGOC_ROOT=${{github.workspace}}/mongolib `
         -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:2
 
     - name: Test
       working-directory: ${{github.workspace}}/build
