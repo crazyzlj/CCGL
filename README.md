@@ -1,10 +1,9 @@
 # CCGL - Common Cross-platform Geographic-computing Library
 
 
-[![Build on native C++](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds.yml/badge.svg?branch=master)](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds.yml)
+[![Build on native C++](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds.yml/badge.svg)](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds.yml)
+[![Build with MongoDB](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds_with-mongodb.yml/badge.svg)](https://github.com/crazyzlj/CCGL/actions/workflows/cmake_builds_with-mongodb.yml)
 
-
-+ Code coverage: [![codecov](https://codecov.io/gh/crazyzlj/CCGL/branch/master/graph/badge.svg)](https://codecov.io/gh/crazyzlj/CCGL)
 
 ## UnitTest
 + [Google Test](https://github.com/google/googletest) Tag-[release-1.8.0](https://github.com/google/googletest/tree/release-1.8.0) is adopted as UnitTest framework. Note that other versions that higher than `release-1.8.0` will cause error C2220: warning treated as error - no 'object' file generated on MSVS 2013.

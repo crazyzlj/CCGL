@@ -72,7 +72,27 @@ jobs:
       run: where.exe mongod.exe
       # C:\Program Files\MongoDB\Server\5.0\bin\mongod.exe
     - name: Compile mongo-c-driver
-      run: ${{github.workspace}}\.github\workflows\compile_mongo-c-driver.ps1
+      # Build mongo-c-driver is time-consuming, I moved it to another repo. https://github.com/crazyzlj/Github_Actions_Precompiled_Packages
+      # run: ${{github.workspace}}\.github\workflows\build_mongo-c-driver.ps1
+      run: |
+        $mongoCPath = "$env:SystemDrive\mongo-c-driver"
+        $version = "1.16.2"
+        $url = "https://github.com/crazyzlj/Github_Actions_Precompiled_Packages/blob/release/releases/mongo-c-driver-$version-vs2019x64.zip"
+        $zipFile = "$mongoCPath\mongo-c-driver.zip"
+        $unzippedFolderContent ="$mongoCPath\mongo-c-driver-$version"
+        # Check if mongoCPath existed
+        if ((Test-Path -path $mongoCPath) -eq $false) {
+            mkdir $mongoCPath
+        }
+        Set-Location $mongoCPath
+        Write-Host "Downloading mongo-c-driver-$version……"
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($url,$zipFile)
+        Expand-Archive -Path $zipFile -DestinationPath "$env:SystemDrive\"
+        Write-Host "Setting environmetal paths of mongo-c-driver……"
+        $env:MONGOC_ROOT = $mongoCPath
+        $env:MONGOC_LIB_DIR = "$mongoCPath\bin"
+        $env:PATH = "$mongoCPath\bin;" + $env:PATH
 
     - name: Configure CMake
       run: cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
