@@ -15,9 +15,10 @@ $webClient.DownloadFile($url,$zipFile)
 Expand-Archive -Path $zipFile -DestinationPath "$gdalPath"
 Get-ChildItem
 Write-Host "Setting environmetal paths of GDAL……"
-$env:GDAL_DIR = $gdalPath
+$env:GDAL_ROOT = $gdalPath
 $env:GDAL_DATA = "$gdalPath\bin\gdal-data"
-$env:PATH = "$gdalPath\bin;$gdalPath\include;$gdalPath\lib;$gdalPath\bin\gdal\apps;$gdalPath\bin\gdal\java;$gdalPath\bin\proj\apps;$gdalPath\bin\curl;" + $env:PATH
-Write-Output "GDAL_DIR=$env:GDAL_DIR"
+$env:GDAL_BIN = "$gdalPath\bin;$gdalPath\include;$gdalPath\lib;$gdalPath\bin\gdal\apps;$gdalPath\bin\gdal\java;$gdalPath\bin\proj\apps;$gdalPath\bin\curl;"
+
+Write-Output "GDAL_DIR=$env:GDAL_ROOT"
 Write-Output "GDAL_DATA=$env:GDAL_DATA"
-Write-Output "PATH=$env:PATH"
+Write-Output "PATH=$env:GDAL_BIN"

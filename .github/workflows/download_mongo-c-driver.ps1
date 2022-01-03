@@ -14,8 +14,7 @@ Expand-Archive -Path $zipFile -DestinationPath "$mongoCPath"
 Get-ChildItem
 Write-Host "Setting environmetal paths of mongo-c-driver……"
 $env:MONGOC_ROOT = $mongoCPath
-$env:MONGOC_LIB_DIR = "$mongoCPath\bin"
-$env:PATH = "$mongoCPath\bin;" + $env:PATH
+$env:MONGOC_BIN = "$mongoCPath\bin;"
+
 Write-Output "MONGOC_ROOT=$env:MONGOC_ROOT"
-Write-Output "MONGOC_LIB_DIR=$env:MONGOC_LIB_DIR"
-Write-Output "PATH=$env:PATH"
+Write-Output "MONGOC_BIN=$env:MONGOC_BIN"

@@ -78,15 +78,17 @@ jobs:
       # Instead, download the prebuilt library directly.
       #
       # Set Env, refers to https://github.com/mstum/Simplexcel/blob/master/.github/workflows/cibuild.yml
+      id: pwshdownmongo
+      shell: pwsh
       run: |
         cd ${{github.workspace}}\.github\workflows
         ./download_mongo-c-driver.ps1 -mongoCPath ${{github.workspace}}/mongolib
         Get-ChildItem Env: | Where-Object {$_.Name -Match "^MONGO_"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
-        Get-ChildItem Env: | Where-Object {$_.Name -Match "^PATH"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
 
     - name: Configure CMake
       run: |
         cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build `
+        -DMONGOC_ROOT=${{ steps.pwshdownmongo.outputs.MONGOC_ROOT }} `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
@@ -94,7 +96,9 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: |
+        echo ${{ steps.pwshdownmongo.outputs.MONGOC_BIN }} >> $GITHUB_PATH
+        ctest -C ${{env.BUILD_TYPE}}
 
   build-mac:
     runs-on: macos-latest
