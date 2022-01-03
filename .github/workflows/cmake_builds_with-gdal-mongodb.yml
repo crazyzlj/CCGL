@@ -118,8 +118,8 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - name: Setup xcode
-      uses: maxim-lobanov/setup-xcode@v1
+    # - name: Setup xcode
+    #   uses: maxim-lobanov/setup-xcode@v1
 
     # default mongod install path: /usr/local/bin/mongod
     # default mongod.conf: /usr/local/etc/mongod.conf
