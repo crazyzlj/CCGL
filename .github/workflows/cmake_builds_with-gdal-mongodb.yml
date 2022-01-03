@@ -97,9 +97,9 @@ jobs:
     - name: Configure CMake
       shell: cmd
       run: |
-        cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build `
-        -DGDAL_ROOT=${{ steps.pwshdowngdal.outputs.GDAL_ROOT }} `
-        -DMONGOC_ROOT=${{ steps.pwshdownmongo.outputs.MONGOC_ROOT }} `
+        cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build ^
+        -DGDAL_ROOT=${{ steps.pwshdowngdal.outputs.GDAL_ROOT }} ^
+        -DMONGOC_ROOT=${{ steps.pwshdownmongo.outputs.MONGOC_ROOT }} ^
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
