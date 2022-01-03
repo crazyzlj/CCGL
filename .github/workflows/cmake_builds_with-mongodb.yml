@@ -100,7 +100,7 @@ jobs:
       shell: pwsh
       working-directory: ${{github.workspace}}/build
       run: |
-        echo ${{ steps.pwshdownmongo.outputs.MONGOC_BIN }} >> $GITHUB_PATH
+        echo "${{ steps.pwshdownmongo.outputs.MONGOC_BIN }}" | Out-File -FilePath $env:GITHUB_PATH -Append
         ctest -C ${{env.BUILD_TYPE}}
 
   build-mac:

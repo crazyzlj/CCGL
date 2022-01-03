@@ -109,9 +109,10 @@ jobs:
     - name: Test
       shell: pwsh
       working-directory: ${{github.workspace}}/build
+      # Set Env in pwsh, refers to https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
       run: |
-        echo ${{ steps.pwshdowngdal.outputs.GDAL_BIN }} >> $GITHUB_PATH
-        echo ${{ steps.pwshdownmongo.outputs.MONGOC_BIN }} >> $GITHUB_PATH
+        echo "${{ steps.pwshdowngdal.outputs.GDAL_BIN }}" | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo "${{ steps.pwshdownmongo.outputs.MONGOC_BIN }}" | Out-File -FilePath $env:GITHUB_PATH -Append
         ctest -C ${{env.BUILD_TYPE}}
 
   build-mac:
