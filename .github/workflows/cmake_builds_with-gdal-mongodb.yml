@@ -95,7 +95,7 @@ jobs:
         Get-ChildItem Env: | Where-Object {$_.Name -Match "^GDAL"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
 
     - name: Configure CMake
-      shell: pwsh
+      shell: cmd
       run: |
         cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build `
         -DGDAL_ROOT=${{ steps.pwshdowngdal.outputs.GDAL_ROOT }} `
@@ -103,16 +103,15 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
-      shell: pwsh
+      shell: cmd
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:2
 
     - name: Test
-      shell: pwsh
+      shell: cmd
       working-directory: ${{github.workspace}}/build
       # Set Env in pwsh, refers to https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
       run: |
-        echo "${{ steps.pwshdowngdal.outputs.GDAL_BIN }}" | Out-File -FilePath $env:GITHUB_PATH -Append
-        echo "${{ steps.pwshdownmongo.outputs.MONGOC_BIN }}" | Out-File -FilePath $env:GITHUB_PATH -Append
+        set PATH=${{ steps.pwshdowngdal.outputs.GDAL_BIN }};${{ steps.pwshdownmongo.outputs.MONGOC_BIN }};%PATH%
         ctest -C ${{env.BUILD_TYPE}}
 
   build-mac:
