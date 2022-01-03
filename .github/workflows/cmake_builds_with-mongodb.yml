@@ -76,14 +76,18 @@ jobs:
       # Build mongo-c-driver is time-consuming, I moved it to another repo. https://github.com/crazyzlj/Github_Actions_Precompiled_Packages
       # run: ${{github.workspace}}\.github\workflows\build_mongo-c-driver.ps1
       # Instead, download the prebuilt library directly.
-      run: ${{github.workspace}}\.github\workflows\download_mongo-c-driver.ps1 -mongoCPath ${{github.workspace}}/mongolib
+      #
+      # Set Env, refers to https://github.com/mstum/Simplexcel/blob/master/.github/workflows/cibuild.yml
+      run: |
+        cd ${{github.workspace}}\.github\workflows
+        ./download_mongo-c-driver.ps1 -mongoCPath ${{github.workspace}}/mongolib
+        Get-ChildItem Env: | Where-Object {$_.Name -Match "^MONGO_"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
+        Get-ChildItem Env: | Where-Object {$_.Name -Match "^PATH"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
 
     - name: Configure CMake
       run: |
         cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build `
-        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
-        -DMONGOC_ROOT=${{github.workspace}}/mongolib `
-        -DUNITTEST=1 -DFORCEDOWNGTEST=1
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:2
