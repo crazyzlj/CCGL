@@ -56,19 +56,22 @@ jobs:
       shell: pwsh
       run: |
         cd ${{github.workspace}}\.github\workflows
-        ./download_gdal.ps1 -gdalPath ${{github.workspace}}/gdallib
-        Get-ChildItem Env: | Where-Object {$_.Name -Match "^GDAL_"} | %{ echo "name=$($_.Name)::$($_.Value)" >> $GITHUB_ENV }
+        ./download_gdal.ps1 -gdalPath ${{github.workspace}}\gdallib
+        Get-ChildItem Env: | Where-Object {$_.Name -Match "^GDAL"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
 
     - name: Configure CMake
+      shell: pwsh
       run: |
         cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build `
         -DGDAL_ROOT=${{ steps.pwshdowngdal.outputs.GDAL_ROOT }} `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
+      shell: pwsh
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:2
 
     - name: Test
+      shell: pwsh
       working-directory: ${{github.workspace}}/build
       run: |
         echo ${{ steps.pwshdowngdal.outputs.GDAL_BIN }} >> $GITHUB_PATH

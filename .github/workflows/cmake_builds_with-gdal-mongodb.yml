@@ -79,30 +79,40 @@ jobs:
       # Build mongo-c-driver is time-consuming, I moved it to another repo. https://github.com/crazyzlj/Github_Actions_Precompiled_Packages
       # run: ${{github.workspace}}\.github\workflows\build_mongo-c-driver.ps1
       # Instead, download the prebuilt library directly.
+      id: pwshdownmongo
+      shell: pwsh
       run: |
         cd ${{github.workspace}}\.github\workflows
         ./download_mongo-c-driver.ps1 -mongoCPath ${{github.workspace}}/mongolib
-        Get-ChildItem Env: | Where-Object {$_.Name -Match "^MONGO_"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
-        Get-ChildItem Env: | Where-Object {$_.Name -Match "^PATH"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
+        Get-ChildItem Env: | Where-Object {$_.Name -Match "^MONGO"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
 
-    # - name: Download GDAL
-    #   run: |
-    #     cd ${{github.workspace}}\.github\workflows
-    #     ./download_gdal.ps1 -gdalPath ${{github.workspace}}/gdallib
-    #     Get-ChildItem Env: | Where-Object {$_.Name -Match "^GDAL_"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
-    #     Get-ChildItem Env: | Where-Object {$_.Name -Match "^PATH"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
+    - name: Download GDAL
+      id: pwshdowngdal
+      shell: pwsh
+      run: |
+        cd ${{github.workspace}}\.github\workflows
+        ./download_gdal.ps1 -gdalPath ${{github.workspace}}\gdallib
+        Get-ChildItem Env: | Where-Object {$_.Name -Match "^GDAL"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
 
     - name: Configure CMake
+      shell: pwsh
       run: |
         cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build `
+        -DGDAL_ROOT=${{ steps.pwshdowngdal.outputs.GDAL_ROOT }} `
+        -DMONGOC_ROOT=${{ steps.pwshdownmongo.outputs.MONGOC_ROOT }} `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
+      shell: pwsh
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:2
 
     - name: Test
+      shell: pwsh
       working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: |
+        echo ${{ steps.pwshdowngdal.outputs.GDAL_BIN }} >> $GITHUB_PATH
+        echo ${{ steps.pwshdownmongo.outputs.MONGOC_BIN }} >> $GITHUB_PATH
+        ctest -C ${{env.BUILD_TYPE}}
 
   build-mac:
     runs-on: macos-latest

@@ -83,18 +83,21 @@ jobs:
       run: |
         cd ${{github.workspace}}\.github\workflows
         ./download_mongo-c-driver.ps1 -mongoCPath ${{github.workspace}}/mongolib
-        Get-ChildItem Env: | Where-Object {$_.Name -Match "^MONGO_"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
+        Get-ChildItem Env: | Where-Object {$_.Name -Match "^MONGO"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
 
     - name: Configure CMake
+      shell: pwsh
       run: |
         cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build `
         -DMONGOC_ROOT=${{ steps.pwshdownmongo.outputs.MONGOC_ROOT }} `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
 
     - name: Build
+      shell: pwsh
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- /m:2
 
     - name: Test
+      shell: pwsh
       working-directory: ${{github.workspace}}/build
       run: |
         echo ${{ steps.pwshdownmongo.outputs.MONGOC_BIN }} >> $GITHUB_PATH
