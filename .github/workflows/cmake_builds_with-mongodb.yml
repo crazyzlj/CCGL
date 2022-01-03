@@ -22,8 +22,10 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mongo:
-        image: mongo:5.0
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
 
     steps:
     - name: Checkout CCGL
@@ -62,13 +64,12 @@ jobs:
   build-windows:
     runs-on: windows-latest
 
-    services:
-      mongo:
-        image: mongo:5.0
-
     steps:
     - name: Checkout CCGL
       uses: actions/checkout@v2
+
+    - name: Find mongod.exe
+      run: where.exe mongod.exe
 
     - name: Configure CMake
       run: cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
@@ -84,8 +85,10 @@ jobs:
     runs-on: macos-latest
 
     services:
-      mongo:
-        image: mongo:5.0
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
 
     steps:
     - name: Setup xcode
