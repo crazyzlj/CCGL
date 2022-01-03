@@ -70,6 +70,10 @@ jobs:
 
     - name: Find mongod.exe
       run: where.exe mongod.exe
+      # C:\Program Files\MongoDB\Server\5.0\bin\mongod.exe
+    - name: Compile mongo-c-driver
+      run: |
+        .\compile_mongo-c-driver.ps1
 
     - name: Configure CMake
       run: cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
@@ -83,12 +87,6 @@ jobs:
 
   build-mac:
     runs-on: macos-latest
-
-    services:
-      mongodb:
-        image: mongo
-        ports:
-          - 27017:27017
 
     steps:
     - name: Setup xcode
