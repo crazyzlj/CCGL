@@ -1,8 +1,10 @@
 ﻿param ($gdalPath = "$env:SystemDrive\gdal", $VSversion = "1928", $GDALversion = "3.3.3", $MAPSversion = "7.6.4")
 $GDALversion=$GDALversion -replace '\.','-'
 $MAPSversion=$MAPSversion -replace '\.','-'
-$url = "https://download.gisinternals.com/sdk/downloads/release-$VSversion-x64-gdal-$GDALversion-mapserver-$MAPSversion-libs.zip"
-$zipFile = "$gdalPath\gdal.zip"
+$urllib = "https://download.gisinternals.com/sdk/downloads/release-$VSversion-x64-gdal-$GDALversion-mapserver-$MAPSversion-libs.zip"
+$urlbin = "https://download.gisinternals.com/sdk/downloads/release-$VSversion-x64-gdal-$GDALversion-mapserver-$MAPSversion.zip"
+$zipLibFile = "$gdalPath\gdallib.zip"
+$zipBinFile = "$gdalPath\gdal.zip"
 
 # Check if gdalPath existed
 if ((Test-Path -path $gdalPath) -eq $false) {
@@ -11,8 +13,10 @@ if ((Test-Path -path $gdalPath) -eq $false) {
 Set-Location $gdalPath
 Write-Host "Downloading GDAL-$GDALversion-mapserver-$MAPSversion built by VS-$VSversion……"
 $webClient = New-Object System.Net.WebClient
-$webClient.DownloadFile($url,$zipFile)
-Expand-Archive -Path $zipFile -DestinationPath "$gdalPath"
+$webClient.DownloadFile($urllib,$zipLibFile)
+$webClient.DownloadFile($urlbin,$zipBinFile)
+Expand-Archive -Path $zipLibFile -DestinationPath "$gdalPath"
+Expand-Archive -Path $zipBinFile -DestinationPath "$gdalPath"
 Get-ChildItem
 Write-Host "Setting environmetal paths of GDAL……"
 $env:GDAL_ROOT = $gdalPath
