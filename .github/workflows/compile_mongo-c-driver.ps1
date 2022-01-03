@@ -21,13 +21,13 @@ if ((Test-Path -path $mongoCPath) -eq $false) {
     mkdir $mongoCPath
     Set-Location $mongoCPath
     Write-Host "Downloading mongo-c-driver……"
-    #$webClient = New-Object System.Net.WebClient
-    #$webClient.DownloadFile($url,$zipFile)
-    #tar -xzf $zipFile
+    $webClient = New-Object System.Net.WebClient
+    $webClient.DownloadFile($url,$zipFile)
+    tar -xzf $zipFile
     Write-Host "Compiling mongo-c-driver……"
     Set-Location $unzippedFolderContent
     # Refers to http://mongoc.org/libmongoc/current/installing.html
-    # mkdir cmake-build
+    mkdir cmake-build
     Set-Location cmake-build
     cmake -G "Visual Studio 16 2019" -A x64 "-DCMAKE_INSTALL_PREFIX=$mongoCPath" `
     "-DCMAKE_PREFIX_PATH=$mongoCPath" -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF ..

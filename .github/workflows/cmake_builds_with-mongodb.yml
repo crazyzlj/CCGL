@@ -91,10 +91,22 @@ jobs:
     - name: Setup xcode
       uses: maxim-lobanov/setup-xcode@v1
 
+    # default mongod install path: /usr/local/bin/mongod
+    # default mongod.conf: /usr/local/etc/mongod.conf
+    # systemLog:
+    #   destination: file
+    #   path: /usr/local/var/log/mongodb/mongo.log
+    #   logAppend: true
+    # storage:
+    #   dbPath: /usr/local/var/mongodb
+    # net:
+    #   bindIp: 127.0.0.1
     - name: Check mongod
       run: |
         which mongod
         cat /usr/local/etc/mongod.conf
+    - name: Start mongod manually
+      run: mongod --config /usr/local/etc/mongod.conf --fork
 
     - name: Install mongo-c-driver
       run: brew install mongo-c-driver
