@@ -2304,7 +2304,7 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
                 else { // Will not happen
                     StatusMessage("Error: No subset or reclassification map can be output!");
                     if (nullptr != data1d) { Release1DArray(data1d); }
-                    return nullptr;
+                    return false;
                 }
             }
         }
