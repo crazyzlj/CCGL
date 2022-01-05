@@ -358,7 +358,7 @@ TEST_P(clsRasterDataTestMask2D, NoPos) {
         string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
         MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
         gfs->RemoveFile(gfsfilename);
-        copyrs->OutputToMongoDB(gfsfilename, gfs);
+        copyrs->OutputToMongoDB(gfs, gfsfilename);
         double stime = TimeCounting();
         FltIntRaster* mongors = FltIntRaster::Init(gfs, gfsfilename.c_str(),
                                                    false, maskrs_);
@@ -592,7 +592,7 @@ TEST_P(clsRasterDataTestMask2D, CalcPos) {
         string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
         MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
         gfs->RemoveFile(gfsfilename);
-        copyrs->OutputToMongoDB(gfsfilename, gfs);
+        copyrs->OutputToMongoDB(gfs, gfsfilename);
         double stime = TimeCounting();
         FltIntRaster* mongors = FltIntRaster::Init(gfs, gfsfilename.c_str(),
                                                    true, maskrs_);

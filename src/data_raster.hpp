@@ -103,7 +103,7 @@ CONST_CHARS HEADER_RS_NCOLS = "NCOLS";
 CONST_CHARS HEADER_RS_CELLSIZE = "CELLSIZE";
 /*! Layers number */
 CONST_CHARS HEADER_RS_LAYERS = "LAYERS";
-/*! Cell number */
+/*! Valid cells' number */
 CONST_CHARS HEADER_RS_CELLSNUM = "CELLSNUM";
 /*! SRS */
 CONST_CHARS HEADER_RS_SRS = "SRS";
@@ -111,6 +111,8 @@ CONST_CHARS HEADER_RS_SRS = "SRS";
 CONST_CHARS HEADER_RS_DATATYPE = "DATATYPE";
 /*! Desired output data type of raster */
 CONST_CHARS HEADER_RSOUT_DATATYPE = "DATATYPE_OUT";
+/*! Include nodata ("true" or "false"), specific for storage in database */
+CONST_CHARS HEADER_INC_NODATA = "INCLUDE_NODATA";
 
 /*! Valid cell number */
 CONST_CHARS STATS_RS_VALIDNUM = "VALID_CELLNUMBER";
@@ -346,6 +348,36 @@ public:
             Initialize2DArray(n_cells, n_lyrs, data2d_, data2d);
         }
         return true;
+    }
+    void GetHeader(double gxll, double gyll, int gnrows, double cellsize,
+                   double nodata, map<string, double>& subheader) {
+        subheader[HEADER_RS_XLL] = g_scol * cellsize + gxll;
+        subheader[HEADER_RS_YLL] = (gnrows - g_erow - 1) * cellsize + gyll;
+        subheader[HEADER_RS_NODATA] = nodata;
+        subheader[HEADER_RS_NROWS] = CVT_DBL(g_erow - g_srow + 1);
+        subheader[HEADER_RS_NCOLS] = CVT_DBL(g_ecol - g_scol + 1);
+        subheader[HEADER_RS_CELLSIZE] = cellsize;
+    }
+    template <typename T>
+    void Output(T nodata, vector<T*> fulldata) {
+        if (nullptr == data_ && nullptr == data2d_) { return; }
+        int nrows = g_erow - g_srow + 1;
+        int ncols = g_ecol - g_scol + 1;
+        int fullsize = nrows * ncols;
+        for (int ilyr = 0; ilyr < n_lyrs; ilyr++) {
+            T* tmpdata = nullptr;
+            Initialize1DArray(fullsize, tmpdata, nodata);
+            for (int vi = 0; vi < n_cells; vi++) {
+                int j = local_pos_[vi][0] * ncols + local_pos_[vi][1];
+                if (n_lyrs > 1 && nullptr != data2d_) {
+                    tmpdata[j] = static_cast<T>(data2d_[vi][ilyr]);
+                }
+                else if (n_lyrs == 1 && nullptr != data_) {
+                    tmpdata[j] = static_cast<T>(data_[vi]);
+                }
+            }
+            fulldata.emplace_back(tmpdata);
+        }
     }
 
     int n_cells; ///< valid cell count
@@ -584,22 +616,22 @@ public:
     /************* Write functions ***************/
 
     /*!
-     * \brief Write raster to raster file, if 2D raster, output name will be corename_LyrNum
+     * \brief Write the whole raster to raster file, if 2D raster, output name will be corename_LyrNum
      * \param filename filename with prefix, e.g. ".asc" and ".tif"
-     * \param out_subset (Optional) Write subset's data to a single raster file, i.e., merging
+     * \param out_subset (Optional) Write combination of subset's data, i.e., merging
      */
     bool OutputToFile(const string& filename, bool out_subset = false);
 
     /*!
-     * \brief Write one or more raster's subset to files, name format: corename_SubNum_LyrNum
+     * \brief Write one or more raster's subset to files, default name format: corename_SubID_LyrNum
      * \param out_origin (Optional) Output original raster data or data_ assigned for subset
      * \param out_combined (Optional) Output combined data of subset
-     * \param outpath (Optional) Output directory, if not specified, use origin raster's directory
+     * \param outname (Optional) Output filename, if not specified, use origin raster's directory
      * \param recls (Optional) Reclassification map, no need to SetData before output subset
      * \param default_value (Optional) Default value for missed type of reclassification map
      */
     bool OutputSubsetToFile(bool out_origin = false, bool out_combined = true,
-                            const string& outpath = std::string(),
+                            const string& outname = string(),
                             const map<vint, double>& recls = map<vint, double>(),
                             double default_value = NODATA_VALUE);
 
@@ -618,13 +650,38 @@ public:
 #ifdef USE_MONGODB
 
     /*!
-     * \brief Write raster data (matrix raster data) into MongoDB
-     * \param[in] filename \a string, output file name
-     * \param[in] gfs \a mongoc_gridfs_t
-     * \param[in] opts (optional) Key-value map for user-specific metadata
+     * \brief Write the whole raster data to MongoDB, name format: corename__LyrNum
+     * \param gfs \a mongoc_gridfs_t
+     * \param filename (Optional) File name, default is the core file name of input
+     * \param opts (Optional) Key-value map for user-specific metadata
+     * \param include_nodata (Optional) Include nodata or not
+     * \param out_subset (Optional) Write combination of subset's data, i.e., merging
      */
-    bool OutputToMongoDB(const string& filename, MongoGridFs* gfs,
-                         const STRING_MAP& opts = STRING_MAP());
+    bool OutputToMongoDB(MongoGridFs* gfs, const string& filename = string(), 
+                         const STRING_MAP& opts = STRING_MAP(),
+                         bool include_nodata = true, bool out_subset = false);
+
+    /*!
+     * \brief Write one or more raster's subset to MongoDB,
+     *
+     *        File name format in GridFS: corename_SubID_LyrNum, if SubID < 0, use 'n' as the prefix.
+     *        e.g., corename_n1_1, corename_2_1, corename_3_1
+     *
+     * \param gfs \a mongoc_gridfs_t
+     * \param filename (Optional) Core file name
+     * \param opts (Optional) Key-value map for additional user-specific metadata
+     * \param out_origin (Optional) Output original raster data or data_ assigned for subset
+     * \param out_combined (Optional) Output combined data of subset
+     * \param include_nodata (Optional) Include nodata or not
+     * \param recls (Optional) Reclassification map, no need to SetData before output subset
+     * \param default_value (Optional) Default value for missed type of reclassification map
+     */
+    bool OutputSubsetToMongoDB(MongoGridFs* gfs, const string& filename = string(),
+                               const STRING_MAP& opts = STRING_MAP(),
+                               bool out_origin = false, bool out_combined = true,
+                               bool include_nodata = true,
+                               const map<vint, double>& recls = map<vint, double>(),
+                               double default_value = NODATA_VALUE);
 
 #endif /* USE_MONGODB */
 
@@ -808,11 +865,27 @@ public:
     //! Get cell size of raster data
     double GetCellWidth() const { return headers_.at(HEADER_RS_CELLSIZE); }
 
-    //! Get X coordinate of left lower corner of raster data
-    double GetXllCenter() const { return headers_.at(HEADER_RS_XLL); }
+    //! Get X coordinate of left lower center of raster data
+    double GetXllCenter() const {
+        if (headers_.find(HEADER_RS_XLL) != headers_.end()) {
+            return headers_.at(HEADER_RS_XLL);
+        }
+        if (headers_.find(HEADER_RS_XLLCOR) != headers_.end()) {
+            return headers_.at(HEADER_RS_XLLCOR) + 0.5 * GetCellWidth();
+        }
+        return NODATA_VALUE;
+    }
 
-    //! Get Y coordinate of left lower corner of raster data
-    double GetYllCenter() const { return headers_.at(HEADER_RS_YLL); }
+    //! Get Y coordinate of left lower center of raster data
+    double GetYllCenter() const {
+        if (headers_.find(HEADER_RS_YLL) != headers_.end()) {
+            return headers_.at(HEADER_RS_YLL);
+        }
+        if (headers_.find(HEADER_RS_YLLCOR) != headers_.end()) {
+            return headers_.at(HEADER_RS_YLLCOR) + 0.5 * GetCellWidth();
+        }
+        return NODATA_VALUE;
+    }
 
     int GetLayers() const {
         // assert(n_lyrs_ == CVT_INT(headers_.at(HEADER_RS_LAYERS)));
@@ -1100,6 +1173,30 @@ private:
      *
      */
     void CalculateValidPositionsFromGridData();
+
+    /*!
+     * \brief Prepare combination data array of subsets for output
+     */
+    bool PrepareCombSubsetData(T**values, int* datalen, int* datalyrs,
+                               bool include_nodata = true,
+                               const map<vint, double>&recls = map<vint, double>(),
+                               double default_value = NODATA_VALUE);
+
+    /*!
+     * \brief Prepare data array of subsets for output
+     */
+    bool PrepareSubsetData(int sub_id, SubsetPositions* sub,
+                           T** values, int* datalen, int* datalyrs,
+                           bool out_origin = false, bool include_nodata = true,
+                           const map<vint, double>& recls = map<vint, double>(),
+                           double default_value = NODATA_VALUE);
+
+    /*!
+     * \brief Output full size raster data to files
+     */
+    bool OutputFullsizeToFiles(T* fullsizedata, const int fsize, const int datalyrs,
+                               const string& fullfilename, const map<string, double>& header,
+                               const STRING_MAP& opts);
 
     /*!
      * \brief Write raster header information into ASC file
@@ -2061,8 +2158,8 @@ void clsRasterData<T, MASK_T>::SetValue(const int row, const int col, T value, c
 
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::SetCalcPositions() {
-    if (!ValidateRasterData()) return false;
-    if (calc_pos_) return false; // already set as True, no need to recalculate.
+    if (!ValidateRasterData()) { return false; }
+    if (calc_pos_) { return false; } // already set as True, no need to recalculate.
     calc_pos_ = true;
     return MaskAndCalculateValidPosition() >= 0;
 }
@@ -2079,7 +2176,7 @@ bool clsRasterData<T, MASK_T>::SetUseMaskExt() {
 /************* Output to file functions ***************/
 
 template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::OutputToFile(const string& filename, bool out_subset /* = false */) {
+bool clsRasterData<T, MASK_T>::OutputToFile(const string& filename, const bool out_subset /* = false */) {
     if (GetPathFromFullName(filename).empty()) { return false; }
     string abs_filename = GetAbsolutePath(filename);
     if (!ValidateRasterData()) { return false; }
@@ -2102,150 +2199,194 @@ bool clsRasterData<T, MASK_T>::OutputToFile(const string& filename, bool out_sub
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = false */,
                                                   const bool out_combined /* = true */,
-                                                  const string& outpath /* = string() */,
-                                                  const map<vint, double>& recls,
-                                                  const double default_value) {
+                                                  const string& outname /* = string() */,
+                                                  const map<vint, double>& recls /* map<vint, double>() */,
+                                                  const double default_value /*  = NODATA_VALUE */) {
     if (!ValidateRasterData()) { return false; }
     if (subset_.empty()) { return false; }
-    string filetype = GetSuffix(full_path_);
-    double cellsize = GetCellWidth();
     int gcols = GetCols();
     int grows = GetRows();
-    int gncells = gcols * grows;
-    double xll, yll; // lower left center
-    bool llcenter = false;
-    if (headers_.find(HEADER_RS_XLL) != headers_.end()
-        && headers_.find(HEADER_RS_YLL) != headers_.end()) {
-        llcenter = true;
-    } else if (headers_.find(HEADER_RS_XLLCOR) != headers_.end()
-        && headers_.find(HEADER_RS_YLLCOR) != headers_.end()) {
-        llcenter = false;
-    } else { return false; } // No LL coordinates existed in headers_
+    int gncells = gcols * grows; // global full size
+    string outpathact = full_path_;
+    if (!outname.empty()) {
+        outpathact = outname;
+        if (PathExists(outname)) {
+            if (outpathact.back() != SEP) { outpathact += SEP; }
+            outpathact += core_name_;
+            outpathact += "." + GetSuffix(full_path_);
+        }
+    }
+    // output combined subsets
     bool out_comb = out_combined;
     if (out_comb) {
-        for (auto it = subset_.begin(); it != subset_.end(); ++it) {
-            if (!(nullptr != it->second->data_    // Only if all subset have data_
-                || nullptr != it->second->data2d_ // or data2d_, 
-                || !recls.empty()))               // or reclassification map specified
-            {   out_comb = false;
-                break;
-            }
-        }
+        T* data1d = nullptr;
+        int sublyrs;
+        int sublen;
+        return PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
+                                     false, recls, default_value) &&
+                OutputFullsizeToFiles(data1d, sublen / sublyrs, sublyrs,
+                                      outpathact, headers_, options_);
     }
-    if (out_comb) {
-        T* data1d = nullptr; // combined raster 1D data
-        T** data2d = nullptr; // combined raster 2D data
-        for (auto it = subset_.begin(); it != subset_.end(); ++it) {
-            for (int ilyr = 0; ilyr < n_lyrs_; ilyr++) {
-                if (!recls.empty() || nullptr != it->second->data_) { 
-                    if (nullptr == data1d) { Initialize1DArray(gncells, data1d, no_data_value_); }
-                    double uniqe_value = default_value;
-                    if (!recls.empty() && recls.count(it->first) > 0) {
-                        uniqe_value = recls.at(it->first);
-                    }
-                    for (int vi = 0; vi < it->second->n_cells; vi++) {
-                        int tmpr = pos_data_[it->second->global_[vi]][0];
-                        int tmpc = pos_data_[it->second->global_[vi]][1];
-                        if (!recls.empty()) {
-                            data1d[tmpr * gcols + tmpc] = static_cast<T>(uniqe_value);
-                        } else {
-                            data1d[tmpr * gcols + tmpc] = static_cast<T>(it->second->data_[vi]);
-                        }
-                    }
-                }
-                else if (nullptr != it->second->data2d_) {
-                    if (nullptr == data2d) {
-                        Initialize2DArray(gncells, n_lyrs_, data2d, no_data_value_);
-                    }
-                    for (int vi = 0; vi < it->second->n_cells; vi++) {
-                        int tmpr = pos_data_[it->second->global_[vi]][0];
-                        int tmpc = pos_data_[it->second->global_[vi]][1];
-                        data2d[tmpr * gcols + tmpc][ilyr] = static_cast<T>(it->second->data2d_[vi][ilyr]);
-                    }
-                }
-            }
-        }
-        if (nullptr != data1d) {
-            WriteRasterToFile(outpath, headers_, options_, data1d);
-            Release1DArray(data1d);
-        }
-        if (nullptr != data2d) {
-            T** data_1d_ptr = new T * [gncells]; // array of pointers for directly output
-            for (int ilyr = 0; ilyr < n_lyrs_; ilyr++) {
-                for (int gi = 0; gi < gncells; gi++) {
-                    data_1d_ptr[gi] = data2d[0] + gi * n_lyrs_ + ilyr;
-                }
-                WriteRasterToFile(AppendCoreFileName(outpath,
-                                                     itoa(CVT_VINT(ilyr))),
-                                  headers_, options_, *data_1d_ptr);
-            }
-            Release1DArray(data_1d_ptr);
-            Release2DArray(data2d);
-        }
-        return true;
-    }
-    string subfname = outpath.empty() ? GetPathFromFullName(full_path_)
-                                      : GetPathFromFullName(outpath);
+    // output each subset
+    string filetype = GetSuffix(outpathact);
+    string subfname = GetPathFromFullName(outpathact);
+    string corename = GetCoreFileName(outpathact);
     if (subfname.back() != SEP) { subfname += SEP; }
-    subfname += core_name_;
+    subfname += corename;
     subfname += "_";
     map<string, double> subheader;
+    bool flag = true;
     for (auto it = subset_.begin(); it != subset_.end(); ++it) {
-        if (llcenter) {
-            xll = it->second->g_scol * cellsize + headers_.at(HEADER_RS_XLL);
-            yll = (GetRows() - it->second->g_erow - 1) * cellsize + headers_.at(HEADER_RS_YLL);
-        } else {
-            xll = (it->second->g_scol + 0.5) * cellsize + headers_.at(HEADER_RS_XLLCOR);
-            yll = (GetRows() - it->second->g_erow - 0.5) * cellsize + headers_.at(HEADER_RS_YLLCOR);
+        it->second->GetHeader(GetXllCenter(), GetYllCenter(), GetRows(),
+                              GetCellWidth(), CVT_DBL(no_data_value_), subheader);
+        T* tmpdata1d = nullptr;
+        int tmpdatalen;
+        int tmplyrs;
+        if (!PrepareSubsetData(it->first, it->second, &tmpdata1d, &tmpdatalen, &tmplyrs,
+                               out_origin, true, recls, default_value)) {
+            continue;
         }
-        int nrows = it->second->g_erow - it->second->g_srow + 1;
-        int ncols = it->second->g_ecol - it->second->g_scol + 1;
-
-        subheader[HEADER_RS_XLL] = xll;
-        subheader[HEADER_RS_YLL] = yll;
-        subheader[HEADER_RS_NODATA] = CVT_DBL(no_data_value_);
-        subheader[HEADER_RS_NROWS] = CVT_DBL(nrows);
-        subheader[HEADER_RS_NCOLS] = CVT_DBL(ncols);
-        subheader[HEADER_RS_CELLSIZE] = cellsize;
-
         string tmpfname = subfname + itoa(CVT_VINT(it->first)) + "_";
-        T* data = nullptr;
-        Initialize1DArray(nrows * ncols, data, no_data_value_);
-        for (int ilyr = 0; ilyr < n_lyrs_; ilyr++) {
-            int valid_count = 0;
-            if (nullptr != it->second->data2d_) {
-                string subfnamelyr = tmpfname + itoa(CVT_VINT(ilyr));
-                subfnamelyr += "." + filetype;
-                for (int vi = 0; vi < it->second->n_cells; vi++) {
-                    int j = it->second->local_pos_[vi][0] * ncols + it->second->local_pos_[vi][1];
-                    if (!out_origin && nullptr != it->second->data2d_) {
-                        data[j] = static_cast<T>(it->second->data2d_[vi][ilyr]);
-                    } else {
-                        data[j] = raster_2d_[it->second->global_[vi]][ilyr];
+        tmpfname += "." + filetype;
+        flag = flag && OutputFullsizeToFiles(tmpdata1d, tmpdatalen / tmplyrs, tmplyrs,
+                                             tmpfname, subheader, options_);
+        if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
+    }
+    return true;
+}
+
+template <typename T, typename MASK_T>
+bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, int* datalyrs,
+                                                     bool include_nodata /* true */,
+                                                     const map<vint, double>& recls /* map<vint, double>() */,
+                                                     double default_value /* NODATA_VALUE*/) {
+    if (subset_.empty()) { return false; }
+    T* data1d = nullptr; // Both raster 1D and 2D data can be combined as 1D array
+    int lyrs = subset_.begin()->second->n_lyrs;
+    for (auto it = subset_.begin(); it != subset_.end(); ++it) {
+        if (!(nullptr != it->second->data_    // Only if all subset have data_
+            || nullptr != it->second->data2d_ // or data2d_, 
+            || !recls.empty()))               // or reclassification map specified
+        {
+            return false;
+        }
+        if (it->second->n_lyrs != lyrs) {
+            StatusMessage("Error: Subset's layer count MUST be consistent!");
+            return false;
+        }
+    }
+    int gnrows = GetRows();
+    int gncols = GetCols();
+    int gncells = include_nodata ? gnrows * gncols : n_cells_;
+    int data_length = gncells * lyrs;
+    Initialize1DArray(data_length, data1d, no_data_value_);
+    for (auto it = subset_.begin(); it != subset_.end(); ++it) {
+        for (int vi = 0; vi < it->second->n_cells; vi++) {
+            for (int ilyr = 0; ilyr < lyrs; ilyr++) {
+                int gidx = it->second->global_[vi];
+                int tmpr = pos_data_[gidx][0];
+                int tmpc = pos_data_[gidx][1];
+                int tmprc = tmpr * gncols + tmpc;
+                if (!include_nodata) { tmprc = gidx; }
+                if (!recls.empty()) { // first priority
+                    double uniqe_value = default_value;
+                    if (recls.count(it->first) > 0) {
+                        uniqe_value = recls.at(it->first);
                     }
-                    if (!FloatEqual(no_data_value_, data[j])) { valid_count++; }
+                    data1d[tmprc * lyrs + ilyr] = static_cast<T>(uniqe_value);
                 }
-                if (valid_count == 0) { continue; }
-                WriteRasterToFile(subfnamelyr, subheader, options_, data);
-            } else {
-                tmpfname += "." + filetype;
-                for (int vi = 0; vi < it->second->n_cells; vi++) {
-                    int j = it->second->local_pos_[vi][0] * ncols + it->second->local_pos_[vi][1];
-                    if (!out_origin && nullptr != it->second->data_) {
-                        data[j] = static_cast<T>(it->second->data_[vi]);
-                    } else {
-                        data[j] = raster_[it->second->global_[vi]];
-                    }
-                    if (!FloatEqual(no_data_value_, data[j])) { valid_count++; }
+                else if (lyrs > 1 && nullptr != it->second->data2d_) { // raster 2D
+                    data1d[tmprc * lyrs + ilyr] = static_cast<T>(it->second->data2d_[vi][ilyr]);
                 }
-                if (valid_count == 0) { continue; }
-                WriteRasterToFile(tmpfname, subheader, options_, data);
+                else if (lyrs == 1 && nullptr != it->second->data_) { // raster 1D
+                    data1d[tmprc * lyrs + ilyr] = static_cast<T>(it->second->data_[vi]);
+                }
+                else { // Will not happen
+                    StatusMessage("Error: No subset or reclassification map can be output!");
+                    if (nullptr != data1d) { Release1DArray(data1d); }
+                    return nullptr;
+                }
             }
         }
-        Release1DArray(data);
     }
-
+    *values = data1d;
+    *datalen = data_length;
+    *datalyrs = lyrs;
     return true;
+}
+template <typename T, typename MASK_T>
+bool clsRasterData<T, MASK_T>::PrepareSubsetData(const int sub_id, SubsetPositions* sub,
+                                                 T** values, int* datalen, int* datalyrs,
+                                                 bool out_origin /* false */, bool include_nodata /* true */,
+                                                 const map<vint, double>& recls /* map<vint, double>() */,
+                                                 double default_value /* NODATA_VALUE*/) {
+    if (nullptr == sub) { return false; }
+    T* data1d = nullptr; // Both raster 1D and 2D data can be combined as 1D array
+    int lyrs = out_origin ? n_lyrs_ : sub->n_lyrs;
+    int nrows = sub->g_erow - sub->g_srow + 1;
+    int ncols = sub->g_ecol - sub->g_scol + 1;
+    int ncells = include_nodata ? nrows * ncols : sub->n_cells;
+    int data_length = ncells * lyrs;
+    Initialize1DArray(data_length, data1d, no_data_value_);
+    for (int vi = 0; vi < sub->n_cells; vi++) {
+        for (int ilyr = 0; ilyr < lyrs; ilyr++) {
+            int j = sub->local_pos_[vi][0] * ncols + sub->local_pos_[vi][1];
+            int gidx = sub->global_[vi];
+            if (!include_nodata) { j = vi; }
+            if (!recls.empty()) { // first priority
+                double uniqe_value = default_value;
+                if (recls.count(sub_id) > 0) {
+                    uniqe_value = recls.at(sub_id);
+                }
+                data1d[j * lyrs + ilyr] = static_cast<T>(uniqe_value);
+            }
+            else if (out_origin && lyrs > 1 && nullptr != raster_2d_) {
+                data1d[j * lyrs + ilyr] = raster_2d_[gidx][ilyr];
+            }
+            else if (out_origin && lyrs == 1 && nullptr != raster_) {
+                data1d[j * lyrs + ilyr] = raster_[gidx];
+            }
+            else if (!out_origin && lyrs > 1 && nullptr != sub->data2d_) { // raster 2D
+                data1d[j * lyrs + ilyr] = static_cast<T>(sub->data2d_[vi][ilyr]);
+            }
+            else if (!out_origin && lyrs == 1 && nullptr != sub->data_) { // raster 1D
+                data1d[j * lyrs + ilyr] = static_cast<T>(sub->data_[vi]);
+            }
+            else { // Will not happen
+                StatusMessage("Error: No subset or reclassification map can be output!");
+                if (nullptr != data1d) { Release1DArray(data1d); }
+                return false;
+            }
+        }
+    }
+    *values = data1d;
+    *datalen = data_length;
+    *datalyrs = lyrs;
+    return true;
+}
+
+template <typename T, typename MASK_T>
+bool clsRasterData<T, MASK_T>::OutputFullsizeToFiles(T* fullsizedata, const int fsize, const int datalyrs,
+                                                     const string& fullfilename,
+                                                     const map<string, double>& header,
+                                                     const STRING_MAP& opts) {
+    if (nullptr == fullsizedata) { return false; }
+    if (datalyrs < 1) { return false; }
+    if (datalyrs == 1) {
+        return WriteRasterToFile(fullfilename, header, opts, fullsizedata);
+    }
+    T* tmpdata1d = nullptr;
+    Initialize1DArray(fsize, tmpdata1d, NODATA_VALUE);
+    bool flag = true;
+    for (int ilyr = 0; ilyr < datalyrs; ilyr++) {
+        for (int gi = 0; gi < fsize; gi++) {
+            tmpdata1d[gi] = fullsizedata[gi * datalyrs + ilyr];
+        }
+        flag = flag && WriteRasterToFile(AppendCoreFileName(fullfilename, CVT_VINT(ilyr)),
+                                         header, opts, tmpdata1d);
+    }
+    if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
+    return flag;
 }
 
 template <typename T, typename MASK_T>
@@ -2630,83 +2771,123 @@ bool clsRasterData<T, MASK_T>::OutputFileByGdal(const string& filename) {
 
 #ifdef USE_MONGODB
 template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::OutputToMongoDB(const string& filename, MongoGridFs* gfs,
-                                               const STRING_MAP& opts /* = STRING_MAP() */) {
-    CopyStringMap(opts, options_);
-    // 1. Is there need to calculate valid position index?
+bool clsRasterData<T, MASK_T>::OutputToMongoDB(MongoGridFs* gfs, const string& filename /* = string() */,
+                                               const STRING_MAP& opts /* = STRING_MAP() */,
+                                               bool include_nodata /* = true */,
+                                               bool out_subset /* = false */) {
+    if (nullptr == gfs) { return false; }
+    if (out_subset) {
+        return OutputSubsetToMongoDB(gfs, filename, opts, false, true, include_nodata);
+    }
+    CopyStringMap(opts, options_); // Update metadata
+    // Check if we can output directly: 1) pos_data_ is not NULL and include_nodata is false;
+    //                                  2) pos_data_ is NULL and include_nodata is true.
+    bool outputdirectly = true; // output directly or create new full size array
     int cnt;
     int** pos = nullptr;
-    bool outputdirectly = true;
-    if (nullptr != pos_data_) {
-        GetRasterPositionData(&cnt, &pos);
+    if (nullptr != pos_data_ && include_nodata) {
         outputdirectly = false;
+        GetRasterPositionData(&cnt, &pos);
+    }
+    if (nullptr == pos_data_ && !include_nodata) {
+        SetCalcPositions();
+        GetRasterPositionData(&cnt, &pos);
+    }
+    if (!include_nodata) { // Add metadata
+        UpdateStringMap(options_, HEADER_INC_NODATA, "false");
     }
     // 2. Get raster data
-    bool saved = false;
-    int try_times = 1;
     T* data_1d = nullptr;
     T no_data_value = GetNoDataValue();
     int n_rows = GetRows();
     int n_cols = GetCols();
     int datalength;
-    string core_name = GetCoreFileName(filename);
-    // 2.1 2D raster data
-    if (is_2draster) {
-        datalength = n_rows * n_cols * n_lyrs_;
-        Initialize1DArray(datalength, data_1d, no_data_value);
-        int cnt_idx = 0;
-        for (int i = 0; i < n_rows; ++i) {
-            for (int j = 0; j < n_cols; ++j) {
-                int rowcol_index = i * n_cols + j;
-                int data_index = i * n_cols * n_lyrs_ + j * n_lyrs_;
-                if (outputdirectly) {
-                    for (int k = 0; k < n_lyrs_; k++) {
-                        data_1d[data_index + k] = raster_2d_[rowcol_index][k];
-                    }
-                    continue;
-                }
-                if (cnt_idx < n_cells_ && (pos[cnt_idx][0] == i && pos[cnt_idx][1] == j)) {
-                    for (int k = 0; k < n_lyrs_; k++) {
-                        data_1d[data_index + k] = raster_2d_[cnt_idx][k];
-                    }
-                    cnt_idx++;
+    string core_name = filename.empty() ? core_name_ : filename;
+    if (is_2draster) { // 2.1 2D raster data
+        if (outputdirectly) {
+            data_1d = raster_2d_[0]; // refers to Initialize2DArray() for why we can do this assignment
+            datalength = n_lyrs_ * n_cells_; // can be n_lyrs_ * (n_rows*n_cols or valid cells' number)
+        } else {
+            datalength = n_lyrs_ * n_rows * n_cols;
+            Initialize1DArray(datalength, data_1d, no_data_value);
+            for (int idx = 0; idx < n_cells_; idx++) {
+                int rowcol_index = pos[idx][0] * n_cols + pos[idx][1];
+                for (int k = 0; k < n_lyrs_; k++) {
+                    data_1d[n_lyrs_ * rowcol_index + k] = raster_2d_[idx][k];
                 }
             }
         }
-    } else {
-        // 3.2 1D raster data
-        datalength = n_rows * n_cols;
+    } else { // 3.2 1D raster data
         if (outputdirectly) {
             data_1d = raster_;
+            datalength = n_cells_; // can be n_rows*n_cols or valid cells' number
         } else {
+            datalength = n_rows * n_cols;
             Initialize1DArray(datalength, data_1d, no_data_value);
-        }
-        int validnum = 0;
-        if (!outputdirectly) {
-            for (int i = 0; i < n_rows; ++i) {
-                for (int j = 0; j < n_cols; ++j) {
-                    int index = i * n_cols + j;
-                    if (validnum < n_cells_ && (pos[validnum][0] == i && pos[validnum][1] == j)) {
-                        data_1d[index] = raster_[validnum];
-                        validnum++;
-                    }
-                }
+            for (int idx = 0; idx < n_cells_; idx++) {
+                data_1d[pos[idx][0] * n_cols + pos[idx][1]] = raster_[idx];
             }
         }
     }
-    while (try_times <= 3) { // Try 3 times
-        saved = WriteStreamDataAsGridfs(gfs, core_name, headers_, data_1d, datalength, options_);
-        if (saved) { break; }
-        SleepMs(2); // Sleep 0.002 sec and retry
-        try_times++;
-    }
-    if (!is_2draster && outputdirectly) {
+    bool saved = WriteStreamDataAsGridfs(gfs, core_name, headers_, data_1d, datalength, options_);
+    if (outputdirectly) {
         data_1d = nullptr;
     } else {
         Release1DArray(data_1d);
     }
     return saved;
 }
+
+template <typename T, typename MASK_T>
+bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
+                                                     const string& filename /* string() */,
+                                                     const STRING_MAP& opts /* STRING_MAP() */,
+                                                     bool out_origin /* false */,
+                                                     bool out_combined /* true */,
+                                                     bool include_nodata /* true */,
+                                                     const map<vint, double>& recls /* map<vint, double)()*/,
+                                                     double default_value /* NODATA_VALUE */) {
+
+    if (!ValidateRasterData()) { return false; }
+    if (nullptr == gfs) { return false; }
+    if (subset_.empty()) { return false; }
+    CopyStringMap(opts, options_); // Update metadata
+
+    int gcols = GetCols();
+    int grows = GetRows();
+    int gncells = gcols * grows; // global full size
+    string outnameact = filename.empty() ? core_name_ : filename;
+    // output combined subsets
+    bool out_comb = out_combined;
+    if (out_comb) {
+        T* data1d = nullptr;
+        int sublyrs;
+        int sublen;
+        return PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
+                                     include_nodata, recls, default_value) &&
+                WriteStreamDataAsGridfs(gfs, outnameact, headers_, data1d, sublen, options_);
+    }
+    // output each subset
+    string subfname = outnameact + "_";
+    map<string, double> subheader;
+    bool flag = true;
+    for (auto it = subset_.begin(); it != subset_.end(); ++it) {
+        it->second->GetHeader(GetXllCenter(), GetYllCenter(), GetRows(),
+                              GetCellWidth(), CVT_DBL(no_data_value_), subheader);
+        T* tmpdata1d = nullptr;
+        int tmpdatalen;
+        int tmplyrs;
+        if (!PrepareSubsetData(it->first, it->second, &tmpdata1d, &tmpdatalen, &tmplyrs,
+                               out_origin, true, recls, default_value)) {
+            continue;
+        }
+        string tmpfname = subfname + itoa(CVT_VINT(it->first)) + "_"; // GridFS file do not differ layer ID
+        flag = flag && WriteStreamDataAsGridfs(gfs, tmpfname, headers_, tmpdata1d, tmpdatalen, options_);
+        if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
+    }
+    return true;
+}
+
 
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::WriteStreamDataAsGridfs(MongoGridFs* gfs,
@@ -2741,7 +2922,14 @@ bool clsRasterData<T, MASK_T>::WriteStreamDataAsGridfs(MongoGridFs* gfs,
     }
     char* buf = reinterpret_cast<char *>(values);
     int buflength = datalength * sizeof(T);
-    bool gstatus = gfs->WriteStreamData(filename, buf, buflength, &p);
+    int try_times = 0;
+    bool gstatus = false;
+    while (try_times <= 3) { // Try 3 times
+        gstatus = gfs->WriteStreamData(filename, buf, buflength, &p);
+        if (gstatus) { break; }
+        SleepMs(2); // Sleep 0.002 sec and retry
+        try_times++;
+    }
     bson_destroy(&p);
     return gstatus;
 }
@@ -3138,7 +3326,7 @@ bool clsRasterData<T, MASK_T>::ReadRasterFileByGdal(const string& filename,
     CPLErr result;
     switch (po_band->GetRasterDataType()) {
         case GDT_Byte:
-            // In GDAL, GDT_Byte is an 8-bit unsigned interger (unsigned char), ranges from 0 to 255.
+            // In GDAL, GDT_Byte is an 8-bit unsigned integer (unsigned char), ranges from 0 to 255.
             // While in ArcGIS, both 8-bit signed char (ranges from -128 to 127) and unsigned char
             //   are supported. Both types will be recognized as GDT_Byte by GDAL.
             //
