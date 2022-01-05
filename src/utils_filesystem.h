@@ -11,10 +11,9 @@
 #ifndef CCGL_UTILS_FILESYSTEM_H
 #define CCGL_UTILS_FILESYSTEM_H
 
-#include <vector>
-#include <cstring>
-
 #include "basic.h"
+
+#include <vector>
 
 using std::vector;
 
@@ -94,6 +93,11 @@ string ReplaceSuffix(string const& full_filename, string const& new_suffix);
  * \return new full_filename
  */
 string AppendCoreFileName(string const& full_filename, string const& endstr, char deli = '_');
+
+/*!
+ * \brief Append a given integer to the core filename
+ */
+string AppendCoreFileName(string const& full_filename, vint endint, char deli = '_');
 
 /*!
  * \brief Get Path From full file path string

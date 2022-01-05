@@ -302,13 +302,16 @@ string ReplaceSuffix(string const& full_filename, string const& new_suffix) {
     return filedir + corename + "." + new_suffix;
 }
 
-string AppendCoreFileName(string const& full_filename, string const& endstr,
-                          char deli /* = '_' */) {
+string AppendCoreFileName(string const& full_filename, string const& endstr, char deli /* = '_' */) {
     string filedir = GetPathFromFullName(full_filename);
     string corename = GetCoreFileName(full_filename);
     string old_suffix = GetSuffix(full_filename);
     if (old_suffix.empty()) return filedir + corename + deli + endstr;
     return filedir + corename + deli + endstr + "." + old_suffix;
+}
+
+string AppendCoreFileName(string const& full_filename, vint endint, char deli /* = '_' */) {
+    return AppendCoreFileName(full_filename, ccgl::utils_string::itoa(endint), deli);
 }
 
 string GetPathFromFullName(string const& full_filename) {
