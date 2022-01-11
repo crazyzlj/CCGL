@@ -20,7 +20,7 @@
  *   - 8. Jun. 2018 lj Use emplace and emplace_back rather than insert and push_back whenever possible.
  *   - 9. Nov. 2018 lj Add specific field-value as options of raster data, including SRS.
  *   -10. Jul. 2021 lj No need to use pointer-to-pointer as arguments in GetValue and GetValueByIndex.
- *   -11. Dec. 2021 lj Comprehensive functional testing, bug fixing, and robustness improving.
+ *   -11. Jan. 2022 lj Comprehensive functional testing, bug fixing, and robustness improving.
  *                     Add subset feature to support data decomposition and combination.
  *
  * \author Liangjun Zhu, zlj(at)lreis.ac.cn
@@ -232,15 +232,16 @@ inline RasterDataType TypeToRasterDataType(const std::type_info& t) {
  */
 inline double DefaultNoDataByType(const RasterDataType type) {
     switch (type) {
-        case RDT_UByte:	    return UINT8_MAX;   // 8-bit unsigned integer
-        case RDT_Byte:	    return INT8_MIN;    // 8-bit signed integer
-        case RDT_UInt16:	return UINT16_MAX;  // 16-bit unsigned integer
-        case RDT_Int16:	    return INT16_MIN;   // 16-bit signed integer
-        case RDT_UInt32:	return UINT32_MAX;  // 32-bit unsigned integer
-        case RDT_Int32: 	return INT32_MIN;   // 32-bit signed integer
-        case RDT_Float: 	return MISSINGFLOAT;   // 32-bit floating point
-        case RDT_Double: 	return MISSINGFLOAT;   // 64-bit floating point
-        default:	        return NODATA_VALUE;   // All others
+        case RDT_Unknown:   return NODATA_VALUE;  // Unknown type
+        case RDT_UByte:	    return UINT8_MAX;     // 8-bit unsigned integer
+        case RDT_Byte:	    return INT8_MIN;      // 8-bit signed integer
+        case RDT_UInt16:	return UINT16_MAX;    // 16-bit unsigned integer
+        case RDT_Int16:	    return INT16_MIN;     // 16-bit signed integer
+        case RDT_UInt32:	return UINT32_MAX;    // 32-bit unsigned integer
+        case RDT_Int32: 	return INT32_MIN;     // 32-bit signed integer
+        case RDT_Float: 	return MISSINGFLOAT;  // 32-bit floating point
+        case RDT_Double: 	return MISSINGFLOAT;  // 64-bit floating point
+        default:	        return NODATA_VALUE;  // All others
     }
 }
 
@@ -329,28 +330,28 @@ public:
         } else {
             Initialize1DArray(n_cells, data_, data);
         }
+        if (n_lyrs != 1) { n_lyrs = 1; }
         return true;
     }
 
     template <typename T>
     bool Set2DData(const int n, const int lyr, T** data2d) {
         if (n != n_cells) { return false; }
-        if (lyr != n_lyrs) { return false; }
         if (nullptr == data2d) { return false; }
+        if (lyr != n_lyrs) { n_lyrs = lyr; }
         if (nullptr != data2d_) {
             for (int i = 0; i < n_cells; i++) {
                 for (int j = 0; j < n_lyrs; j++) {
                     data2d_[i][j] = CVT_DBL(data2d[i][j]);
                 }
             }
-        }
-        else {
+        } else {
             Initialize2DArray(n_cells, n_lyrs, data2d_, data2d);
         }
         return true;
     }
-    void GetHeader(double gxll, double gyll, int gnrows, double cellsize,
-                   double nodata, map<string, double>& subheader) {
+    void GetHeader(const double gxll, const double gyll, const int gnrows, const double cellsize,
+                   const double nodata, map<string, double>& subheader) {
         subheader[HEADER_RS_XLL] = g_scol * cellsize + gxll;
         subheader[HEADER_RS_YLL] = (gnrows - g_erow - 1) * cellsize + gyll;
         subheader[HEADER_RS_NODATA] = nodata;
@@ -359,7 +360,7 @@ public:
         subheader[HEADER_RS_CELLSIZE] = cellsize;
     }
     template <typename T>
-    void Output(T nodata, vector<T*> fulldata) {
+    void Output(T nodata, vector<T*>& fulldata) {
         if (nullptr == data_ && nullptr == data2d_) { return; }
         int nrows = g_erow - g_srow + 1;
         int ncols = g_ecol - g_scol + 1;
@@ -850,20 +851,11 @@ public:
      */
     int GetValidNumber(const int lyr = 1) { return CVT_INT(GetStatistics(STATS_RS_VALIDNUM, lyr)); }
 
-    //! Get stored cell number of raster data
-    int GetCellNumber() const { return n_cells_; }
-
-    //! Get the first dimension size of raster data
-    int GetDataLength() const { return n_cells_; }
-
-    //! Get column number of raster data
-    int GetCols() const { return CVT_INT(headers_.at(HEADER_RS_NCOLS)); }
-
-    //! Get row number of raster data
-    int GetRows() const { return CVT_INT(headers_.at(HEADER_RS_NROWS)); }
-
-    //! Get cell size of raster data
-    double GetCellWidth() const { return headers_.at(HEADER_RS_CELLSIZE); }
+    int GetCellNumber() const { return n_cells_; } /// Get stored cell number
+    int GetDataLength() const { return n_cells_; } /// Get the first dimension size
+    int GetCols() const { return CVT_INT(headers_.at(HEADER_RS_NCOLS)); } /// Get column number
+    int GetRows() const { return CVT_INT(headers_.at(HEADER_RS_NROWS)); } /// Get row number
+    double GetCellWidth() const { return headers_.at(HEADER_RS_CELLSIZE); } /// Get cell size
 
     //! Get X coordinate of left lower center of raster data
     double GetXllCenter() const {
@@ -887,20 +879,11 @@ public:
         return NODATA_VALUE;
     }
 
-    int GetLayers() const {
-        // assert(n_lyrs_ == CVT_INT(headers_.at(HEADER_RS_LAYERS)));
-        return n_lyrs_;
-    }
-
-    RasterDataType GetDataType() const { return rs_type_; }
-
-    RasterDataType GetOutDataType() const { return rs_type_out_; }
-
-    //! Get NoDATA value of raster data
-    T GetNoDataValue() const { return static_cast<T>(headers_.at(HEADER_RS_NODATA)); }
-
-    //! Get NoDATA value of raster data
-    T GetDefaultValue() const { return default_value_; }
+    int GetLayers() const { return n_lyrs_; } /// Get layer number
+    RasterDataType GetDataType() const { return rs_type_; } /// Get data type of source
+    RasterDataType GetOutDataType() const { return rs_type_out_; } /// Get data type of output
+    T GetNoDataValue() const { return no_data_value_; } /// Get NoDATA value
+    T GetDefaultValue() const { return default_value_; } /// Get default value
 
     /*!
      * \brief Get position index in 1D raster data for specific row and column
@@ -946,31 +929,18 @@ public:
 
     /*!
      * \brief Get position index data and the data length
-     * \param[out] datalength
+     * \param[out] datalength Data length
      * \param[out] positiondata The pointer of 2D array (pointer)
      */
     void GetRasterPositionData(int* datalength, int*** positiondata);
 
-    //! Get pointer of raster data
-    T* GetRasterDataPointer() const { return raster_; }
-
-    //! Get pointer of position data
-    int** GetRasterPositionDataPointer() const { return pos_data_; }
-
-    //! Get pointer of 2D raster data
-    T** Get2DRasterDataPointer() const { return raster_2d_; }
-
-    //! Get the spatial reference
-    const char* GetSrs();
-
-    //! Get the spatial reference string
-    string GetSrsString();
-
-    //! Get option by key, including the spatial reference by "SRS"
-    string GetOption(const char* key);
-
-    //! Get options
-    const STRING_MAP& GetOptions() const { return options_; }
+    T* GetRasterDataPointer() const { return raster_; } /// Get pointer of raster 1D data
+    int** GetRasterPositionDataPointer() const { return pos_data_; } /// Get pointer of position data
+    T** Get2DRasterDataPointer() const { return raster_2d_; } /// Get pointer of raster 2D data
+    const char* GetSrs(); /// Get the spatial reference (char*)
+    string GetSrsString(); /// Get the spatial reference (string)
+    string GetOption(const char* key); /// Get option by key, including the spatial reference by "SRS"
+    const STRING_MAP& GetOptions() const { return options_; } /// Get options
 
     /*!
      * \brief Get raster data at the valid cell index
@@ -980,7 +950,8 @@ public:
 
     /*!
      * \brief Get raster data at the valid cell index (both for 1D and 2D raster)
-     * \return a float array with length as n_lyrs which should be release in the invoke code
+     * \param[in] cell_index Cell's index in the first dimension
+     * \param[out] values A float array with length as n_lyrs_ which should be release in the invoke code
      */
     void GetValueByIndex(int cell_index, T*& values);
 
@@ -992,7 +963,9 @@ public:
 
     /*!
      * \brief Get raster data (both for 1D and 2D raster) at the (row, col)
-     * \param[out] values a float array with the length of n_lyrs_
+     * \param[in] row Row index
+     * \param[in] col Col index
+     * \param[out] values A float array with the length of n_lyrs_
      */
     void GetValue(int row, int col, T*& values);
 
@@ -1004,34 +977,21 @@ public:
         return FloatEqual(GetValue(row, col, lyr), no_data_value_);
     }
 
-    //! Is 2D raster data?
-    bool Is2DRaster() const { return is_2draster; }
-
-    //! Calculate positions or not
-    bool PositionsCalculated() const { return calc_pos_; }
-
-    //! raster position data is stored as array (true), or just a pointer
-    bool PositionsAllocated() const { return store_pos_; }
-
-    //! Use mask extent or not
-    bool MaskExtented() const { return use_mask_ext_; }
-
-    //! Basic statistics has been calculated or not
-    bool StatisticsCalculated() const { return stats_calculated_; }
-
-    //! The instance of clsRasterData has been initialized or not
-    bool Initialized() const { return initialized_; }
+    bool Is2DRaster() const { return is_2draster; } /// Is 2D raster data?
+    bool PositionsCalculated() const { return calc_pos_; } /// Calculate positions or not
+    bool PositionsAllocated() const { return store_pos_; } /// position data is allocated or a pointer
+    bool MaskExtented() const { return use_mask_ext_; } /// Use mask extent or not
+    bool StatisticsCalculated() const { return stats_calculated_; } /// Basic statistics calculated?
+    bool Initialized() const { return initialized_; } /// Instance of clsRasterData initialized?
 
     /*!
      * \brief Validate the available of raster data, both 1D and 2D data
      */
     bool ValidateRasterData() {
         if ((!is_2draster && nullptr != raster_) || // Valid 1D raster
-            (is_2draster && nullptr != raster_2d_)) {
-            // Valid 2D raster
-            return true;
-        }
-        StatusMessage("Please initialize the raster object first.");
+            (is_2draster && nullptr != raster_2d_)) // Valid 2D raster
+        { return true; }
+        StatusMessage("Error: Please initialize the raster object first.");
         return false;
     }
 
@@ -2204,13 +2164,10 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
                                                   const double default_value /*  = NODATA_VALUE */) {
     if (!ValidateRasterData()) { return false; }
     if (subset_.empty()) { return false; }
-    int gcols = GetCols();
-    int grows = GetRows();
-    int gncells = gcols * grows; // global full size
     string outpathact = full_path_;
     if (!outname.empty()) {
-        outpathact = outname;
-        if (PathExists(outname)) {
+        outpathact = GetAbsolutePath(outname);
+        if (PathExists(outpathact)) {
             if (outpathact.back() != SEP) { outpathact += SEP; }
             outpathact += core_name_;
             outpathact += "." + GetSuffix(full_path_);
@@ -2223,7 +2180,7 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
         int sublyrs;
         int sublen;
         return PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
-                                     false, recls, default_value) &&
+                                     true, recls, default_value) &&
                 OutputFullsizeToFiles(data1d, sublen / sublyrs, sublyrs,
                                       outpathact, headers_, options_);
     }
@@ -2252,7 +2209,7 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
                                              tmpfname, subheader, options_);
         if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
     }
-    return true;
+    return flag;
 }
 
 template <typename T, typename MASK_T>
@@ -2304,7 +2261,7 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
                 else { // Will not happen
                     StatusMessage("Error: No subset or reclassification map can be output!");
                     if (nullptr != data1d) { Release1DArray(data1d); }
-                    return nullptr;
+                    return false;
                 }
             }
         }

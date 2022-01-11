@@ -55,41 +55,37 @@ string GetAppPath();
 
 /*!
  * \brief Return the absolute file path from a given file path
- * \param[in] full_filename
- * \return absolutePath
+ * \param[in] full_filename Full file path
  * \sa GetPathFromFullName
  */
 string GetAbsolutePath(string const& full_filename);
 
 /*!
  * \brief Return the file name from a given file's path
- * \param[in] full_filename
- * \return CoreFileName
+ * \param[in] full_filename Full file path
  * \sa GetPathFromFullName
  */
 string GetCoreFileName(string const& full_filename);
 
 /*!
- * \brief Return the suffix of a given file's path
- * \param[in] full_filename
- * \return Suffix
+ * \brief Return the suffix of a given file's path without dot, e.g., "tif", "asc"
+ * \param[in] full_filename Full file path
  * \sa GetPathFromFullName
  */
 string GetSuffix(string const& full_filename);
 
 /*!
  * \brief Replace the suffix by a given suffix
- * \param[in] full_filename
- * \param[in] new_suffix
- * \return new full_filename
+ * \param[in] full_filename Full file path
+ * \param[in] new_suffix New suffix without dot, e.g., "tif", "asc"
  */
 string ReplaceSuffix(string const& full_filename, string const& new_suffix);
 
 /*!
  * \brief Append a given string to the core filename
- * \param[in] full_filename Full path
+ * \param[in] full_filename Full file path
  * \param[in] endstr End string
- * \param[in] deli Delimiter
+ * \param[in] deli (Optional) Delimiter
  * \return new full_filename
  */
 string AppendCoreFileName(string const& full_filename, string const& endstr, char deli = '_');
@@ -101,8 +97,7 @@ string AppendCoreFileName(string const& full_filename, vint endint, char deli = 
 
 /*!
  * \brief Get Path From full file path string
- * \param[in] full_filename \a string
- * \return filePath string
+ * \param[in] full_filename Full file path
  * \sa GetCoreFileName
  */
 string GetPathFromFullName(string const& full_filename);
@@ -135,8 +130,9 @@ int DeleteExistedFile(const string& filepath);
 
 /*!
  * \brief Find files in given paths
- * \param[in] lp_path, expression
- * \param[out] vec_files
+ * \param[in] lp_path Directory path
+ * \param[in] expression Wildcard characters, e.g., "*.*" means any filename with any suffix
+ * \param[out] vec_files Vector of full file paths
  * \return 0 means success
  */
 int FindFiles(const char* lp_path, const char* expression, vector<string>& vec_files);

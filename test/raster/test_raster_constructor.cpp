@@ -22,6 +22,7 @@ using namespace ccgl::utils_filesystem;
 
 namespace {
 string datapath = GetAppPath() + "./data/raster/";
+string dstpath = datapath + "result/";
 
 string not_existed_rs = datapath + "not_existed_rs.tif";
 string not_std_asc = datapath + "tinydemo_not-std-asc_r2c2.asc";
@@ -174,16 +175,121 @@ TEST(clsRasterDataFailedConstructor, FailedCases) {
 #ifdef USE_GDAL
 TEST(clsRasterDataUnsignedByte, FullIO) {
     clsRasterData<unsigned char>* mask_rs = clsRasterData<unsigned char>::Init(rs_mask);
-    clsRasterData<unsigned char>* byte_rs = clsRasterData<unsigned char>
-            ::Init(rs_byte, true, mask_rs, true);
+    clsRasterData<unsigned char>* rs = clsRasterData<unsigned char>::Init(rs_byte, true,
+                                                                          mask_rs, true);
 
     // Situation 1:
-    string rs_out1 = AppendCoreFileName(rs_byte, "masked");
-    EXPECT_TRUE(byte_rs->GetDataType() == RDT_UByte);
-    EXPECT_TRUE(byte_rs->GetOutDataType() == RDT_UByte);
-    byte_rs->OutputToFile(rs_out1);
+    EXPECT_TRUE(rs->GetDataType() == RDT_UByte);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_UByte);
+    string rs_out1 = dstpath + GetCoreFileName(rs_byte) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out1));
     EXPECT_TRUE(FileExists(rs_out1));
 }
+
+TEST(clsRasterDatasignedByte, FullIO) {
+    clsRasterData<signed char>* mask_rs = clsRasterData<signed char>::Init(rs_mask);
+    clsRasterData<signed char>* rs = clsRasterData<signed char>::Init(rs_byte_signed, true,
+                                                                      mask_rs, true);
+
+    // Situation 1:
+    EXPECT_TRUE(rs->GetDataType() == RDT_Byte);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_Byte);
+    string rs_out = dstpath + GetCoreFileName(rs_byte_signed) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out));
+    EXPECT_TRUE(FileExists(rs_out));
+}
+
+TEST(clsRasterDatasignedByteNoNegative, FullIO) {
+    clsRasterData<signed char>* mask_rs = clsRasterData<signed char>::Init(rs_mask);
+    clsRasterData<signed char>* rs = clsRasterData<signed char>::Init(rs_byte_signed_noneg, true,
+                                                                      mask_rs, true);
+
+    // Situation 1:
+    EXPECT_TRUE(rs->GetDataType() == RDT_Byte);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_Byte);
+    string rs_out = dstpath + GetCoreFileName(rs_byte_signed) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out));
+    EXPECT_TRUE(FileExists(rs_out));
+}
+
+TEST(clsRasterDataUInt16, FullIO) {
+    clsRasterData<uint16_t>* mask_rs = clsRasterData<uint16_t>::Init(rs_mask);
+    clsRasterData<uint16_t>* rs = clsRasterData<uint16_t>::Init(rs_uint16, true,
+                                                                mask_rs, true);
+
+    // Situation 1:
+    EXPECT_TRUE(rs->GetDataType() == RDT_UInt16);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_UInt16);
+    string rs_out = dstpath + GetCoreFileName(rs_uint16) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out));
+    EXPECT_TRUE(FileExists(rs_out));
+}
+
+TEST(clsRasterDataInt16, FullIO) {
+    clsRasterData<int16_t>* mask_rs = clsRasterData<int16_t>::Init(rs_mask);
+    clsRasterData<int16_t>* rs = clsRasterData<int16_t>::Init(rs_int16, true,
+                                                              mask_rs, true);
+
+    // Situation 1:
+    EXPECT_TRUE(rs->GetDataType() == RDT_Int16);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_Int16);
+    string rs_out = dstpath + GetCoreFileName(rs_int16) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out));
+    EXPECT_TRUE(FileExists(rs_out));
+}
+
+TEST(clsRasterDataUInt32, FullIO) {
+    clsRasterData<uint32_t>* mask_rs = clsRasterData<uint32_t>::Init(rs_mask);
+    clsRasterData<uint32_t>* rs = clsRasterData<uint32_t>::Init(rs_uint32, true,
+                                                                mask_rs, true);
+
+    // Situation 1:
+    EXPECT_TRUE(rs->GetDataType() == RDT_UInt32);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_UInt32);
+    string rs_out = dstpath + GetCoreFileName(rs_uint32) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out));
+    EXPECT_TRUE(FileExists(rs_out));
+}
+
+TEST(clsRasterDataInt32, FullIO) {
+    clsRasterData<int32_t>* mask_rs = clsRasterData<int32_t>::Init(rs_mask);
+    clsRasterData<int32_t>* rs = clsRasterData<int32_t>::Init(rs_int32, true,
+                                                              mask_rs, true);
+
+    // Situation 1:
+    EXPECT_TRUE(rs->GetDataType() == RDT_Int32);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_Int32);
+    string rs_out = dstpath + GetCoreFileName(rs_int32) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out));
+    EXPECT_TRUE(FileExists(rs_out));
+}
+
+TEST(clsRasterDataFloat, FullIO) {
+    clsRasterData<float>* mask_rs = clsRasterData<float>::Init(rs_mask);
+    clsRasterData<float>* rs = clsRasterData<float>::Init(rs_float, true,
+                                                          mask_rs, true);
+
+    // Situation 1:
+    EXPECT_TRUE(rs->GetDataType() == RDT_Float);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_Float);
+    string rs_out = dstpath + GetCoreFileName(rs_float) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out));
+    EXPECT_TRUE(FileExists(rs_out));
+}
+
+TEST(clsRasterDataDouble, FullIO) {
+    clsRasterData<double>* mask_rs = clsRasterData<double>::Init(rs_mask);
+    clsRasterData<double>* rs = clsRasterData<double>::Init(rs_double, true,
+                                                            mask_rs, true);
+
+    // Situation 1:
+    EXPECT_TRUE(rs->GetDataType() == RDT_Double);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_Double);
+    string rs_out = dstpath + GetCoreFileName(rs_double) + "_masked.tif";
+    EXPECT_TRUE(rs->OutputToFile(rs_out));
+    EXPECT_TRUE(FileExists(rs_out));
+}
+
 #endif
 
 } /* namespace */

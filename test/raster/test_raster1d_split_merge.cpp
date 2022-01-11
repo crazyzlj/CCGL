@@ -187,7 +187,7 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
     data1[7] = 2017.f;
     data1[8] = 5.f;
     data1[9] = 1.f;
-    newsub1->SetData(newsub1->n_cells, data1);
+    EXPECT_TRUE(newsub1->SetData(newsub1->n_cells, data1));
     newdata[1] = data1;
 
     float* data2 = nullptr;
@@ -195,7 +195,7 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
     data2[0] = 2017.f;
     data2[1] = 1.f;
     data2[2] = 7.f;
-    newsub2->SetData(newsub2->n_cells, data2);
+    EXPECT_TRUE(newsub2->SetData(newsub2->n_cells, data2));
     newdata[2] = data2;
 
     float* data3 = nullptr;
@@ -203,7 +203,7 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
     data3[0] = 2019.f;
     data3[1] = 2.f;
     data3[2] = 18.f;
-    newsub3->SetData(newsub3->n_cells, data3);
+    EXPECT_TRUE(newsub3->SetData(newsub3->n_cells, data3));
     newdata[3] = data3;
 
     /** Output subset to new files **/
