@@ -75,12 +75,7 @@ public:
     clsRasterDataTestMaskWithin() : rs_(nullptr), maskrs_(nullptr) {
     }
 
-    virtual ~clsRasterDataTestMaskWithin() {
-        delete rs_;
-        delete maskrs_;
-        rs_ = nullptr;
-        maskrs_ = nullptr;
-    }
+    virtual ~clsRasterDataTestMaskWithin() { ; }
 
     void SetUp() OVERRIDE {
         // Read mask data without calculate valid positions
@@ -94,6 +89,8 @@ public:
     }
 
     void TearDown() OVERRIDE {
+        delete rs_;
+        delete maskrs_;
     }
 
 protected:

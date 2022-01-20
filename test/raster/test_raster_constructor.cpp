@@ -170,6 +170,8 @@ TEST(clsRasterDataFailedConstructor, FailedCases) {
     files.push_back(not_std_asc);
     noexisted_rs = FltIntRaster::Init(files);
     EXPECT_EQ(nullptr, noexisted_rs);
+
+    delete noexisted_rs;
 }
 
 #ifdef USE_GDAL
@@ -184,6 +186,9 @@ TEST(clsRasterDataUnsignedByte, FullIO) {
     string rs_out1 = dstpath + GetCoreFileName(rs_byte) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out1));
     EXPECT_TRUE(FileExists(rs_out1));
+
+    delete mask_rs;
+    delete rs;
 }
 
 TEST(clsRasterDatasignedByte, FullIO) {
@@ -197,6 +202,9 @@ TEST(clsRasterDatasignedByte, FullIO) {
     string rs_out = dstpath + GetCoreFileName(rs_byte_signed) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
+
+    delete mask_rs;
+    delete rs;
 }
 
 TEST(clsRasterDatasignedByteNoNegative, FullIO) {
@@ -210,6 +218,9 @@ TEST(clsRasterDatasignedByteNoNegative, FullIO) {
     string rs_out = dstpath + GetCoreFileName(rs_byte_signed) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
+
+    delete mask_rs;
+    delete rs;
 }
 
 TEST(clsRasterDataUInt16, FullIO) {
@@ -223,6 +234,9 @@ TEST(clsRasterDataUInt16, FullIO) {
     string rs_out = dstpath + GetCoreFileName(rs_uint16) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
+
+    delete mask_rs;
+    delete rs;
 }
 
 TEST(clsRasterDataInt16, FullIO) {
@@ -236,6 +250,9 @@ TEST(clsRasterDataInt16, FullIO) {
     string rs_out = dstpath + GetCoreFileName(rs_int16) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
+
+    delete mask_rs;
+    delete rs;
 }
 
 TEST(clsRasterDataUInt32, FullIO) {
@@ -249,6 +266,9 @@ TEST(clsRasterDataUInt32, FullIO) {
     string rs_out = dstpath + GetCoreFileName(rs_uint32) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
+
+    delete mask_rs;
+    delete rs;
 }
 
 TEST(clsRasterDataInt32, FullIO) {
@@ -262,6 +282,9 @@ TEST(clsRasterDataInt32, FullIO) {
     string rs_out = dstpath + GetCoreFileName(rs_int32) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
+
+    delete mask_rs;
+    delete rs;
 }
 
 TEST(clsRasterDataFloat, FullIO) {
@@ -275,6 +298,9 @@ TEST(clsRasterDataFloat, FullIO) {
     string rs_out = dstpath + GetCoreFileName(rs_float) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
+
+    delete mask_rs;
+    delete rs;
 }
 
 TEST(clsRasterDataDouble, FullIO) {
@@ -288,6 +314,9 @@ TEST(clsRasterDataDouble, FullIO) {
     string rs_out = dstpath + GetCoreFileName(rs_double) + "_masked.tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
+
+    delete mask_rs;
+    delete rs;
 }
 
 #endif

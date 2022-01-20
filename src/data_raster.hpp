@@ -325,12 +325,12 @@ public:
     bool SetData(const int n, T* data) {
         if (n != n_cells) { return false; }
         if (nullptr == data) { return false; }
+        if (1 != n_lyrs) { n_lyrs = 1; }
         if (nullptr != data_) {
             for (int i = 0; i < n_cells; i++) { data_[i] = CVT_DBL(data[i]); }
         } else {
             Initialize1DArray(n_cells, data_, data);
         }
-        if (n_lyrs != 1) { n_lyrs = 1; }
         return true;
     }
 
@@ -658,7 +658,7 @@ public:
      * \param include_nodata (Optional) Include nodata or not
      * \param out_subset (Optional) Write combination of subset's data, i.e., merging
      */
-    bool OutputToMongoDB(MongoGridFs* gfs, const string& filename = string(), 
+    bool OutputToMongoDB(MongoGridFs* gfs, const string& filename = string(),
                          const STRING_MAP& opts = STRING_MAP(),
                          bool include_nodata = true, bool out_subset = false);
 
@@ -2179,10 +2179,12 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
         T* data1d = nullptr;
         int sublyrs;
         int sublen;
-        return PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
-                                     true, recls, default_value) &&
-                OutputFullsizeToFiles(data1d, sublen / sublyrs, sublyrs,
-                                      outpathact, headers_, options_);
+        bool flag = PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
+                                          true, recls, default_value);
+        flag = flag && OutputFullsizeToFiles(data1d, sublen / sublyrs, sublyrs,
+                                             outpathact, headers_, options_);
+        Release1DArray(data1d);
+        return flag;
     }
     // output each subset
     string filetype = GetSuffix(outpathact);
@@ -2207,7 +2209,7 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
         tmpfname += "." + filetype;
         flag = flag && OutputFullsizeToFiles(tmpdata1d, tmpdatalen / tmplyrs, tmplyrs,
                                              tmpfname, subheader, options_);
-        if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
+        Release1DArray(tmpdata1d);
     }
     return flag;
 }
@@ -2222,7 +2224,7 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
     int lyrs = subset_.begin()->second->n_lyrs;
     for (auto it = subset_.begin(); it != subset_.end(); ++it) {
         if (!(nullptr != it->second->data_    // Only if all subset have data_
-            || nullptr != it->second->data2d_ // or data2d_, 
+            || nullptr != it->second->data2d_ // or data2d_,
             || !recls.empty()))               // or reclassification map specified
         {
             return false;
@@ -2339,7 +2341,7 @@ bool clsRasterData<T, MASK_T>::OutputFullsizeToFiles(T* fullsizedata, const int 
         for (int gi = 0; gi < fsize; gi++) {
             tmpdata1d[gi] = fullsizedata[gi * datalyrs + ilyr];
         }
-        flag = flag && WriteRasterToFile(AppendCoreFileName(fullfilename, CVT_VINT(ilyr)),
+        flag = flag && WriteRasterToFile(AppendCoreFileName(fullfilename, CVT_VINT(ilyr + 1), '\0'),
                                          header, opts, tmpdata1d);
     }
     if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
@@ -2707,8 +2709,12 @@ bool clsRasterData<T, MASK_T>::OutputFileByGdal(const string& filename) {
                 outflag = WriteSingleGeotiff(tmpfilename, headers_, options_, data_1d);
                 Release1DArray(data_1d);
             }
-            if (!outflag) return false;
+            if (!outflag) {
+                delete[] data_1d_ptr;
+                return false;
+            }
         }
+        delete[] data_1d_ptr;
     } else {
         if (outputdirectly) {
             outflag = WriteSingleGeotiff(abs_filename, headers_, options_, raster_);
@@ -2820,9 +2826,11 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
         T* data1d = nullptr;
         int sublyrs;
         int sublen;
-        return PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
-                                     include_nodata, recls, default_value) &&
-                WriteStreamDataAsGridfs(gfs, outnameact, headers_, data1d, sublen, options_);
+        bool flag = PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
+                                          include_nodata, recls, default_value);
+        flag = flag && WriteStreamDataAsGridfs(gfs, outnameact, headers_, data1d, sublen, options_);
+        Release1DArray(data1d);
+        return flag;
     }
     // output each subset
     string subfname = outnameact + "_";
@@ -2922,8 +2930,9 @@ bool clsRasterData<T, MASK_T>::ReadFromFiles(vector<string>& filenames, const bo
         return false;
     }
     // 2. change corename and filepath template which format is: `<file dir>/CoreName_%d.<suffix>`
+    //    support "corename.tif or corename_1.tif", "corename_2.tif", and "corename_3.tif", etc.
     string::size_type last_underline = core_name_.find_last_of('_');
-    if (last_underline == string::npos) {
+    if (last_underline == string::npos || last_underline != core_name_.length() - 1) {
         last_underline = core_name_.length();
     }
     core_name_ = core_name_.substr(0, last_underline);
@@ -3048,7 +3057,7 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
     n_lyrs_ = CVT_INT(headers_.at(HEADER_RS_LAYERS));
 
     // assert(n_cells_ == length / sizeof(T) / n_lyrs_); // Avoid assert()!
-    
+
     int validcount = -1;
     if (headers_.find(HEADER_RS_CELLSNUM) != headers_.end()) {
         validcount = CVT_INT(headers_.at(HEADER_RS_CELLSNUM));
@@ -3095,7 +3104,7 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
         store_pos_ = false;
         mask_->GetRasterPositionData(&n_cells_, &pos_data_);
     }
-    // read data directly in two ways of getting indexes 
+    // read data directly in two ways of getting indexes
     if (n_lyrs_ == 1) {
         Initialize1DArray(n_cells_, raster_, no_data_value_);
 #pragma omp parallel for

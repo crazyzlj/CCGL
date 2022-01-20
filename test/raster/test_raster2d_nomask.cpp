@@ -74,7 +74,6 @@ public:
 
     void TearDown() OVERRIDE {
         delete rs_;
-        rs_ = nullptr;
     }
 
 protected:

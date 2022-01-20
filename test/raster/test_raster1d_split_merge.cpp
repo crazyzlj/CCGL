@@ -70,7 +70,6 @@ public:
 
     void TearDown() OVERRIDE {
         delete maskrs_;
-        maskrs_ = nullptr;
     }
 
 protected:
@@ -267,10 +266,10 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
     delete newrs;
 
     // release newdata
-    for (auto it = newdata.begin(); it != newdata.end(); ) {
+    for (auto it = newdata.begin(); it != newdata.end(); ++it) {
         Release1DArray(it->second);
-        newdata.erase(it++);
     }
+    newdata.clear();
 }
 
 TEST_P(clsRasterDataSplitMerge, SplitRaster) {
@@ -345,6 +344,11 @@ TEST_P(clsRasterDataSplitMerge, SplitRaster) {
         }
         delete tmp_rs;
     }
+    for (auto it = subarray.begin(); it != subarray.end(); ++it) {
+        Release1DArray(it->second);
+    }
+    subarray.clear();
+    delete rs;
 }
 
 

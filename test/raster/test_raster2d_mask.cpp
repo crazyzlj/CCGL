@@ -88,7 +88,7 @@ public:
     clsRasterDataTestMask2D() : rs_(nullptr), maskrs_(nullptr) {
     }
 
-    virtual ~clsRasterDataTestMask2D() { delete rs_; }
+    virtual ~clsRasterDataTestMask2D() { ; }
 
     void SetUp() OVERRIDE {
         // Read mask data with default parameters, i.e., calculate valid positions.
@@ -107,8 +107,6 @@ public:
     void TearDown() OVERRIDE {
         delete rs_;
         delete maskrs_;
-        rs_ = nullptr;
-        maskrs_ = nullptr;
     }
 
 protected:
