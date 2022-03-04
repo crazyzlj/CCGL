@@ -297,6 +297,7 @@ inline void InitialStatsMap(map<string, double>& stats, map<string, double*>& st
     }
 }
 
+#ifdef USE_MONGODB
 /*!
  * \brief Read GridFs file from MongoDB, return data in char* and header information
  * \param[in] gfs \a mongoc_gridfs_t
@@ -404,6 +405,7 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
     }
     return true;
 }
+#endif /* USE_MONGODB */
 
 /*!
  * \class SubsetPositions
