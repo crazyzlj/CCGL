@@ -129,7 +129,7 @@ TEST_P(clsRasterDataTestMask2D, NoPos) {
     EXPECT_EQ(-9999, maskrs_->GetValueByIndex(3));
 
     /// Test members after constructing.
-    EXPECT_EQ(4, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
+    EXPECT_EQ(12, rs_->GetDataLength()); // m_nCells * n_lyrs_
     EXPECT_EQ(4, rs_->GetCellNumber()); // m_nCells
     
     EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
@@ -351,34 +351,28 @@ TEST_P(clsRasterDataTestMask2D, NoPos) {
 
 #ifdef USE_MONGODB
     /** MongoDB I/O test **/
-    MongoClient* conn = MongoClient::Init(GlobalEnv->mongoHost.c_str(), GlobalEnv->mongoPort);
-    if (nullptr != conn) {
-        string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
-        MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
-        gfs->RemoveFile(gfsfilename);
-        copyrs->OutputToMongoDB(gfs, gfsfilename);
-        double stime = TimeCounting();
-        FltIntRaster* mongors = FltIntRaster::Init(gfs, gfsfilename.c_str(),
-                                                   false, maskrs_);
-        cout << "Reading parameter finished, TIMESPAN " << ValueToString(TimeCounting() - stime) << " sec." << endl;
-        // test mongors data
-        EXPECT_EQ(4, mongors->GetCellNumber()); // m_nCells
-        EXPECT_EQ(3, mongors->GetLayers());
-        EXPECT_EQ(2, mongors->GetValidNumber());
-        EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage());
-        EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage(1));
-        EXPECT_DOUBLE_EQ(10.5, mongors->GetAverage(2));
-        EXPECT_DOUBLE_EQ(16., mongors->GetAverage(3));
-
-        // output to asc/tif file for comparison
-        string newfullname4mongo = Dstpath + newcorename + "_mongo." + GetSuffix(oldfullname);
-        EXPECT_TRUE(rs_->OutputToFile(newfullname4mongo));
-
-        delete mongors;
-        delete gfs;
-    }
-    //conn->Destroy(); // the MongoClient MUST not be destroyed or deleted!
-    //delete conn;
+    // string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+    // MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
+    // gfs->RemoveFile(gfsfilename);
+    // copyrs->OutputToMongoDB(gfs, gfsfilename);
+    // double stime = TimeCounting();
+    // FltIntRaster* mongors = FltIntRaster::Init(gfs, gfsfilename.c_str(),
+    //                                            false, maskrs_);
+    // cout << "Reading parameter finished, TIMESPAN " << ValueToString(TimeCounting() - stime) << " sec." << endl;
+    // // test mongors data
+    // EXPECT_EQ(4, mongors->GetCellNumber()); // m_nCells
+    // EXPECT_EQ(3, mongors->GetLayers());
+    // EXPECT_EQ(2, mongors->GetValidNumber());
+    // EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage());
+    // EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage(1));
+    // EXPECT_DOUBLE_EQ(10.5, mongors->GetAverage(2));
+    // EXPECT_DOUBLE_EQ(16., mongors->GetAverage(3));
+    //
+    // // output to asc/tif file for comparison
+    // string newfullname4mongo = Dstpath + newcorename + "_mongo." + GetSuffix(oldfullname);
+    // EXPECT_TRUE(rs_->OutputToFile(newfullname4mongo));
+    //
+    // delete mongors;
 #endif
     delete copyrs;
     // No need to release copyrs2 and copyrs3 by developers.
@@ -404,7 +398,7 @@ TEST_P(clsRasterDataTestMask2D, CalcPos) {
     EXPECT_NE(nullptr, rs_->GetRasterPositionDataPointer()); // m_rasterPositionData
 
     /// Test members after constructing.
-    EXPECT_EQ(2, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
+    EXPECT_EQ(6, rs_->GetDataLength()); // m_nCells * n_lyrs_
     EXPECT_EQ(2, rs_->GetCellNumber()); // m_nCells
 
     EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
@@ -585,34 +579,28 @@ TEST_P(clsRasterDataTestMask2D, CalcPos) {
 
 #ifdef USE_MONGODB
     /** MongoDB I/O test **/
-    MongoClient* conn = MongoClient::Init(GlobalEnv->mongoHost.c_str(), GlobalEnv->mongoPort);
-    if (nullptr != conn) {
-        string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
-        MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
-        gfs->RemoveFile(gfsfilename);
-        copyrs->OutputToMongoDB(gfs, gfsfilename);
-        double stime = TimeCounting();
-        FltIntRaster* mongors = FltIntRaster::Init(gfs, gfsfilename.c_str(),
-                                                   true, maskrs_);
-        cout << "Reading parameter finished, TIMESPAN " << ValueToString(TimeCounting() - stime) << " sec." << endl;
-        // test mongors data
-        EXPECT_EQ(2, mongors->GetCellNumber()); // m_nCells
-        EXPECT_EQ(3, mongors->GetLayers());
-        EXPECT_EQ(2, mongors->GetValidNumber());
-        EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage());
-        EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage(1));
-        EXPECT_DOUBLE_EQ(10.5, mongors->GetAverage(2));
-        EXPECT_DOUBLE_EQ(16., mongors->GetAverage(3));
-
-        // output to asc/tif file for comparison
-        string newfullname4mongo = Dstpath + newcorename + "_mongo." + GetSuffix(oldfullname);
-        EXPECT_TRUE(rs_->OutputToFile(newfullname4mongo));
-
-        delete mongors;
-        delete gfs;
-    }
-    //conn->Destroy(); // the MongoClient MUST not be destroyed or deleted!
-    //delete conn;
+    // string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+    // MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
+    // gfs->RemoveFile(gfsfilename);
+    // copyrs->OutputToMongoDB(gfs, gfsfilename);
+    // double stime = TimeCounting();
+    // FltIntRaster* mongors = FltIntRaster::Init(gfs, gfsfilename.c_str(),
+    //                                            true, maskrs_);
+    // cout << "Reading parameter finished, TIMESPAN " << ValueToString(TimeCounting() - stime) << " sec." << endl;
+    // // test mongors data
+    // EXPECT_EQ(2, mongors->GetCellNumber()); // m_nCells
+    // EXPECT_EQ(3, mongors->GetLayers());
+    // EXPECT_EQ(2, mongors->GetValidNumber());
+    // EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage());
+    // EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage(1));
+    // EXPECT_DOUBLE_EQ(10.5, mongors->GetAverage(2));
+    // EXPECT_DOUBLE_EQ(16., mongors->GetAverage(3));
+    //
+    // // output to asc/tif file for comparison
+    // string newfullname4mongo = Dstpath + newcorename + "_mongo." + GetSuffix(oldfullname);
+    // EXPECT_TRUE(rs_->OutputToFile(newfullname4mongo));
+    //
+    // delete mongors;
 #endif
     delete copyrs;
     // No need to release copyrs2 and copyrs3 by developers.

@@ -18,11 +18,20 @@
 #include "../../src/utils_array.h"
 #include "../../src/utils_string.h"
 #include "../../src/utils_filesystem.h"
+#ifdef USE_MONGODB
+#include "../../src/db_mongoc.h"
+#endif
+#include "../test_global.h"
 
 using namespace ccgl::data_raster;
 using namespace ccgl::utils_array;
 using namespace ccgl::utils_string;
 using namespace ccgl::utils_filesystem;
+#ifdef USE_MONGODB
+using namespace ccgl::db_mongoc;
+#endif
+
+extern GlobalEnvironment* GlobalEnv;
 
 namespace {
 using testing::TestWithParam;
@@ -208,7 +217,7 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
     /** Output subset to new files **/
     EXPECT_TRUE(maskrs_->OutputSubsetToFile(false, false, Dstpath));
     string suffix = GetSuffix(GetParam()->mask_name);
-    map<int, SubsetPositions*> subsets = maskrs_->GetSubset();
+    map<int, SubsetPositions*>& subsets = maskrs_->GetSubset();
     for (auto it = subsets.begin(); it != subsets.end(); ++it) {
         string outfile = Dstpath;
         outfile += maskname;
@@ -230,6 +239,54 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
         }
         delete tmp_rs;
     }
+
+#ifdef USE_MONGODB
+    /** Output subset data to MongoDB **/
+    string gfsfilename = maskrs_->GetCoreName() + "_" + GetSuffix(maskrs_->GetFilePath());
+    gfsfilename += "_subset";
+    EXPECT_TRUE(maskrs_->OutputSubsetToMongoDB(GlobalEnv->gfs_, gfsfilename, ccgl::STRING_MAP(),
+                    false, false, true)); // store fullsize data
+
+    EXPECT_TRUE(maskrs_->OutputSubsetToMongoDB(GlobalEnv->gfs_, gfsfilename, ccgl::STRING_MAP(),
+                    false, false, false)); // store valid data only
+
+    IntRaster* maskrs4mongodata = new IntRaster(maskrs_);
+    IntRaster* maskrs4mongodata2 = new IntRaster(maskrs_);
+    map<int, SubsetPositions*>& subsetsfull = maskrs4mongodata->GetSubset();
+    map<int, SubsetPositions*>& subsetsvalid = maskrs4mongodata2->GetSubset();
+
+    for (auto it = subsetsfull.begin(); it != subsetsfull.end(); ++it) {
+        string gfsfull = gfsfilename + "_" + itoa(it->first);
+        EXPECT_TRUE(it->second->ReadFromMongoDB(GlobalEnv->gfs_, gfsfull));
+    }
+    for (auto it = subsetsvalid.begin(); it != subsetsvalid.end(); ++it) {
+        string gfsvalid = gfsfilename + "_valid_" + itoa(it->first);
+        EXPECT_TRUE(it->second->ReadFromMongoDB(GlobalEnv->gfs_, gfsvalid));
+    }
+
+    // check consistent of valid values loaded in gfsfull and gfsvalid
+    for (auto it = subsetsfull.begin(); it != subsetsfull.end(); ++it) {
+        SubsetPositions* full = it->second;
+        SubsetPositions* valid = subsetsvalid.at(it->first);
+        EXPECT_EQ(full->n_lyrs, valid->n_lyrs);
+        EXPECT_EQ(full->alloc_, valid->alloc_);
+        EXPECT_EQ(full->n_cells, valid->n_cells);
+        EXPECT_EQ(full->g_srow, valid->g_srow);
+        EXPECT_EQ(full->g_erow, valid->g_erow);
+        EXPECT_EQ(full->g_scol, valid->g_scol);
+        EXPECT_EQ(full->g_ecol, valid->g_ecol);
+        for (int i = 0; i < full->n_cells; i++) {
+            EXPECT_EQ(full->local_pos_[i][0], valid->local_pos_[i][0]);
+            EXPECT_EQ(full->local_pos_[i][1], valid->local_pos_[i][1]);
+            EXPECT_DOUBLE_EQ(full->data_[i], valid->data_[i]);
+        }
+    }
+
+    delete maskrs4mongodata;
+    delete maskrs4mongodata2;
+
+#endif
+
 
     /** Output raster data according to subset's data **/
     string outfile = Dstpath;
@@ -272,6 +329,9 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
     newdata.clear();
 }
 
+// read raster based on mask layer which has several subset
+//   output raster data according to mask's subset
+//   read subset data to combine an entire raster data
 TEST_P(clsRasterDataSplitMerge, SplitRaster) {
     // prepare mask data with user-specified groups
     EXPECT_FALSE(maskrs_->PositionsCalculated());

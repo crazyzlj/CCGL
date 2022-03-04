@@ -83,7 +83,7 @@ protected:
 // calc_pos = False
 TEST_P(clsRasterDataTest2DNoMask, RasterIO) {
     /// 1. Test members after constructing.
-    EXPECT_EQ(12, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
+    EXPECT_EQ(36, rs_->GetDataLength()); // m_nCells * n_lyrs_
     EXPECT_EQ(12, rs_->GetCellNumber()); // m_nCells
     EXPECT_EQ(3, rs_->GetLayers());
 
@@ -376,6 +376,8 @@ TEST_P(clsRasterDataTest2DNoMask, RasterIO) {
     string oldfullname = rs_->GetFilePath();
     string newfullname = Dstpath + newcorename + "." + GetSuffix(oldfullname);
     EXPECT_TRUE(rs_->OutputToFile(newfullname));
+
+
 }
 
 // calc_pos = True
@@ -405,7 +407,7 @@ TEST_P(clsRasterDataTest2DNoMask, RasterIOWithCalcPos) {
     EXPECT_EQ(2, positions[5][1]);
 
     /// 1. Test members after constructing.
-    EXPECT_EQ(6, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
+    EXPECT_EQ(18, rs_->GetDataLength()); // m_nCells * n_lyrs_
     EXPECT_EQ(6, rs_->GetCellNumber()); // m_nCells
     EXPECT_EQ(3, rs_->GetLayers());
 
