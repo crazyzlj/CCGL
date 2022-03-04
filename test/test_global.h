@@ -1,14 +1,20 @@
 #ifndef CCGLTEST_GLOBAL_DEFINITIONS_H
 #define CCGLTEST_GLOBAL_DEFINITIONS_H
 #include "../src/basic.h"
+#ifdef USE_MONGODB
 #include "../src/db_mongoc.h"
+#endif
 
 #ifdef USE_MONGODB
 using namespace ccgl::db_mongoc;
+#endif
 
 class GlobalEnvironment : public ::testing::Environment {
 public:
+    GlobalEnvironment();
+#ifdef USE_MONGODB
     GlobalEnvironment(MongoClient* client, MongoGridFs* gfs) : client_(client), gfs_(gfs) {}
+#endif
     virtual ~GlobalEnvironment() {}
 
     // Override this to define how to set up the environment.
@@ -21,8 +27,10 @@ public:
         ;
     }
 public:
+#ifdef USE_MONGODB
     MongoClient* client_;
     MongoGridFs* gfs_;
+#endif
 };
-#endif /* USE_MONGODB */
+
 #endif /* CCGLTEST_GLOBAL_DEFINITIONS_H */

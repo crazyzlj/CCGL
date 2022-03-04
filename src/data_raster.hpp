@@ -117,8 +117,8 @@ typedef std::pair<double, double> XY_COOR; /// Coordinate pair
  */
 typedef enum {
     RDT_Unknown,
-    RDT_UByte,
-    RDT_Byte,
+    RDT_UInt8,
+    RDT_Int8,
     RDT_UInt16,
     RDT_Int16,
     RDT_UInt32,
@@ -159,8 +159,8 @@ inline bool CheckRasterFilesExist(vector<string>& filenames) {
  */
 inline string RasterDataTypeToString(const int type) {
     switch (type) {
-        case RDT_Byte:	    return("CHAR");    // 8-bit signed integer
-        case RDT_UByte:	    return("UCHAR");   // 8-bit unsigned integer
+        case RDT_Int8:	    return("INT8");    // 8-bit signed integer
+        case RDT_UInt8:	    return("UINT8");   // 8-bit unsigned integer
         case RDT_UInt16:	return("UINT16");  // 16-bit unsigned integer
         case RDT_Int16:	    return("INT16");   // 16-bit signed integer
         case RDT_UInt32:	return("UINT32");  // 32-bit unsigned integer
@@ -176,8 +176,8 @@ inline string RasterDataTypeToString(const int type) {
  */
 inline RasterDataType StringToRasterDataType(const string& stype) {
     if (StringMatch(stype, "UCHAR") || StringMatch(stype, "UINT8")
-        || StringMatch(stype, "GDT_Byte")) return RDT_UByte;
-    if (StringMatch(stype, "CHAR") || StringMatch(stype, "INT8")) return RDT_Byte;
+        || StringMatch(stype, "GDT_Byte")) return RDT_UInt8;
+    if (StringMatch(stype, "CHAR") || StringMatch(stype, "INT8")) return RDT_Int8;
     if (StringMatch(stype, "UINT16") || StringMatch(stype, "GDT_UInt16")) return RDT_UInt16;
     if (StringMatch(stype, "INT16") || StringMatch(stype, "GDT_Int16")) return RDT_Int16;
     if (StringMatch(stype, "UINT32") || StringMatch(stype, "GDT_UInt32")) return RDT_UInt32;
@@ -191,8 +191,8 @@ inline RasterDataType StringToRasterDataType(const string& stype) {
  * \brief Convert C++ data type to RasterDataType
  */
 inline RasterDataType TypeToRasterDataType(const std::type_info& t) {
-    if (t == typeid(unsigned char)) return RDT_UByte;
-    if (t == typeid(char)) return RDT_Byte;
+    if (t == typeid(unsigned char) || t == typeid(vuint8_t)) return RDT_UInt8;
+    if (t == typeid(char) || t == typeid(vint8_t)) return RDT_Int8;
     if (t == typeid(vuint16_t)) return RDT_UInt16;
     if (t == typeid(vint16_t)) return RDT_Int16;
     if (t == typeid(vuint32_t)) return RDT_UInt32;
@@ -208,8 +208,8 @@ inline RasterDataType TypeToRasterDataType(const std::type_info& t) {
 inline double DefaultNoDataByType(const RasterDataType type) {
     switch (type) {
         case RDT_Unknown:   return NODATA_VALUE;  // Unknown type
-        case RDT_UByte:	    return UINT8_MAX;     // 8-bit unsigned integer
-        case RDT_Byte:	    return INT8_MIN;      // 8-bit signed integer
+        case RDT_UInt8:	    return UINT8_MAX;     // 8-bit unsigned integer
+        case RDT_Int8:	    return INT8_MIN;      // 8-bit signed integer
         case RDT_UInt16:	return UINT16_MAX;    // 16-bit unsigned integer
         case RDT_Int16:	    return INT16_MIN;     // 16-bit signed integer
         case RDT_UInt32:	return UINT32_MAX;    // 32-bit unsigned integer
@@ -224,8 +224,8 @@ inline double DefaultNoDataByType(const RasterDataType type) {
 inline GDALDataType CvtToGDALDataType(const RasterDataType type) {
     switch (type) {
         case RDT_Unknown:   return GDT_Unknown;  // Unknown
-        case RDT_Byte:	    return GDT_Byte;     // 8-bit signed integer
-        case RDT_UByte:	    return GDT_Byte;     // 8-bit unsigned integer
+        case RDT_Int8:	    return GDT_Unknown;  // 8-bit signed integer that GDAL do not have!
+        case RDT_UInt8:	    return GDT_Byte;     // 8-bit unsigned integer
         case RDT_UInt16:	return GDT_UInt16;   // 16-bit unsigned integer
         case RDT_Int16:	    return GDT_Int16;    // 16-bit signed integer
         case RDT_UInt32:	return GDT_UInt32;   // 32-bit unsigned integer
@@ -297,6 +297,7 @@ inline void InitialStatsMap(map<string, double>& stats, map<string, double*>& st
     }
 }
 
+#ifdef USE_MONGODB
 /*!
  * \brief Read GridFs file from MongoDB, return data in char* and header information
  * \param[in] gfs \a mongoc_gridfs_t
@@ -355,8 +356,7 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
         delete[] buf;
         return false;
     }
-
-    // Preferred sequence: double, float, int32, int16, and int8.
+    
     if (rstype == RDT_Double && size_dtype == sizeof(double)) {
         double* data_dbl = reinterpret_cast<double*>(buf);
         Initialize1DArray(value_count, data, data_dbl);
@@ -387,12 +387,12 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
         Initialize1DArray(value_count, data, data_uint16);
         Release1DArray(data_uint16);
     }
-    else if (rstype == RDT_Byte && size_dtype == sizeof(vint8_t)) {
+    else if (rstype == RDT_Int8 && size_dtype == sizeof(vint8_t)) {
         vint8_t* data_int8 = reinterpret_cast<vint8_t*>(buf);
         Initialize1DArray(value_count, data, data_int8);
         Release1DArray(data_int8);
     }
-    else if (rstype == RDT_UByte && size_dtype == sizeof(vuint8_t)) {
+    else if (rstype == RDT_UInt8 && size_dtype == sizeof(vuint8_t)) {
         vuint8_t* data_uint8 = reinterpret_cast<vuint8_t*>(buf);
         Initialize1DArray(value_count, data, data_uint8);
         Release1DArray(data_uint8);
@@ -404,6 +404,7 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
     }
     return true;
 }
+#endif /* USE_MONGODB */
 
 /*!
  * \class SubsetPositions
@@ -1822,7 +1823,13 @@ clsRasterData<T, MASK_T>* clsRasterData<T, MASK_T>::Init(MongoGridFs* gfs, const
                                                          const bool use_mask_ext /* = true */,
                                                          T default_value /* = static_cast<T>(NODATA_VALUE) */,
                                                          const STRING_MAP& opts /* = STRING_MAP() */) {
-    return new clsRasterData<T, MASK_T>(gfs, remote_filename, calc_pos, mask, use_mask_ext, default_value, opts);
+    clsRasterData<T, MASK_T>* rs_mongo = new clsRasterData<T, MASK_T>();
+    rs_mongo->SetOutDataType(RasterDataTypeInOptionals(opts));
+    if (!rs_mongo->ReadFromMongoDB(gfs, remote_filename, calc_pos, mask, use_mask_ext, default_value, opts)) {
+        delete rs_mongo;
+        return nullptr;
+    }
+    return rs_mongo;
 };
 
 #endif /* USE_MONGODB */
@@ -2717,7 +2724,7 @@ bool clsRasterData<T, MASK_T>::WriteSingleGeotiff(const string& filename,
     bool recreate_flag = true; // recreate data array because inconsistent of datatypes
     double old_nodata = header.at(HEADER_RS_NODATA);
     bool change_nodata = false;
-    double new_nodata = old_nodata; // change nodata when convert signed datetype to unsigned
+    double new_nodata = old_nodata; // change nodata when convert signed datatype to unsigned
     bool convert_permit = true; // DO NOT allow negative cell values be converted to unsigned datatype
     RasterDataType tmptype = TypeToRasterDataType(typeid(T));
     RasterDataType outtype = RasterDataTypeInOptionals(opts);
@@ -2727,7 +2734,7 @@ bool clsRasterData<T, MASK_T>::WriteSingleGeotiff(const string& filename,
     } else if (outtype == tmptype) {
         recreate_flag = false;
     } else {
-        if (outtype == RDT_UByte) { // [0, 255]
+        if (outtype == RDT_UInt8) { // [0, 255] --> GDT_Byte in GDAL, use unsigned char
             new_values = static_cast<unsigned char*>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
             unsigned char* values_uchar = static_cast<unsigned char*>(new_values);
             if (old_nodata < 0 || old_nodata > UINT8_MAX) {
@@ -2745,7 +2752,7 @@ bool clsRasterData<T, MASK_T>::WriteSingleGeotiff(const string& filename,
                 values_uchar[i] = static_cast<unsigned char>(values[i]);
             }
             if (illegal_count > 0) convert_permit = false;
-        } else if (outtype == RDT_Byte) { // [-128, 127]
+        } else if (outtype == RDT_Int8) { // [-128, 127]
             // https://gdal.org/drivers/raster/gtiff.html
             papsz_options = CSLSetNameValue(papsz_options, "PIXELTYPE", "SIGNEDBYTE");
             new_values = static_cast<char*>(CPLMalloc(sizeof(char) * n_cols * n_rows));
@@ -2857,10 +2864,10 @@ bool clsRasterData<T, MASK_T>::WriteSingleGeotiff(const string& filename,
         return false;
     }
     GDALDriver* po_driver = GetGDALDriverManager()->GetDriverByName("GTiff");
-    if (nullptr == po_driver) return false;
+    if (nullptr == po_driver) { return false; }
     GDALDataset* po_dst_ds = po_driver->Create(filename.c_str(), n_cols, n_rows, 1,
                                                CvtToGDALDataType(outtype), papsz_options);
-    if (nullptr == po_dst_ds) return false;
+    if (nullptr == po_dst_ds) { return false; }
     GDALRasterBand* po_dst_band = po_dst_ds->GetRasterBand(1);
     CPLErr result = CE_None;
     if (!recreate_flag) {
@@ -3231,80 +3238,6 @@ bool clsRasterData<T, MASK_T>::ReadFromFiles(vector<string>& filenames, const bo
 
 #ifdef USE_MONGODB
 
-
-
-// template <typename T, typename MASK_T>
-// bool clsRasterData<T, MASK_T>::ReadGridFsFile(MongoGridFs* gfs, const string& filename,
-//                                               T*& data, map<string, double>& header,
-//                                               STRING_MAP& header_str,
-//                                               const STRING_MAP& opts /* = STRING_MAP() */) {
-//     // Get stream data and metadata by file name
-//     size_t length;
-//     char* buf = nullptr;
-//     if (!gfs->GetStreamData(filename, buf, length, nullptr, opts) ||
-//         nullptr == buf) {
-//         return false;
-//     }
-//     bson_t* bmeta = gfs->GetFileMetadata(filename, nullptr, opts);
-//     
-//     // Retrieve raster header values
-//     bson_iter_t iter; // Loop the metadata, add to `header_str` or `header`
-//     if (nullptr != bmeta && bson_iter_init(&iter, bmeta)) {
-//         while (bson_iter_next(&iter)) {
-//             const char* key = bson_iter_key(&iter);
-//             if (header.find(key) != header.end()) {
-//                 GetNumericFromBsonIterator(&iter, header[key]);
-//             } else {
-//                 header_str[key] = GetStringFromBsonIterator(&iter);
-//             }
-//         }
-//     }
-//     bson_destroy(bmeta); // Destroy bson of metadata immediately after use
-//
-//     int n_rows = CVT_INT(header.at(HEADER_RS_NROWS));
-//     int n_cols = CVT_INT(header.at(HEADER_RS_NCOLS));
-//     int n_lyrs = CVT_INT(header.at(HEADER_RS_LAYERS));
-//     int n_cells = CVT_INT(header.at(HEADER_RS_CELLSNUM));
-//     if (n_rows < 0 || n_cols < 0 || n_lyrs < 0) { // missing essential metadata
-//         delete[] buf;
-//         return false;
-//     }
-//     int value_count = n_cells * n_lyrs;
-//     int size_dtype = length / value_count;
-//     // Preferred sequence: double, float, int32, int16, and int8.
-//     if (size_dtype == sizeof(double)) {
-//         double* data_dbl = reinterpret_cast<double*>(buf);
-//         Initialize1DArray(value_count, data, data_dbl);
-//         Release1DArray(data_dbl);
-//     }
-//     else if (size_dtype == sizeof(float)) {
-//         float* data_flt = reinterpret_cast<float*>(buf);
-//         Initialize1DArray(value_count, data, data_flt);
-//         Release1DArray(data_flt);
-//     }
-//     else if (size_dtype == sizeof(vint32_t)) {
-//         vint32_t* data_int32 = reinterpret_cast<vint32_t*>(buf);
-//         Initialize1DArray(value_count, data, data_int32);
-//         Release1DArray(data_int32);
-//     }
-//     else if (size_dtype == sizeof(vint16_t)) {
-//         vint16_t* data_int16 = reinterpret_cast<vint16_t*>(buf);
-//         Initialize1DArray(value_count, data, data_int16);
-//         Release1DArray(data_int16);
-//     }
-//     else if (size_dtype == sizeof(vint8_t)) {
-//         vint8_t* data_int8 = reinterpret_cast<vint8_t*>(buf);
-//         Initialize1DArray(value_count, data, data_int8);
-//         Release1DArray(data_int8);
-//     }
-//     else {
-//         StatusMessage("Unknown data type!");
-//         delete[] buf;
-//         return false;
-//     }
-//     return true;
-// }
-
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
                                                const string& filename,
@@ -3575,7 +3508,7 @@ bool clsRasterData<T, MASK_T>::ReadRasterFileByGdal(const string& filename,
                     Initialize1DArray(n_rows * n_cols, tmprasterdata, char_data);
                     CPLFree(char_data);
                 }
-                *in_type = RDT_Byte;
+                *in_type = RDT_Int8;
             } else {
                 uchar_data = static_cast<unsigned char *>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
                 result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uchar_data,
@@ -3586,7 +3519,7 @@ bool clsRasterData<T, MASK_T>::ReadRasterFileByGdal(const string& filename,
                     Initialize1DArray(n_rows * n_cols, tmprasterdata, uchar_data);
                     CPLFree(uchar_data);
                 }
-                *in_type = RDT_UByte;
+                *in_type = RDT_UInt8;
             }
             break;
         case GDT_UInt16:

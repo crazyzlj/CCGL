@@ -58,7 +58,7 @@ TEST(TestutilsString, SplitStringForValuesInt) {
 TEST(TestutilsString, ValueToString) {
     int a = 12;
     EXPECT_STREQ("12", ValueToString(a).c_str());
-    float b = 1.2;
+    float b = 1.2f;
     EXPECT_STREQ("1.2", ValueToString(b).c_str());
     float c = 1.2e2;
     EXPECT_STREQ("120", ValueToString(c).c_str());
