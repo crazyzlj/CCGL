@@ -314,7 +314,7 @@ MongoGridFs::~MongoGridFs() {
 }
 
 mongoc_gridfs_file_t* MongoGridFs::GetFile(string const& gfilename, mongoc_gridfs_t* gfs /* = NULL */,
-                                           STRING_MAP opts /* = STRING_MAP() */) {
+                                           const STRING_MAP& opts /* = STRING_MAP() */) {
     if (gfs_ != NULL) gfs = gfs_;
     if (NULL == gfs) {
         StatusMessage("mongoc_gridfs_t must be provided for MongoGridFs!");
@@ -460,8 +460,8 @@ bool MongoGridFs::WriteStreamData(const string& gfilename, char*& buf,
  * \param[in,out] bson_opts Instance of `bson_t`
  * \param[in] opts STRING_MAP key-value
  */
-void AppendStringOptionsToBson(bson_t* bson_opts, STRING_MAP& opts) {
-    if (opts.empty()) return;
+void AppendStringOptionsToBson(bson_t* bson_opts, const STRING_MAP& opts) {
+    if (opts.empty()) { return; }
     for (auto iter = opts.begin(); iter != opts.end(); ++iter) {
         string meta_field = "metadata." + iter->first;
         bool is_dbl = false;

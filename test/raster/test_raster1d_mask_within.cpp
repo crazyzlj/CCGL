@@ -75,12 +75,7 @@ public:
     clsRasterDataTestMaskWithin() : rs_(nullptr), maskrs_(nullptr) {
     }
 
-    virtual ~clsRasterDataTestMaskWithin() {
-        delete rs_;
-        delete maskrs_;
-        rs_ = nullptr;
-        maskrs_ = nullptr;
-    }
+    virtual ~clsRasterDataTestMaskWithin() { ; }
 
     void SetUp() OVERRIDE {
         // Read mask data without calculate valid positions
@@ -91,14 +86,24 @@ public:
         rs_ = FltIntRaster::Init(GetParam()->raster_name, false, maskrs_, false);
         ASSERT_NE(nullptr, rs_);
         EXPECT_TRUE(maskrs_->PositionsCalculated());
+#ifdef USE_MONGODB
+        client_ = GlobalEnv->client_;
+        gfs_ = GlobalEnv->gfs_;
+#endif
     }
 
     void TearDown() OVERRIDE {
+        delete rs_;
+        delete maskrs_;
     }
 
 protected:
     FltIntRaster* rs_;
     IntRaster* maskrs_;
+#ifdef USE_MONGODB
+    MongoClient* client_;
+    MongoGridFs* gfs_;
+#endif
 };
 
 // calc_pos = False, use_mask_ext = False
@@ -274,33 +279,45 @@ TEST_P(clsRasterDataTestMaskWithin, NoPosNoMaskExt) {
 
 #ifdef USE_MONGODB
     /** MongoDB I/O test **/
-    MongoClient* conn = MongoClient::Init(GlobalEnv->mongoHost.c_str(), GlobalEnv->mongoPort);
-    if (nullptr != conn) {
-        string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
-        MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
-        gfs->RemoveFile(gfsfilename);
-        copyrs->OutputToMongoDB(gfs, gfsfilename);
-        double stime = TimeCounting();
-        FltIntRaster* mongors = FltIntRaster::Init(gfs, gfsfilename.c_str(),
-                                                   false, maskrs_, false);
-        cout << "Reading parameter finished, TIMESPAN " << ValueToString(TimeCounting() - stime) << " sec." << endl;
-        // test mongors data
-        EXPECT_EQ(4, mongors->GetCellNumber()); // m_nCells
-        EXPECT_EQ(1, mongors->GetLayers());
-        EXPECT_EQ(2, mongors->GetValidNumber());
-        EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage());
-        // output to asc/tif file for comparison
+    EXPECT_NE(nullptr, client_);
+    EXPECT_NE(nullptr, gfs_);
+    string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+    string gfsfilename_valid = newcorename + "_valid_" + GetSuffix(oldfullname);
+    gfs_->RemoveFile(gfsfilename); // remove if already existed
+    gfs_->RemoveFile(gfsfilename_valid);
+    EXPECT_TRUE(copyrs->OutputToMongoDB(gfs_, gfsfilename)); // store fullsize raster
+    map<string, string> additional_header;
+    additional_header[HEADER_MASK_NAME] = copyrs->GetCoreName();
+    EXPECT_TRUE(copyrs->OutputToMongoDB(gfs_, gfsfilename_valid, additional_header, false));
 
-        string newfullname4mongo = GetPathFromFullName(oldfullname) + "result" + SEP +
-                newcorename + "_mongo." + GetSuffix(oldfullname);
-        EXPECT_TRUE(rs_->OutputToFile(newfullname4mongo));
-        EXPECT_TRUE(FileExists(newfullname4mongo));
+    // Read from MongoDB without mask layer
+    FltRaster* mongors = FltRaster::Init(gfs_, gfsfilename.c_str(), false);
 
-        delete mongors;
-        delete gfs;
+    // Read from MongoDB with predefined valid positions
+    FltRaster* mongors_valid = new FltRaster(); // create empty raster, set and read data
+    mongors_valid->SetHeader(copyrs->GetRasterHeader()); // set header
+    int** posdata;
+    int poslen;
+    copyrs->GetRasterPositionData(&poslen, &posdata);
+    mongors_valid->SetPositions(poslen, posdata);
+    mongors_valid->ReadFromMongoDB(gfs_, gfsfilename_valid);
+
+    // Check the consistency of mongors and mongors_valid
+    EXPECT_NE(mongors->GetCellNumber(), mongors_valid->GetCellNumber());
+    EXPECT_NE(mongors->GetDataLength(), mongors_valid->GetDataLength());
+    EXPECT_EQ(mongors->GetValidNumber(), mongors_valid->GetValidNumber());
+    EXPECT_DOUBLE_EQ(mongors->GetAverage(), mongors_valid->GetAverage());
+    EXPECT_DOUBLE_EQ(mongors->GetStd(), mongors_valid->GetStd());
+    EXPECT_EQ(mongors->GetLayers(), mongors_valid->GetLayers());
+    EXPECT_EQ(mongors->GetRows(), mongors_valid->GetRows());
+    EXPECT_EQ(mongors->GetCols(), mongors_valid->GetCols());
+    for (int ir = 0; ir < mongors->GetRows(); ir++) {
+        for (int ic = 0; ic < mongors->GetCols(); ic++) {
+            EXPECT_FLOAT_EQ(mongors->GetValue(ir, ic), mongors_valid->GetValue(ir, ic));
+        }
     }
-    //conn->Destroy(); // the MongoClient MUST not be destroyed or deleted!
-    //delete conn;
+    delete mongors;
+    delete mongors_valid;
 #endif
     delete copyrs;
     // No need to release copyrs2 and copyrs3 by developers.
@@ -455,7 +472,7 @@ TEST_P(clsRasterDataTestMaskWithin, NoPosUseMaskExt) {
 
     /** Set value **/
     // Set core file name
-    string newcorename = Corename + "_1D-mask-within";
+    string newcorename = Corename + "_1D-mask-within-nopos-maskext";
     rs_->SetCoreName(newcorename);
     EXPECT_EQ(newcorename, rs_->GetCoreName());
 
@@ -484,33 +501,45 @@ TEST_P(clsRasterDataTestMaskWithin, NoPosUseMaskExt) {
 
 #ifdef USE_MONGODB
     /** MongoDB I/O test **/
-    MongoClient* conn = MongoClient::Init(GlobalEnv->mongoHost.c_str(), GlobalEnv->mongoPort);
-    if (nullptr != conn) {
-        string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
-        MongoGridFs* gfs = new MongoGridFs(conn->GetGridFs("test", "spatial"));
-        gfs->RemoveFile(gfsfilename);
-        copyrs->OutputToMongoDB(gfs, gfsfilename);
-        double stime = TimeCounting();
-        FltIntRaster* mongors = FltIntRaster::Init(gfs, gfsfilename.c_str(),
-                                                   false, maskrs_, false);
-        cout << "Reading parameter finished, TIMESPAN " << ValueToString(TimeCounting() - stime) << " sec." << endl;
-        // test mongors data
-        EXPECT_EQ(4, mongors->GetCellNumber()); // m_nCells
-        EXPECT_EQ(1, mongors->GetLayers());
-        EXPECT_EQ(2, mongors->GetValidNumber());
-        EXPECT_DOUBLE_EQ(4.5, mongors->GetAverage());
-        // output to asc/tif file for comparison
+    EXPECT_NE(nullptr, client_);
+    EXPECT_NE(nullptr, gfs_);
+    string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+    string gfsfilename_valid = newcorename + "_valid_" + GetSuffix(oldfullname);
+    gfs_->RemoveFile(gfsfilename); // remove if already existed
+    gfs_->RemoveFile(gfsfilename_valid);
+    EXPECT_TRUE(copyrs->OutputToMongoDB(gfs_, gfsfilename)); // store fullsize raster
+    map<string, string> additional_header;
+    additional_header[HEADER_MASK_NAME] = copyrs->GetCoreName();
+    EXPECT_TRUE(copyrs->OutputToMongoDB(gfs_, gfsfilename_valid, additional_header, false));
 
-        string newfullname4mongo = GetPathFromFullName(oldfullname) + "result" + SEP +
-                newcorename + "_mongo." + GetSuffix(oldfullname);
-        EXPECT_TRUE(rs_->OutputToFile(newfullname4mongo));
-        EXPECT_TRUE(FileExists(newfullname4mongo));
+    // Read from MongoDB without mask layer
+    FltRaster* mongors = FltRaster::Init(gfs_, gfsfilename.c_str(), false);
 
-        delete mongors;
-        delete gfs;
+    // Read from MongoDB with predefined valid positions
+    FltRaster* mongors_valid = new FltRaster(); // create empty raster, set and read data
+    mongors_valid->SetHeader(copyrs->GetRasterHeader()); // set header
+    int** posdata;
+    int poslen;
+    copyrs->GetRasterPositionData(&poslen, &posdata);
+    mongors_valid->SetPositions(poslen, posdata);
+    mongors_valid->ReadFromMongoDB(gfs_, gfsfilename_valid);
+
+    // Check the consistency of mongors and mongors_valid
+    EXPECT_NE(mongors->GetCellNumber(), mongors_valid->GetCellNumber());
+    EXPECT_NE(mongors->GetDataLength(), mongors_valid->GetDataLength());
+    EXPECT_EQ(mongors->GetValidNumber(), mongors_valid->GetValidNumber());
+    EXPECT_DOUBLE_EQ(mongors->GetAverage(), mongors_valid->GetAverage());
+    EXPECT_DOUBLE_EQ(mongors->GetStd(), mongors_valid->GetStd());
+    EXPECT_EQ(mongors->GetLayers(), mongors_valid->GetLayers());
+    EXPECT_EQ(mongors->GetRows(), mongors_valid->GetRows());
+    EXPECT_EQ(mongors->GetCols(), mongors_valid->GetCols());
+    for (int ir = 0; ir < mongors->GetRows(); ir++) {
+        for (int ic = 0; ic < mongors->GetCols(); ic++) {
+            EXPECT_FLOAT_EQ(mongors->GetValue(ir, ic), mongors_valid->GetValue(ir, ic));
+        }
     }
-    //conn->Destroy(); // the MongoClient MUST not be destroyed or deleted!
-    //delete conn;
+    delete mongors;
+    delete mongors_valid;
 #endif
     delete copyrs;
     // No need to release copyrs2 and copyrs3 by developers.
@@ -646,6 +675,61 @@ TEST_P(clsRasterDataTestMaskWithin, CalPosNoMaskExt) {
     EXPECT_EQ(-2, rs_->GetPosition(1., 1.));
     EXPECT_EQ(-2, rs_->GetPosition(3., 1.));
     EXPECT_EQ(-2, rs_->GetPosition(5., 1.));
+
+    // Set core file name
+    string newcorename = Corename + "_1D-mask-within-calcpos-nomaskext";
+    rs_->SetCoreName(newcorename);
+    EXPECT_EQ(newcorename, rs_->GetCoreName());
+
+    /** Output to new file **/
+    string oldfullname = rs_->GetFilePath();
+    string newfullname = GetPathFromFullName(oldfullname) + "result" + SEP +
+            newcorename + "." + GetSuffix(oldfullname);
+    EXPECT_TRUE(rs_->OutputToFile(newfullname));
+    EXPECT_TRUE(FileExists(newfullname));
+
+#ifdef USE_MONGODB
+    /** MongoDB I/O test **/
+    EXPECT_NE(nullptr, client_);
+    EXPECT_NE(nullptr, gfs_);
+    string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+    string gfsfilename_valid = newcorename + "_valid_" + GetSuffix(oldfullname);
+    gfs_->RemoveFile(gfsfilename); // remove if already existed
+    gfs_->RemoveFile(gfsfilename_valid);
+    EXPECT_TRUE(rs_->OutputToMongoDB(gfs_, gfsfilename)); // store fullsize raster
+    map<string, string> additional_header;
+    additional_header[HEADER_MASK_NAME] = rs_->GetCoreName();
+    EXPECT_TRUE(rs_->OutputToMongoDB(gfs_, gfsfilename_valid, additional_header, false));
+
+    // Read from MongoDB without mask layer
+    FltRaster* mongors = FltRaster::Init(gfs_, gfsfilename.c_str(), true);
+
+    // Read from MongoDB with predefined valid positions
+    FltRaster* mongors_valid = new FltRaster(); // create empty raster, set and read data
+    mongors_valid->SetHeader(rs_->GetRasterHeader()); // set header
+    int** posdata;
+    int poslen;
+    rs_->GetRasterPositionData(&poslen, &posdata);
+    mongors_valid->SetPositions(poslen, posdata);
+    mongors_valid->ReadFromMongoDB(gfs_, gfsfilename_valid);
+
+    // Check the consistency of mongors and mongors_valid
+    EXPECT_EQ(mongors->GetCellNumber(), mongors_valid->GetCellNumber());
+    EXPECT_EQ(mongors->GetDataLength(), mongors_valid->GetDataLength());
+    EXPECT_EQ(mongors->GetValidNumber(), mongors_valid->GetValidNumber());
+    EXPECT_DOUBLE_EQ(mongors->GetAverage(), mongors_valid->GetAverage());
+    EXPECT_DOUBLE_EQ(mongors->GetStd(), mongors_valid->GetStd());
+    EXPECT_EQ(mongors->GetLayers(), mongors_valid->GetLayers());
+    EXPECT_EQ(mongors->GetRows(), mongors_valid->GetRows());
+    EXPECT_EQ(mongors->GetCols(), mongors_valid->GetCols());
+    for (int ir = 0; ir < mongors->GetRows(); ir++) {
+        for (int ic = 0; ic < mongors->GetCols(); ic++) {
+            EXPECT_FLOAT_EQ(mongors->GetValue(ir, ic), mongors_valid->GetValue(ir, ic));
+        }
+    }
+    delete mongors;
+    delete mongors_valid;
+#endif
 }
 
 // calc_pos = True, use_mask_ext = True
@@ -780,6 +864,61 @@ TEST_P(clsRasterDataTestMaskWithin, CalPosUseMaskExt) {
     EXPECT_EQ(-2, rs_->GetPosition(1., 1.));
     EXPECT_EQ(-2, rs_->GetPosition(3., 1.));
     EXPECT_EQ(-2, rs_->GetPosition(5., 1.));
+
+    // Set core file name
+    string newcorename = Corename + "_1D-mask-within-calcpos-maskext";
+    rs_->SetCoreName(newcorename);
+    EXPECT_EQ(newcorename, rs_->GetCoreName());
+
+    /** Output to new file **/
+    string oldfullname = rs_->GetFilePath();
+    string newfullname = GetPathFromFullName(oldfullname) + "result" + SEP +
+            newcorename + "." + GetSuffix(oldfullname);
+    EXPECT_TRUE(rs_->OutputToFile(newfullname));
+    EXPECT_TRUE(FileExists(newfullname));
+
+#ifdef USE_MONGODB
+    /** MongoDB I/O test **/
+    EXPECT_NE(nullptr, client_);
+    EXPECT_NE(nullptr, gfs_);
+    string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+    string gfsfilename_valid = newcorename + "_valid_" + GetSuffix(oldfullname);
+    gfs_->RemoveFile(gfsfilename); // remove if already existed
+    gfs_->RemoveFile(gfsfilename_valid);
+    EXPECT_TRUE(rs_->OutputToMongoDB(gfs_, gfsfilename)); // store fullsize raster
+    map<string, string> additional_header;
+    additional_header[HEADER_MASK_NAME] = rs_->GetCoreName();
+    EXPECT_TRUE(rs_->OutputToMongoDB(gfs_, gfsfilename_valid, additional_header, false));
+
+    // Read from MongoDB without mask layer
+    FltRaster* mongors = FltRaster::Init(gfs_, gfsfilename.c_str(), true);
+
+    // Read from MongoDB with predefined valid positions
+    FltRaster* mongors_valid = new FltRaster(); // create empty raster, set and read data
+    mongors_valid->SetHeader(rs_->GetRasterHeader()); // set header
+    int** posdata;
+    int poslen;
+    rs_->GetRasterPositionData(&poslen, &posdata);
+    mongors_valid->SetPositions(poslen, posdata);
+    mongors_valid->ReadFromMongoDB(gfs_, gfsfilename_valid);
+
+    // Check the consistency of mongors and mongors_valid
+    EXPECT_EQ(mongors->GetCellNumber(), mongors_valid->GetCellNumber());
+    EXPECT_EQ(mongors->GetDataLength(), mongors_valid->GetDataLength());
+    EXPECT_EQ(mongors->GetValidNumber(), mongors_valid->GetValidNumber());
+    EXPECT_DOUBLE_EQ(mongors->GetAverage(), mongors_valid->GetAverage());
+    EXPECT_DOUBLE_EQ(mongors->GetStd(), mongors_valid->GetStd());
+    EXPECT_EQ(mongors->GetLayers(), mongors_valid->GetLayers());
+    EXPECT_EQ(mongors->GetRows(), mongors_valid->GetRows());
+    EXPECT_EQ(mongors->GetCols(), mongors_valid->GetCols());
+    for (int ir = 0; ir < mongors->GetRows(); ir++) {
+        for (int ic = 0; ic < mongors->GetCols(); ic++) {
+            EXPECT_FLOAT_EQ(mongors->GetValue(ir, ic), mongors_valid->GetValue(ir, ic));
+        }
+    }
+    delete mongors;
+    delete mongors_valid;
+#endif
 }
 
 

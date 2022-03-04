@@ -68,7 +68,7 @@ public:
     clsRasterData2DSplitMerge() : maskrs_(nullptr) {
     }
 
-    virtual ~clsRasterData2DSplitMerge() { delete maskrs_; }
+    virtual ~clsRasterData2DSplitMerge() { ; }
 
     void SetUp() OVERRIDE {
         maskrs_ = IntRaster::Init(GetParam()->mask_name);
@@ -79,14 +79,13 @@ public:
 
     void TearDown() OVERRIDE {
         delete maskrs_;
-        maskrs_ = nullptr;
     }
 
 protected:
     IntRaster* maskrs_;
 };
 
-TEST_P(clsRasterData2DSplitMerge, RasterIO) {
+TEST_P(clsRasterData2DSplitMerge, MaskLyrIO) {
     EXPECT_FALSE(maskrs_->PositionsCalculated());
     EXPECT_TRUE(maskrs_->BuildSubSet());
     EXPECT_TRUE(maskrs_->PositionsCalculated());
@@ -187,32 +186,46 @@ TEST_P(clsRasterData2DSplitMerge, RasterIO) {
     EXPECT_EQ(newsub3->global_[5], 18);
 
     /** Set new data of subset and output to new files **/
-    map<int, float*> newdata = map<int, float*>();
-    float* data1 = nullptr;
-    Initialize1DArray(newsub1->n_cells, data1, 1.f);
-    data1[0] = 2008.f;
-    data1[1] = 11.f;
-    data1[2] = 9.f;
-    data1[7] = 2017.f;
-    data1[8] = 5.f;
-    data1[9] = 1.f;
-    newsub1->SetData(newsub1->n_cells, data1);
+    map<int, float**> newdata = map<int, float**>();
+    int newlyrs = 2;
+    float** data1 = nullptr;
+    Initialize2DArray(newsub1->n_cells, newlyrs, data1, 1.f);
+    data1[0][0] = 2008.f;
+    data1[0][0] = 4016.f;
+    data1[1][0] = 11.f;
+    data1[1][1] = 22.f;
+    data1[2][0] = 9.f;
+    data1[2][1] = 18.f;
+    data1[7][0] = 2017.f;
+    data1[7][1] = 4034.f;
+    data1[8][0] = 5.f;
+    data1[8][1] = 10.f;
+    data1[9][0] = 1.f;
+    data1[9][1] = 2.f;
+    EXPECT_FALSE(newsub1->Set2DData(newsub1->n_cells + 1, newlyrs, data1));
+    EXPECT_TRUE(newsub1->Set2DData(newsub1->n_cells, newlyrs, data1));
     newdata[1] = data1;
 
-    float* data2 = nullptr;
-    Initialize1DArray(newsub2->n_cells, data2, 2.f);
-    data2[0] = 2017.f;
-    data2[1] = 1.f;
-    data2[2] = 7.f;
-    newsub2->SetData(newsub2->n_cells, data2);
+    float** data2 = nullptr;
+    Initialize2DArray(newsub2->n_cells, newlyrs, data2, 2.f);
+    data2[0][0] = 2017.f;
+    data2[0][1] = 4034.f;
+    data2[1][0] = 1.f;
+    data2[1][1] = 2.f;
+    data2[2][0] = 7.f;
+    data2[2][1] = 14.f;
+    EXPECT_TRUE(newsub2->Set2DData(newsub2->n_cells, newlyrs, data2));
     newdata[2] = data2;
 
-    float* data3 = nullptr;
-    Initialize1DArray(newsub3->n_cells, data3, 3.f);
-    data3[0] = 2019.f;
-    data3[1] = 2.f;
-    data3[2] = 18.f;
-    newsub3->SetData(newsub3->n_cells, data3);
+    float** data3 = nullptr;
+    Initialize2DArray(newsub3->n_cells, newlyrs, data3, 3.f);
+    data3[0][0] = 2019.f;
+    data3[0][1] = 4038.f;
+    data3[1][0] = 2.f;
+    data3[1][1] = 4.f;
+    data3[2][0] = 18.f;
+    data3[2][1] = 36.f;
+    EXPECT_TRUE(newsub3->Set2DData(newsub3->n_cells, newlyrs, data3));
     newdata[3] = data3;
 
     /** Output subset to new files **/
@@ -220,23 +233,32 @@ TEST_P(clsRasterData2DSplitMerge, RasterIO) {
     string suffix = GetSuffix(GetParam()->mask_name);
     map<int, SubsetPositions*> subsets = maskrs_->GetSubset();
     for (auto it = subsets.begin(); it != subsets.end(); ++it) {
-        string outfile = Dstpath;
-        outfile += maskname;
-        outfile += "_";
-        outfile += itoa(it->first);
-        outfile += "_";
-        outfile += ".";
-        outfile += suffix;
-        EXPECT_TRUE(FileExists(outfile));
-        float* tmp = newdata.at(it->first);
-        FltRaster* tmp_rs = FltRaster::Init(outfile, true);
+        vector<string> outfiles(newlyrs);
+        for (int ilyr = 0; ilyr < newlyrs; ilyr++) {
+            outfiles[ilyr] = Dstpath;
+            outfiles[ilyr] += maskname;
+            outfiles[ilyr] += "_";
+            outfiles[ilyr] += itoa(it->first);
+            outfiles[ilyr] += "_";
+            outfiles[ilyr] += itoa(ilyr + 1);
+            outfiles[ilyr] += ".";
+            outfiles[ilyr] += suffix;
+            EXPECT_TRUE(FileExists(outfiles[ilyr]));
+        }
+        float** tmp = newdata.at(it->first);
+        FltRaster* tmp_rs = FltRaster::Init(outfiles, true);
         EXPECT_FALSE(nullptr == tmp_rs);
         EXPECT_TRUE(tmp_rs->PositionsCalculated());
         int len;
-        float* validdata = nullptr;
-        tmp_rs->GetRasterData(&len, &validdata);
-        for (int k = 0; k < len; k++) {
-            EXPECT_FLOAT_EQ(validdata[k], tmp[k]);
+        int lyr;
+        float** validdata = nullptr;
+        tmp_rs->Get2DRasterData(&len, &lyr, &validdata);
+        EXPECT_EQ(lyr, newlyrs);
+        EXPECT_EQ(len, it->second->n_cells);
+        for (int ki = 0; ki < len; ki++) {
+            for (int kj = 0; kj < newlyrs; kj++) {
+                EXPECT_FLOAT_EQ(validdata[ki][kj], tmp[ki][kj]);
+            }
         }
         delete tmp_rs;
     }
@@ -276,12 +298,140 @@ TEST_P(clsRasterData2DSplitMerge, RasterIO) {
     delete newrs;
 
     // release newdata
-    for (auto it = newdata.begin(); it != newdata.end(); ) {
-        Release1DArray(it->second);
-        newdata.erase(it++);
+    for (auto it = newdata.begin(); it != newdata.end(); ++it) {
+        Release2DArray(it->second);
     }
+    newdata.clear();
 }
 
+TEST_P(clsRasterData2DSplitMerge, SplitRaster) {
+    // prepare mask data with user-specified groups
+    EXPECT_FALSE(maskrs_->PositionsCalculated());
+    map<int, int> new_group;
+    new_group[1] = 1;
+    new_group[2] = 2;
+    new_group[3] = 3;
+    new_group[4] = 1;
+    EXPECT_TRUE(maskrs_->BuildSubSet(new_group));
+    EXPECT_TRUE(maskrs_->PositionsCalculated());
+    // read raster data with mask
+    vector<string> filenames;
+    filenames.emplace_back(GetParam()->raster_name1);
+    filenames.emplace_back(GetParam()->raster_name2);
+    filenames.emplace_back(GetParam()->raster_name3);
+    int lyrs = CVT_INT(filenames.size());
+    FltIntRaster* rs = FltIntRaster::Init(filenames, true, maskrs_, true);
+    EXPECT_NE(nullptr, rs);
+
+    map<int, SubsetPositions*>& subset = maskrs_->GetSubset();
+    map<int, SubsetPositions*>& rs_subset = rs->GetSubset();
+    EXPECT_FALSE(subset.empty());
+    EXPECT_FALSE(rs_subset.empty());
+    EXPECT_EQ(subset.size(), 3);
+    EXPECT_EQ(rs_subset.size(), 2);
+
+    /** Output subset to new files **/
+    EXPECT_TRUE(rs->OutputSubsetToFile(true, false, Dstpath));
+    /** Check the output files **/
+    map<int, float**> subarray = map<int, float**>();
+    float** data1 = nullptr;
+    Initialize2DArray(10, lyrs, data1, -9999.f);
+    data1[0][0] = 1.1f;
+    data1[1][0] = 4.4f;
+    data1[2][0] = 5.5f;
+    data1[3][0] = 10.f;
+    data1[4][0] = 11.11f;
+    data1[5][0] = 12.12f;
+    data1[6][0] = 15.15f;
+    data1[7][0] = 16.16f;
+    data1[8][0] = 17.17f;
+    data1[9][0] = 22.22f;
+
+    data1[0][1] = 29.29f;
+    data1[1][1] = 31.31f;
+    data1[2][1] = 32.32f;
+    data1[3][1] = -9999.f;
+    data1[4][1] = 38.38f;
+    data1[5][1] = 39.39f;
+    data1[6][1] = -9999.f;
+    data1[7][1] = -9999.f;
+    data1[8][1] = 42.42f;
+    data1[9][1] = 47.47f;
+
+    data1[0][2] = -9999.f;
+    data1[1][2] = 56.56f;
+    data1[2][2] = 57.57f;
+    data1[3][2] = 61.61f;
+    data1[4][2] = 62.62f;
+    data1[5][2] = -9999.f;
+    data1[6][2] = 64.64f;
+    data1[7][2] = -9999.f;
+    data1[8][2] = 65.65f;
+    data1[9][2] = -9999.f;
+
+    subarray[1] = data1;
+
+    float** data3 = nullptr;
+    Initialize2DArray(6, lyrs, data3, -9999.f);
+    data3[0][0] = 2.2f;
+    data3[1][0] = 8.8f;
+    data3[2][0] = 14.14f;
+    data3[3][0] = 19.19f;
+    data3[4][0] = 20.2f;
+    data3[5][0] = 21.21f;
+
+    data3[0][1] = -9999.f;
+    data3[1][1] = 36.36f;
+    data3[2][1] = 41.41f;
+    data3[3][1] = 44.44f;
+    data3[4][1] = 45.45f;
+    data3[5][1] = 46.46f;
+
+    data3[0][2] = 54.54f;
+    data3[1][2] = 59.59f;
+    data3[2][2] = 63.63f;
+    data3[3][2] = 66.66f;
+    data3[4][2] = 67.67f;
+    data3[5][2] = -9999.f;
+    subarray[3] = data3;
+
+    string suffix = GetSuffix(GetParam()->raster_name1);
+    for (auto it = rs_subset.begin(); it != rs_subset.end(); ++it) {
+        vector<string> outfiles(lyrs);
+        for (int ilyr = 0; ilyr < lyrs; ilyr++) {
+            outfiles[ilyr] = Dstpath;
+            outfiles[ilyr] += corename;
+            outfiles[ilyr] += "_";
+            outfiles[ilyr] += itoa(it->first);
+            outfiles[ilyr] += "_";
+            outfiles[ilyr] += itoa(ilyr + 1);
+            outfiles[ilyr] += ".";
+            outfiles[ilyr] += suffix;
+            EXPECT_TRUE(FileExists(outfiles[ilyr]));
+        }
+        float** tmp = subarray.at(it->first);
+        FltRaster* tmp_rs = FltRaster::Init(outfiles, true);
+        EXPECT_FALSE(nullptr == tmp_rs);
+        EXPECT_TRUE(tmp_rs->PositionsCalculated());
+        int len;
+        int lyr;
+        float** validdata = nullptr;
+        tmp_rs->Get2DRasterData(&len, &lyr, &validdata);
+        EXPECT_EQ(lyr, lyrs);
+        EXPECT_EQ(len, it->second->n_cells);
+        for (int ki = 0; ki < len; ki++) {
+            for (int kj = 0; kj < lyrs; kj++) {
+                EXPECT_FLOAT_EQ(validdata[ki][kj], tmp[ki][kj]);
+            }
+        }
+        delete tmp_rs;
+    }
+    for (auto it = subarray.begin(); it != subarray.end(); ++it) {
+        Release2DArray(it->second);
+    }
+    subarray.clear();
+    delete rs;
+}
 
 
 #ifdef USE_GDAL

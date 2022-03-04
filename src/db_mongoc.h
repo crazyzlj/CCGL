@@ -151,7 +151,7 @@ public:
 
     /*! Get GridFS file by name */
     mongoc_gridfs_file_t* GetFile(string const& gfilename, mongoc_gridfs_t* gfs = NULL,
-                                  STRING_MAP opts = STRING_MAP());
+                                  const STRING_MAP& opts = STRING_MAP());
 
     /*! Remove GridFS file by name */
     bool RemoveFile(string const& gfilename, mongoc_gridfs_t* gfs = NULL);
@@ -177,7 +177,7 @@ private:
 };
 
 /*! Append options to `bson_t` */
-void AppendStringOptionsToBson(bson_t* bson_opts, STRING_MAP& opts);
+void AppendStringOptionsToBson(bson_t* bson_opts, const STRING_MAP& opts);
 
 /*!
  * \brief Get numeric value from the iterator (`bson_iter_t`) of `bson_t`according to a given key

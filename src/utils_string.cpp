@@ -76,7 +76,7 @@ string& Trim(string& s) {
 }
 
 void CopyStringMap(const STRING_MAP& in_opts, STRING_MAP& out_opts) {
-    if (in_opts.empty()) return;
+    if (in_opts.empty()) { return; }
     for (auto it = in_opts.begin(); it != in_opts.end(); ++it) {
         if (out_opts.find(it->first) != out_opts.end()) {
             out_opts[it->first] = it->second;

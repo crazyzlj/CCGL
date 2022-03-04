@@ -306,6 +306,10 @@ string AppendCoreFileName(string const& full_filename, string const& endstr, cha
     string filedir = GetPathFromFullName(full_filename);
     string corename = GetCoreFileName(full_filename);
     string old_suffix = GetSuffix(full_filename);
+    if (deli == '\0') {
+        if (old_suffix.empty()) { return filedir + corename + endstr; }
+        return filedir + corename + endstr + "." + old_suffix;
+    }
     if (old_suffix.empty()) return filedir + corename + deli + endstr;
     return filedir + corename + deli + endstr + "." + old_suffix;
 }

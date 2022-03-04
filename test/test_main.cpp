@@ -26,6 +26,7 @@
 #include "../src/basic.h"
 #include "../src/utils_filesystem.h"
 #include "../src/utils_string.h"
+#include "../src/db_mongoc.h"
 
 using namespace ccgl;
 using namespace utils_filesystem;
@@ -55,8 +56,13 @@ int main(int argc, char** argv) {
             }
         }
     }
-    GlobalEnv = new GlobalEnvironment(mongo_host, mongo_port);
+#ifdef USE_MONGODB
+    using namespace db_mongoc;
+    MongoClient* client_ = MongoClient::Init(mongo_host.c_str(), mongo_port);
+    MongoGridFs* gfs_ = new MongoGridFs(client_->GetGridFs("test", "spatial"));
+    GlobalEnv = new GlobalEnvironment(client_, gfs_);
     ::testing::AddGlobalTestEnvironment(GlobalEnv);
+#endif
 
     SetDefaultOpenMPThread();
 
@@ -66,7 +72,7 @@ int main(int argc, char** argv) {
     // Create new directory for outputs if not exists.
     string apppath = GetAppPath();
     string resultpath = apppath + "./data/raster/result";
-    if (!DirectoryExists(resultpath)) CleanDirectory(resultpath);
+    if (!DirectoryExists(resultpath)) { CleanDirectory(resultpath); }
 
 #if (defined _DEBUG) && (defined _MSC_VER) && (defined VLD)
     // Get a checkpoint of the memory after Google Test has been initialized. (not finished yet! by lj)
