@@ -85,57 +85,32 @@ using namespace db_mongoc;
  * \brief Raster class to handle various raster data
  */
 namespace data_raster {
-/*! NoData value */
-CONST_CHARS HEADER_RS_NODATA = "NODATA_VALUE";
-/*! X coordinate value of left low center */
-CONST_CHARS HEADER_RS_XLL = "XLLCENTER";  // can convert from/to XLLCORNER
-/*! Y coordinate value of left low center */
-CONST_CHARS HEADER_RS_YLL = "YLLCENTER";  // can convert from/to YLLCORNER
-/*! X coordinate value of left low center */
-CONST_CHARS HEADER_RS_XLLCOR = "XLLCORNER";  // can convert from/to XLLCENTER
-/*! Y coordinate value of left low center */
-CONST_CHARS HEADER_RS_YLLCOR = "YLLCORNER"; // can convert from/to YLLCENTER
-/*! Rows number */
-CONST_CHARS HEADER_RS_NROWS = "NROWS";
-/*! Column number */
-CONST_CHARS HEADER_RS_NCOLS = "NCOLS";
-/*! Cell size (length) */
-CONST_CHARS HEADER_RS_CELLSIZE = "CELLSIZE";
-/*! Layers number */
-CONST_CHARS HEADER_RS_LAYERS = "LAYERS";
-/*! Valid cells' number */
-CONST_CHARS HEADER_RS_CELLSNUM = "CELLSNUM";
-/*! SRS */
-CONST_CHARS HEADER_RS_SRS = "SRS";
-/*! Data type of original raster */
-CONST_CHARS HEADER_RS_DATATYPE = "DATATYPE";
-/*! Desired output data type of raster */
-CONST_CHARS HEADER_RSOUT_DATATYPE = "DATATYPE_OUT";
-/*! Include nodata ("true" or "false"), specific for storage in database */
-CONST_CHARS HEADER_INC_NODATA = "INCLUDE_NODATA";
+CONST_CHARS HEADER_RS_NODATA = "NODATA_VALUE"; /// NoData value
+CONST_CHARS HEADER_RS_XLL = "XLLCENTER";  /// X coordinate value of left low center
+CONST_CHARS HEADER_RS_YLL = "YLLCENTER";  /// Y coordinate value of left low center
+CONST_CHARS HEADER_RS_XLLCOR = "XLLCORNER";  /// X coordinate value of left low center
+CONST_CHARS HEADER_RS_YLLCOR = "YLLCORNER"; ///  Y coordinate value of left low center
+CONST_CHARS HEADER_RS_NROWS = "NROWS"; /// Rows number
+CONST_CHARS HEADER_RS_NCOLS = "NCOLS"; /// Column number
+CONST_CHARS HEADER_RS_CELLSIZE = "CELLSIZE"; /// Cell size (length)
+CONST_CHARS HEADER_RS_LAYERS = "LAYERS"; /// Layers number
+CONST_CHARS HEADER_RS_CELLSNUM = "CELLSNUM"; /// Number of the first layer's valid cells
+CONST_CHARS HEADER_RS_SRS = "SRS"; /// SRS
+CONST_CHARS HEADER_RS_DATATYPE = "DATATYPE"; /// Data type of original raster
+CONST_CHARS HEADER_RSOUT_DATATYPE = "DATATYPE_OUT"; /// Desired output data type of raster
+CONST_CHARS HEADER_INC_NODATA = "INCLUDE_NODATA"; /// Include nodata ("true") or not, for DB only
+CONST_CHARS HEADER_MASK_NAME = "MASK_NAME"; /// Mask layer's name if only store valid values
+CONST_CHARS STATS_RS_VALIDNUM = "VALID_CELLNUMBER"; /// Valid cell number
+CONST_CHARS STATS_RS_MEAN = "MEAN"; /// Mean value 
+CONST_CHARS STATS_RS_MIN = "MIN"; /// Minimum value
+CONST_CHARS STATS_RS_MAX = "MAX"; /// Maximum value
+CONST_CHARS STATS_RS_STD = "STD"; /// Standard derivation value 
+CONST_CHARS STATS_RS_RANGE = "RANGE"; /// Range value 
+CONST_CHARS ASCIIExtension = "asc"; /// ASCII extension
+CONST_CHARS GTiffExtension = "tif"; /// GeoTIFF extension
 
-/*! Valid cell number */
-CONST_CHARS STATS_RS_VALIDNUM = "VALID_CELLNUMBER";
-/*! Mean value */
-CONST_CHARS STATS_RS_MEAN = "MEAN";
-/*! Minimum value */
-CONST_CHARS STATS_RS_MIN = "MIN";
-/*! Maximum value */
-CONST_CHARS STATS_RS_MAX = "MAX";
-/*! Standard derivation value */
-CONST_CHARS STATS_RS_STD = "STD";
-/*! Range value */
-CONST_CHARS STATS_RS_RANGE = "RANGE";
-
-/*! ASCII extension */
-CONST_CHARS ASCIIExtension = "asc";
-/*! GeoTIFF extension */
-CONST_CHARS GTiffExtension = "tif";
-
-/*! Row and Col pair */
-typedef std::pair<int, int> ROW_COL;
-/*! Coordinate pair */
-typedef std::pair<double, double> XY_COOR;
+typedef std::pair<int, int> ROW_COL; /// Row and Col pair
+typedef std::pair<double, double> XY_COOR; /// Coordinate pair
 
 /*!
  * \brief Raster data types follows GDALDataType
@@ -272,15 +247,172 @@ inline RasterDataType RasterDataTypeInOptionals(const STRING_MAP& opts) {
     return RDT_Unknown;
 }
 
+inline map<string, double> InitialHeaderMap() {
+    map<string, double> headinfo;
+    const char* raster_headers[8] = {
+        HEADER_RS_NCOLS, HEADER_RS_NROWS, HEADER_RS_XLL, HEADER_RS_YLL,
+        HEADER_RS_CELLSIZE, HEADER_RS_NODATA, HEADER_RS_LAYERS, HEADER_RS_CELLSNUM
+    };
+    for (int i = 0; i < 8; i++) {
+#ifdef HAS_VARIADIC_TEMPLATES
+        headinfo.emplace(raster_headers[i], NODATA_VALUE);
+#else
+        headinfo.insert(make_pair(raster_headers[i], NODATA_VALUE));
+#endif
+    }
+    return headinfo;
+}
+
+inline STRING_MAP InitialHeaderStrMap() {
+    STRING_MAP options;
+#ifdef HAS_VARIADIC_TEMPLATES
+    options.emplace(HEADER_RS_SRS, "");
+    options.emplace(HEADER_RS_DATATYPE, "");
+    options.emplace(HEADER_RSOUT_DATATYPE, "");
+    options.emplace(HEADER_INC_NODATA, "");
+    options.emplace(HEADER_MASK_NAME, "");
+#else
+    options.insert(make_pair(HEADER_RS_SRS, ""));
+    options.insert(make_pair(HEADER_RS_DATATYPE, ""));
+    options.insert(make_pair(HEADER_RSOUT_DATATYPE, ""));
+    options.insert(make_pair(HEADER_INC_NODATA, ""));
+    options.insert(make_pair(HEADER_MASK_NAME, ""));
+#endif
+    return options;
+}
+
+inline void InitialStatsMap(map<string, double>& stats, map<string, double*>& stats2d) {
+    string statsnames[6] = {
+        STATS_RS_VALIDNUM, STATS_RS_MIN, STATS_RS_MAX, STATS_RS_MEAN,
+        STATS_RS_STD, STATS_RS_RANGE
+    };
+    for (int i = 0; i < 6; i++) {
+#ifdef HAS_VARIADIC_TEMPLATES
+        stats.emplace(statsnames[i], NODATA_VALUE);
+        stats2d.emplace(statsnames[i], nullptr);
+#else
+        stats.insert(make_pair(statsnames[i], NODATA_VALUE));
+        stats2d.insert(map<string, double*>::value_type(statsnames[i], nullptr));
+#endif
+    }
+}
+
+/*!
+ * \brief Read GridFs file from MongoDB, return data in char* and header information
+ * \param[in] gfs \a mongoc_gridfs_t
+ * \param[in] filename \a char*, raster file name
+ * \param[out] data Data stored in GridFs file
+ * \param[out] header Header information
+ * \param[out] header_str Header information in strings
+ * \param[in] opts Optional key-value stored in metadata, used to filter GridFs file
+ */
+template <typename T>
+bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
+                    T*& data, map<string, double>& header,
+                    STRING_MAP& header_str,
+                    const STRING_MAP& opts /* = STRING_MAP() */) {
+    // Get stream data and metadata by file name
+    size_t length;
+    char* buf = nullptr;
+    if (!gfs->GetStreamData(filename, buf, length, nullptr, opts) ||
+        nullptr == buf) {
+        return false;
+    }
+    bson_t* bmeta = gfs->GetFileMetadata(filename, nullptr, opts);
+
+    // Retrieve raster header values
+    bson_iter_t iter; // Loop the metadata, add to `header_str` or `header`
+    if (nullptr != bmeta && bson_iter_init(&iter, bmeta)) {
+        while (bson_iter_next(&iter)) {
+            const char* key = bson_iter_key(&iter);
+            if (header.find(key) != header.end()) {
+                GetNumericFromBsonIterator(&iter, header[key]);
+            }
+            else {
+                header_str[key] = GetStringFromBsonIterator(&iter);
+            }
+        }
+    }
+    bson_destroy(bmeta); // Destroy bson of metadata immediately after use
+
+    int n_rows = CVT_INT(header.at(HEADER_RS_NROWS));
+    int n_cols = CVT_INT(header.at(HEADER_RS_NCOLS));
+    int n_lyrs = CVT_INT(header.at(HEADER_RS_LAYERS));
+    int n_cells = CVT_INT(header.at(HEADER_RS_CELLSNUM));
+    if (n_rows < 0 || n_cols < 0 || n_lyrs < 0) { // missing essential metadata
+        delete[] buf;
+        return false;
+    }
+    int value_count = n_cells * n_lyrs;
+    int size_dtype = length / value_count;
+
+    RasterDataType rstype = RDT_Unknown;
+    if (header_str.find(HEADER_RSOUT_DATATYPE) != header_str.end()) {
+        rstype = StringToRasterDataType(header_str.at(HEADER_RSOUT_DATATYPE));
+    }
+    if (rstype == RDT_Unknown) {
+        StatusMessage("Unknown data type in MongoDB GridFS!");
+        delete[] buf;
+        return false;
+    }
+
+    // Preferred sequence: double, float, int32, int16, and int8.
+    if (rstype == RDT_Double && size_dtype == sizeof(double)) {
+        double* data_dbl = reinterpret_cast<double*>(buf);
+        Initialize1DArray(value_count, data, data_dbl);
+        Release1DArray(data_dbl);
+    }
+    else if (rstype == RDT_Float && size_dtype == sizeof(float)) {
+        float* data_flt = reinterpret_cast<float*>(buf);
+        Initialize1DArray(value_count, data, data_flt);
+        Release1DArray(data_flt);
+    }
+    else if (rstype == RDT_Int32 && size_dtype == sizeof(vint32_t)) {
+        vint32_t* data_int32 = reinterpret_cast<vint32_t*>(buf);
+        Initialize1DArray(value_count, data, data_int32);
+        Release1DArray(data_int32);
+    }
+    else if (rstype == RDT_UInt32 && size_dtype == sizeof(vuint32_t)) {
+        vuint32_t* data_uint32 = reinterpret_cast<vuint32_t*>(buf);
+        Initialize1DArray(value_count, data, data_uint32);
+        Release1DArray(data_uint32);
+    }
+    else if (rstype == RDT_Int16 && size_dtype == sizeof(vint16_t)) {
+        vint16_t* data_int16 = reinterpret_cast<vint16_t*>(buf);
+        Initialize1DArray(value_count, data, data_int16);
+        Release1DArray(data_int16);
+    }
+    else if (rstype == RDT_UInt16 && size_dtype == sizeof(vuint16_t)) {
+        vuint16_t* data_uint16 = reinterpret_cast<vuint16_t*>(buf);
+        Initialize1DArray(value_count, data, data_uint16);
+        Release1DArray(data_uint16);
+    }
+    else if (rstype == RDT_Byte && size_dtype == sizeof(vint8_t)) {
+        vint8_t* data_int8 = reinterpret_cast<vint8_t*>(buf);
+        Initialize1DArray(value_count, data, data_int8);
+        Release1DArray(data_int8);
+    }
+    else if (rstype == RDT_UByte && size_dtype == sizeof(vuint8_t)) {
+        vuint8_t* data_uint8 = reinterpret_cast<vuint8_t*>(buf);
+        Initialize1DArray(value_count, data, data_uint8);
+        Release1DArray(data_uint8);
+    }
+    else {
+        StatusMessage("Unconsistent of data type and size!");
+        delete[] buf;
+        return false;
+    }
+    return true;
+}
+
 /*!
  * \class SubsetPositions
  * \brief Subset positions of raster data
  */
-class SubsetPositions {
+class SubsetPositions: NotCopyable {
 public:
-    SubsetPositions()
-        : n_cells(0), n_lyrs(-1), g_srow(-1), g_erow(-1), g_scol(-1), g_ecol(-1), alloc_(false),
-          local_pos_(nullptr), global_(nullptr), data_(nullptr), data2d_(nullptr) {
+    SubsetPositions() {
+        Initialization();
     }
 
     SubsetPositions(const int srow, const int erow, const int scol, const int ecol)
@@ -288,23 +420,30 @@ public:
           local_pos_(nullptr), global_(nullptr), data_(nullptr), data2d_(nullptr) {
     }
 
-    SubsetPositions(SubsetPositions* src, bool deep_copy = false) {
+    SubsetPositions(SubsetPositions*& src, const bool deep_copy = false) {
+        Initialization();
         n_cells = src->n_cells;
         n_lyrs = src->n_lyrs;
         g_srow = src->g_srow;
         g_erow = src->g_erow;
         g_scol = src->g_scol;
         g_ecol = src->g_ecol;
-        data_ = nullptr;
-        data2d_ = nullptr;
         if (deep_copy) {
             alloc_ = true;
             Initialize1DArray(n_cells, global_, src->global_);
             Initialize2DArray(n_cells, 2, local_pos_, src->local_pos_);
+            if (nullptr != src->data_) {
+                Initialize1DArray(n_cells, data_, src->data_);
+            }
+            if (nullptr != src->data2d_) {
+                Initialize2DArray(n_cells, n_lyrs, data2d_, src->data2d_);
+            }
         } else {
             alloc_ = false;
             global_ = src->global_;
             local_pos_ = src->local_pos_;
+            if (nullptr != src->data_) { data_ = src->data_; }
+            if (nullptr != src->data2d_) { data2d_ = src->data2d_; }
         }
     }
 
@@ -319,6 +458,21 @@ public:
         }
         if (nullptr != data_) { Release1DArray(data_); }
         if (nullptr != data2d_) { Release2DArray(data2d_); }
+    }
+
+    bool Initialization() {
+        n_cells = 0;
+        n_lyrs = -1;
+        g_srow = -1;
+        g_erow = -1;
+        g_scol = -1;
+        g_ecol = -1;
+        alloc_ = false;
+        local_pos_ = nullptr;
+        global_ = nullptr;
+        data_ = nullptr;
+        data2d_ = nullptr; 
+        return true;
     }
 
     template <typename T>
@@ -350,6 +504,47 @@ public:
         }
         return true;
     }
+#ifdef USE_MONGODB
+    bool ReadFromMongoDB(MongoGridFs* gfs, const string& fname,
+                         const STRING_MAP& opts = STRING_MAP()) {
+        double* dbdata = nullptr;
+        map<string, double> header_dbl = InitialHeaderMap();
+        STRING_MAP header_str = InitialHeaderStrMap();
+        if (!ReadGridFsFile(gfs, fname, dbdata, header_dbl, header_str, opts)) { return false; }
+        int nrows = g_erow - g_srow + 1;
+        int ncols = g_ecol - g_scol + 1;
+        int nfull = nrows * ncols;
+        int db_ncells = CVT_INT(header_dbl.at(HEADER_RS_CELLSNUM));
+        int db_nlyrs = CVT_INT(header_dbl.at(HEADER_RS_LAYERS));
+        if (nfull != db_ncells && n_cells != db_ncells || db_nlyrs < 0) {
+            Release1DArray(dbdata);
+            return false;
+        }
+        n_lyrs = db_nlyrs;
+        if (n_lyrs == 1) {
+            if (n_cells == db_ncells) { return SetData(db_ncells, dbdata); }
+            if (nullptr == data_) {
+                Initialize1DArray(n_cells, data_, NODATA_VALUE);
+            }
+            for (int i = 0; i < n_cells; i++) {
+                data_[i] = dbdata[local_pos_[i][0] * ncols + local_pos_[i][1]];
+            }
+        } else {
+            if (nullptr == data2d_) {
+                Initialize2DArray(n_cells, n_lyrs, data2d_, NODATA_VALUE);
+            }
+            for (int i = 0; i < n_cells; i++) {
+                for (int j = 0; j < n_lyrs; j++) {
+                    if (nfull == db_ncells) { // consider data from MongoDB is fullsize data
+                        data2d_[i][j] = dbdata[(local_pos_[i][0] * ncols + local_pos_[i][1]) * n_lyrs + j];
+                    }
+                    else { data2d_[i][j] = dbdata[i * n_lyrs + j]; }
+                }
+            }
+        }
+        return true;
+    }
+#endif
     void GetHeader(const double gxll, const double gyll, const int gnrows, const double cellsize,
                    const double nodata, map<string, double>& subheader) {
         subheader[HEADER_RS_XLL] = g_scol * cellsize + gxll;
@@ -358,6 +553,8 @@ public:
         subheader[HEADER_RS_NROWS] = CVT_DBL(g_erow - g_srow + 1);
         subheader[HEADER_RS_NCOLS] = CVT_DBL(g_ecol - g_scol + 1);
         subheader[HEADER_RS_CELLSIZE] = cellsize;
+        subheader[HEADER_RS_CELLSNUM] = -1;
+        subheader[HEADER_RS_LAYERS] = -1;
     }
     template <typename T>
     void Output(T nodata, vector<T*>& fulldata) {
@@ -406,7 +603,6 @@ public:
 
     /*!
      * \brief Constructor an empty clsRasterData instance for 1D or 2D raster
-     * \todo Add some Set functions to make this empty constructor usable.
      */
     clsRasterData(bool is_2d = false);
 
@@ -598,6 +794,20 @@ public:
 
 #ifdef USE_MONGODB
 
+    
+    // static bool ReadGridFsFile(MongoGridFs* gfs, const string& filename, T*& data,
+    //                            map<string, double>& header, STRING_MAP& header_str,
+    //                            const STRING_MAP& opts = STRING_MAP());
+
+    // /*!
+    //  * \brief Read raster data from MongoDB
+    //  * \param[in] gfs \a mongoc_gridfs_t
+    //  * \param[in] filename \a char*, raster file name
+    //  * \param[in] opts Optional key-value stored in metadata, used to filter GridFs file
+    //  */
+    // bool ReadValidDataFromMongoDB(MongoGridFs* gfs, const string& filename,
+    //                               const STRING_MAP& opts = STRING_MAP());
+
     /*!
      * \brief Read raster data from MongoDB
      * \param[in] gfs \a mongoc_gridfs_t
@@ -606,7 +816,7 @@ public:
      * \param[in] mask \a clsRasterData<MASK_T>
      * \param[in] use_mask_ext Use mask layer extent, even NoDATA exists.
      * \param[in] default_value Default value when mask data exceeds the raster extend.
-     * \param[in] opts Optional key-value stored in metadata
+     * \param[in] opts Optional key-value stored in metadata, used to filter GridFs file
      */
     bool ReadFromMongoDB(MongoGridFs* gfs, const string& filename, bool calc_pos = false,
                          clsRasterData<MASK_T>* mask = nullptr, bool use_mask_ext = true,
@@ -690,6 +900,8 @@ public:
     /*    Set information functions                                         */
     /************************************************************************/
 
+    void SetHeader(const map<string, double>& refers);
+
     //! Set new core file name
     void SetCoreName(const string& name) { core_name_ = name; }
 
@@ -703,6 +915,11 @@ public:
      *        recalculate positions and stored raster data if necessary
      */
     bool SetCalcPositions();
+
+    /*!
+     * \brief Set valid positions data, without mask raster layer
+     */
+    bool SetPositions(int len, int** pdata);
 
     /*!
      * \brief Set the flag of use_mask_ext_ to true and
@@ -851,8 +1068,9 @@ public:
      */
     int GetValidNumber(const int lyr = 1) { return CVT_INT(GetStatistics(STATS_RS_VALIDNUM, lyr)); }
 
-    int GetCellNumber() const { return n_cells_; } /// Get stored cell number
-    int GetDataLength() const { return n_cells_; } /// Get the first dimension size
+    int GetCellNumber() const { return n_cells_; } /// Get the first dimension size
+    /// Get the actual stored length of raster data
+    int GetDataLength() const { return n_cells_ < 0 || n_lyrs_ < 0 ? -1 : n_cells_ * n_lyrs_; }
     int GetCols() const { return CVT_INT(headers_.at(HEADER_RS_NCOLS)); } /// Get column number
     int GetRows() const { return CVT_INT(headers_.at(HEADER_RS_NROWS)); } /// Get row number
     double GetCellWidth() const { return headers_.at(HEADER_RS_CELLSIZE); } /// Get cell size
@@ -1040,7 +1258,7 @@ public:
     /*!
      * \brief Copy clsRasterData object
      */
-    void Copy(const clsRasterData<T, MASK_T>* orgraster);
+    void Copy(clsRasterData<T, MASK_T>* orgraster);
 
     /*!
      * \brief Replace NoData value by the given value
@@ -1358,37 +1576,14 @@ void clsRasterData<T, MASK_T>::InitializeRasterClass(bool is_2d /* = false */) {
     store_pos_ = false;
     use_mask_ext_ = false;
     stats_calculated_ = false;
-    const char* raster_headers[8] = {
-        HEADER_RS_NCOLS, HEADER_RS_NROWS, HEADER_RS_XLL, HEADER_RS_YLL, HEADER_RS_CELLSIZE,
-        HEADER_RS_NODATA, HEADER_RS_LAYERS, HEADER_RS_CELLSNUM
-    };
-    for (int i = 0; i < 6; i++) {
+    headers_ = InitialHeaderMap();
+    options_ = InitialHeaderStrMap();
 #ifdef HAS_VARIADIC_TEMPLATES
-        headers_.emplace(raster_headers[i], NODATA_VALUE);
+    options_.emplace(HEADER_RS_SRS, "");
 #else
-        headers_.insert(make_pair(raster_headers[i], NODATA_VALUE));
+    options_.insert(make_pair(HEADER_RS_SRS, ""));
 #endif
-    }
-#ifdef HAS_VARIADIC_TEMPLATES
-    headers_.emplace(HEADER_RS_LAYERS, -1.);
-    headers_.emplace(HEADER_RS_CELLSNUM, -1.);
-#else
-    headers_.insert(make_pair(HEADER_RS_LAYERS, -1.));
-    headers_.insert(make_pair(HEADER_RS_CELLSNUM, -1.));
-#endif
-    string statsnames[6] = {
-        STATS_RS_VALIDNUM, STATS_RS_MIN, STATS_RS_MAX, STATS_RS_MEAN,
-        STATS_RS_STD, STATS_RS_RANGE
-    };
-    for (int i = 0; i < 6; i++) {
-#ifdef HAS_VARIADIC_TEMPLATES
-        stats_.emplace(statsnames[i], NODATA_VALUE);
-        stats_2d_.emplace(statsnames[i], nullptr);
-#else
-        stats_.insert(make_pair(statsnames[i], NODATA_VALUE));
-        stats_2d_.insert(map<string, double *>::value_type(statsnames[i], nullptr));
-#endif
-    }
+    InitialStatsMap(stats_, stats_2d_);
     initialized_ = true;
 }
 
@@ -1398,13 +1593,13 @@ void clsRasterData<T, MASK_T>::InitializeReadFunction(const string& filename, co
                                                       const bool use_mask_ext /* = true */,
                                                       T default_value /* = static_cast<T>(NODATA_VALUE) */,
                                                       const STRING_MAP& opts /* = STRING_MAP() */) {
+    if (!initialized_) { InitializeRasterClass(); }
     full_path_ = filename;
     mask_ = mask;
     calc_pos_ = calc_pos;
     use_mask_ext_ = use_mask_ext;
-    if (nullptr == mask_) use_mask_ext_ = false;
+    if (nullptr == mask_) { use_mask_ext_ = false; }
     default_value_ = default_value;
-    if (!initialized_) InitializeRasterClass();
     rs_type_out_ = RasterDataTypeInOptionals(opts);
     core_name_ = GetCoreFileName(full_path_);
     CopyStringMap(opts, options_);
@@ -1479,8 +1674,8 @@ clsRasterData<T, MASK_T>::clsRasterData(T** data2d, const int cols, const int ro
     headers_[HEADER_RS_XLL] = xll;
     headers_[HEADER_RS_YLL] = yll;
     headers_[HEADER_RS_CELLSIZE] = dx;
-    headers_[HEADER_RS_NODATA] = nodata;
-    headers_[HEADER_RS_LAYERS] = nlayers;
+    headers_[HEADER_RS_NODATA] = no_data_value_;
+    headers_[HEADER_RS_LAYERS] = n_lyrs_;
     headers_[HEADER_RS_CELLSNUM] = n_cells_;
 }
 
@@ -1502,7 +1697,7 @@ clsRasterData<T, MASK_T>* clsRasterData<T, MASK_T>::Init(const string& filename,
                                                          const bool use_mask_ext /* = true */,
                                                          T default_value /* = NODATA_VALUE */,
                                                          const STRING_MAP& opts /* = STRING_MAP() */) {
-    if (!CheckRasterFilesExist(filename)) return nullptr;
+    if (!CheckRasterFilesExist(filename)) { return nullptr; }
     clsRasterData<T, MASK_T>* rs = new clsRasterData<T, MASK_T>();
     rs->SetOutDataType(RasterDataTypeInOptionals(opts));
     if (!rs->ReadFromFile(filename, calc_pos, mask, use_mask_ext, default_value, opts)) {
@@ -1848,7 +2043,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
     sindex = GetUpper(sindex);
     if (!ValidateRasterData() || !ValidateLayer(lyr)) {
         StatusMessage("No available raster statistics!");
-        return no_data_value_;
+        return CVT_DBL(no_data_value_);
     }
     if (is_2draster && nullptr != raster_2d_) {
         // for 2D raster data
@@ -1861,7 +2056,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
             return stats_2d_.at(sindex)[lyr - 1];
         }
         StatusMessage("WARNING: " + ValueToString(sindex) + " is not supported currently.");
-        return no_data_value_;
+        return CVT_DBL(no_data_value_);
     }
     // Else, for 1D raster data
     auto it = stats_.find(sindex);
@@ -1872,7 +2067,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
         return stats_.at(sindex);
     }
     StatusMessage("WARNING: " + ValueToString(sindex) + " is not supported currently.");
-    return no_data_value_;
+    return CVT_DBL(no_data_value_);
 }
 
 template <typename T, typename MASK_T>
@@ -2098,6 +2293,19 @@ void clsRasterData<T, MASK_T>::GetValue(const int row, const int col, T*& values
 }
 
 template <typename T, typename MASK_T>
+void clsRasterData<T, MASK_T>::SetHeader(const map<string, double>& refers) {
+    CopyHeader(refers, headers_);
+    // Update header related variables
+    auto it = headers_.find(HEADER_RS_CELLSNUM);
+    if (it != headers_.end()) { n_cells_ = CVT_INT(it->second); }
+    it = headers_.find(HEADER_RS_LAYERS);
+    if (it != headers_.end()) { n_lyrs_ = CVT_INT(it->second); }
+    it = headers_.find(HEADER_RS_NODATA);
+    if (it != headers_.end()) { no_data_value_ = it->second; }
+}
+
+
+template <typename T, typename MASK_T>
 void clsRasterData<T, MASK_T>::SetValue(const int row, const int col, T value, const int lyr /* = 1 */) {
     if (!ValidateRasterData() || !ValidateRowCol(row, col) || !ValidateLayer(lyr)) {
         StatusMessage("Set value failed!");
@@ -2123,6 +2331,19 @@ bool clsRasterData<T, MASK_T>::SetCalcPositions() {
     calc_pos_ = true;
     return MaskAndCalculateValidPosition() >= 0;
 }
+
+template <typename T, typename MASK_T>
+bool clsRasterData<T, MASK_T>::SetPositions(int len, int** pdata) {
+    if (nullptr != pos_data_) {
+        if (len != n_cells_) { return false; } // cannot change origin n_cells_
+        Release2DArray(pos_data_);
+    }
+    pos_data_ = pdata;
+    calc_pos_ = true;
+    store_pos_ = false;
+    return true;
+}
+
 
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::SetUseMaskExt() {
@@ -2743,11 +2964,14 @@ bool clsRasterData<T, MASK_T>::OutputToMongoDB(MongoGridFs* gfs, const string& f
         return OutputSubsetToMongoDB(gfs, filename, opts, false, true, include_nodata);
     }
     CopyStringMap(opts, options_); // Update metadata
+    options_[HEADER_RSOUT_DATATYPE] = RasterDataTypeToString(TypeToRasterDataType(typeid(T)));
+    
     // Check if we can output directly: 1) pos_data_ is not NULL and include_nodata is false;
     //                                  2) pos_data_ is NULL and include_nodata is true.
     bool outputdirectly = true; // output directly or create new full size array
     int cnt;
     int** pos = nullptr;
+
     if (nullptr != pos_data_ && include_nodata) {
         outputdirectly = false;
         GetRasterPositionData(&cnt, &pos);
@@ -2756,14 +2980,17 @@ bool clsRasterData<T, MASK_T>::OutputToMongoDB(MongoGridFs* gfs, const string& f
         SetCalcPositions();
         GetRasterPositionData(&cnt, &pos);
     }
-    if (!include_nodata) { // Add metadata
+    int n_rows = GetRows();
+    int n_cols = GetCols();
+    int n_fullsize = n_rows * n_cols;
+    if (include_nodata) {
+        UpdateStringMap(options_, HEADER_INC_NODATA, "true");
+    } else {
         UpdateStringMap(options_, HEADER_INC_NODATA, "false");
     }
     // 2. Get raster data
     T* data_1d = nullptr;
     T no_data_value = GetNoDataValue();
-    int n_rows = GetRows();
-    int n_cols = GetCols();
     int datalength;
     string core_name = filename.empty() ? core_name_ : filename;
     if (is_2draster) { // 2.1 2D raster data
@@ -2771,7 +2998,7 @@ bool clsRasterData<T, MASK_T>::OutputToMongoDB(MongoGridFs* gfs, const string& f
             data_1d = raster_2d_[0]; // refers to Initialize2DArray() for why we can do this assignment
             datalength = n_lyrs_ * n_cells_; // can be n_lyrs_ * (n_rows*n_cols or valid cells' number)
         } else {
-            datalength = n_lyrs_ * n_rows * n_cols;
+            datalength = n_lyrs_ * n_fullsize;
             Initialize1DArray(datalength, data_1d, no_data_value);
             for (int idx = 0; idx < n_cells_; idx++) {
                 int rowcol_index = pos[idx][0] * n_cols + pos[idx][1];
@@ -2785,14 +3012,16 @@ bool clsRasterData<T, MASK_T>::OutputToMongoDB(MongoGridFs* gfs, const string& f
             data_1d = raster_;
             datalength = n_cells_; // can be n_rows*n_cols or valid cells' number
         } else {
-            datalength = n_rows * n_cols;
+            datalength = n_fullsize;
             Initialize1DArray(datalength, data_1d, no_data_value);
             for (int idx = 0; idx < n_cells_; idx++) {
                 data_1d[pos[idx][0] * n_cols + pos[idx][1]] = raster_[idx];
             }
         }
     }
+    if (include_nodata) { headers_[HEADER_RS_CELLSNUM] = n_fullsize; } // change temporarily
     bool saved = WriteStreamDataAsGridfs(gfs, core_name, headers_, data_1d, datalength, options_);
+    if (include_nodata) { headers_[HEADER_RS_CELLSNUM] = n_cells_; } // change back
     if (outputdirectly) {
         data_1d = nullptr;
     } else {
@@ -2815,17 +3044,20 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
     if (nullptr == gfs) { return false; }
     if (subset_.empty()) { return false; }
     CopyStringMap(opts, options_); // Update metadata
+    options_[HEADER_RSOUT_DATATYPE] = RasterDataTypeToString(TypeToRasterDataType(typeid(T)));
 
     int gcols = GetCols();
     int grows = GetRows();
     int gncells = gcols * grows; // global full size
-    string outnameact = filename.empty() ? core_name_ : filename;
+    string outnameact = filename.empty() ? core_name_ + "_subset" : filename;
+    if (!include_nodata) { outnameact += "_valid"; }
     // output combined subsets
     bool out_comb = out_combined;
     if (out_comb) {
         T* data1d = nullptr;
         int sublyrs;
         int sublen;
+        if (filename.empty()) { outnameact += "_combined"; }
         bool flag = PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
                                           include_nodata, recls, default_value);
         flag = flag && WriteStreamDataAsGridfs(gfs, outnameact, headers_, data1d, sublen, options_);
@@ -2833,7 +3065,6 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
         return flag;
     }
     // output each subset
-    string subfname = outnameact + "_";
     map<string, double> subheader;
     bool flag = true;
     for (auto it = subset_.begin(); it != subset_.end(); ++it) {
@@ -2843,11 +3074,13 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
         int tmpdatalen;
         int tmplyrs;
         if (!PrepareSubsetData(it->first, it->second, &tmpdata1d, &tmpdatalen, &tmplyrs,
-                               out_origin, true, recls, default_value)) {
+                               out_origin, include_nodata, recls, default_value)) {
             continue;
         }
-        string tmpfname = subfname + itoa(CVT_VINT(it->first)) + "_"; // GridFS file do not differ layer ID
-        flag = flag && WriteStreamDataAsGridfs(gfs, tmpfname, headers_, tmpdata1d, tmpdatalen, options_);
+        subheader[HEADER_RS_LAYERS] = it->second->n_lyrs;
+        subheader[HEADER_RS_CELLSNUM] = tmpdatalen;
+        string tmpfname = outnameact + "_" + itoa(CVT_VINT(it->first));
+        flag = flag && WriteStreamDataAsGridfs(gfs, tmpfname, subheader, tmpdata1d, tmpdatalen, options_);
         if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
     }
     return true;
@@ -2861,6 +3094,9 @@ bool clsRasterData<T, MASK_T>::WriteStreamDataAsGridfs(MongoGridFs* gfs,
                                                        T* values,
                                                        const int datalength,
                                                        const STRING_MAP& opts /* = STRING_MAP() */) {
+    // Remove first
+    gfs->RemoveFile(filename);
+
     bson_t p = BSON_INITIALIZER;
     for (auto iter = header.begin(); iter != header.end(); ++iter) {
         if (std::fmod(iter->second, 1.) == 0) {
@@ -2995,6 +3231,80 @@ bool clsRasterData<T, MASK_T>::ReadFromFiles(vector<string>& filenames, const bo
 
 #ifdef USE_MONGODB
 
+
+
+// template <typename T, typename MASK_T>
+// bool clsRasterData<T, MASK_T>::ReadGridFsFile(MongoGridFs* gfs, const string& filename,
+//                                               T*& data, map<string, double>& header,
+//                                               STRING_MAP& header_str,
+//                                               const STRING_MAP& opts /* = STRING_MAP() */) {
+//     // Get stream data and metadata by file name
+//     size_t length;
+//     char* buf = nullptr;
+//     if (!gfs->GetStreamData(filename, buf, length, nullptr, opts) ||
+//         nullptr == buf) {
+//         return false;
+//     }
+//     bson_t* bmeta = gfs->GetFileMetadata(filename, nullptr, opts);
+//     
+//     // Retrieve raster header values
+//     bson_iter_t iter; // Loop the metadata, add to `header_str` or `header`
+//     if (nullptr != bmeta && bson_iter_init(&iter, bmeta)) {
+//         while (bson_iter_next(&iter)) {
+//             const char* key = bson_iter_key(&iter);
+//             if (header.find(key) != header.end()) {
+//                 GetNumericFromBsonIterator(&iter, header[key]);
+//             } else {
+//                 header_str[key] = GetStringFromBsonIterator(&iter);
+//             }
+//         }
+//     }
+//     bson_destroy(bmeta); // Destroy bson of metadata immediately after use
+//
+//     int n_rows = CVT_INT(header.at(HEADER_RS_NROWS));
+//     int n_cols = CVT_INT(header.at(HEADER_RS_NCOLS));
+//     int n_lyrs = CVT_INT(header.at(HEADER_RS_LAYERS));
+//     int n_cells = CVT_INT(header.at(HEADER_RS_CELLSNUM));
+//     if (n_rows < 0 || n_cols < 0 || n_lyrs < 0) { // missing essential metadata
+//         delete[] buf;
+//         return false;
+//     }
+//     int value_count = n_cells * n_lyrs;
+//     int size_dtype = length / value_count;
+//     // Preferred sequence: double, float, int32, int16, and int8.
+//     if (size_dtype == sizeof(double)) {
+//         double* data_dbl = reinterpret_cast<double*>(buf);
+//         Initialize1DArray(value_count, data, data_dbl);
+//         Release1DArray(data_dbl);
+//     }
+//     else if (size_dtype == sizeof(float)) {
+//         float* data_flt = reinterpret_cast<float*>(buf);
+//         Initialize1DArray(value_count, data, data_flt);
+//         Release1DArray(data_flt);
+//     }
+//     else if (size_dtype == sizeof(vint32_t)) {
+//         vint32_t* data_int32 = reinterpret_cast<vint32_t*>(buf);
+//         Initialize1DArray(value_count, data, data_int32);
+//         Release1DArray(data_int32);
+//     }
+//     else if (size_dtype == sizeof(vint16_t)) {
+//         vint16_t* data_int16 = reinterpret_cast<vint16_t*>(buf);
+//         Initialize1DArray(value_count, data, data_int16);
+//         Release1DArray(data_int16);
+//     }
+//     else if (size_dtype == sizeof(vint8_t)) {
+//         vint8_t* data_int8 = reinterpret_cast<vint8_t*>(buf);
+//         Initialize1DArray(value_count, data, data_int8);
+//         Release1DArray(data_int8);
+//     }
+//     else {
+//         StatusMessage("Unknown data type!");
+//         delete[] buf;
+//         return false;
+//     }
+//     return true;
+// }
+
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
                                                const string& filename,
@@ -3003,134 +3313,82 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
                                                const bool use_mask_ext /* = true */,
                                                T default_value /* = static_cast<T>(NODATA_VALUE) */,
                                                const STRING_MAP& opts /* = STRING_MAP() */) {
-    // 1. Get stream data and metadata by file name
-    char* buf = NULL;
-    size_t length;
-    if (!gfs->GetStreamData(filename, buf, length, NULL, opts) ||
-        NULL == buf) {
-        initialized_ = false;
-        return false;
-    }
-    bson_t* bmeta = gfs->GetFileMetadata(filename, NULL, opts);
     InitializeReadFunction(filename, calc_pos, mask, use_mask_ext, default_value, opts);
-    // 2. Retrieve raster header values
-    const char* raster_headers[8] = {
-        HEADER_RS_NCOLS, HEADER_RS_NROWS, HEADER_RS_XLL, HEADER_RS_YLL, HEADER_RS_CELLSIZE,
-        HEADER_RS_NODATA, HEADER_RS_LAYERS, HEADER_RS_CELLSNUM
-    };
-    bson_iter_t iter; // Loop the metadata, add to `headers_` or `options_`
-    if (NULL != bmeta && bson_iter_init(&iter, bmeta)) {
-        while (bson_iter_next(&iter)) {
-            const char* key = bson_iter_key(&iter);
-            bool is_header = false;
-            for (int i = 0; i < 8; i++) {
-                if (StringMatch(key, raster_headers[i])) {
-                    GetNumericFromBsonIterator(&iter, headers_[raster_headers[i]]);
-                    is_header = true;
-                    break;
-                }
-            }
-            if (!is_header) {
-#ifdef HAS_VARIADIC_TEMPLATES
-                options_.emplace(key, GetStringFromBsonIterator(&iter));
-#else
-                options_.insert(make_pair(key, GetStringFromBsonIterator(&iter)));
-#endif
-            }
-        }
-    }
-    bson_destroy(bmeta); // Destroy bson of metadata immediately after use
+    T* dbdata = nullptr;
+    map<string, double> header_dbl = InitialHeaderMap();
+    STRING_MAP header_str = InitialHeaderStrMap();
+    if (!ReadGridFsFile(gfs, filename, dbdata, header_dbl, header_str, opts)) { return false; }
 
-    // Check if "SRS" is existed in `options_`
-    if (options_.find(HEADER_RS_SRS) == options_.end()) {
-#ifdef HAS_VARIADIC_TEMPLATES
-        options_.emplace(HEADER_RS_SRS, "");
-#else
-        options_.insert(make_pair(HEADER_RS_SRS, ""));
-#endif
+    if (headers_.at(HEADER_RS_NROWS) > 0 && headers_.at(HEADER_RS_NCOLS) > 0
+        && headers_.at(HEADER_RS_LAYERS) > 0 && headers_.at(HEADER_RS_CELLSNUM) > 0) {
+        // means the raster is preassigned header information, and this function is used for read data only
+        if (!FloatEqual(headers_.at(HEADER_RS_NROWS), header_dbl.at(HEADER_RS_NROWS))
+            || !FloatEqual(headers_.at(HEADER_RS_NCOLS), header_dbl.at(HEADER_RS_NCOLS))
+            || !FloatEqual(headers_.at(HEADER_RS_LAYERS), header_dbl.at(HEADER_RS_LAYERS))
+            || !FloatEqual(headers_.at(HEADER_RS_CELLSNUM), header_dbl.at(HEADER_RS_CELLSNUM))) {
+            Release1DArray(dbdata);
+            return false;
+        }
+    } else {
+        CopyHeader(header_dbl, headers_);
     }
+    CopyStringMap(header_str, options_);
+
+    bool include_nodata = !StringMatch(options_.at(HEADER_INC_NODATA), "false");
 
     int n_rows = CVT_INT(headers_.at(HEADER_RS_NROWS));
     int n_cols = CVT_INT(headers_.at(HEADER_RS_NCOLS));
-    n_cells_ = n_rows * n_cols;
-    no_data_value_ = static_cast<T>(headers_.at(HEADER_RS_NODATA));
     n_lyrs_ = CVT_INT(headers_.at(HEADER_RS_LAYERS));
+    // if (n_rows < 0 || n_cols < 0 || n_lyrs_ < 0) { return false; } // Needless
+    int fullsize = n_rows * n_cols;
+    no_data_value_ = static_cast<T>(headers_.at(HEADER_RS_NODATA));
+    n_cells_ = CVT_INT(headers_.at(HEADER_RS_CELLSNUM));
 
-    // assert(n_cells_ == length / sizeof(T) / n_lyrs_); // Avoid assert()!
-
-    int validcount = -1;
-    if (headers_.find(HEADER_RS_CELLSNUM) != headers_.end()) {
-        validcount = CVT_INT(headers_.at(HEADER_RS_CELLSNUM));
-    } else {
-        validcount = n_cells_;
-    }
-
-    T* tmpdata = nullptr;
-    int size_dtype = length / n_cells_ / n_lyrs_;
-    int value_count = n_cells_ * n_lyrs_;
-    // Preferred sequence: double, float, int32, int16, and int8.
-    if (size_dtype == sizeof(double)) {
-        double* data_dbl = reinterpret_cast<double*>(buf);
-        Initialize1DArray(value_count, tmpdata, data_dbl);
-        Release1DArray(data_dbl);
-    } else if (size_dtype == sizeof(float)) {
-        float* data_flt = reinterpret_cast<float*>(buf);
-        Initialize1DArray(value_count, tmpdata, data_flt);
-        Release1DArray(data_flt);
-    } else if (size_dtype == sizeof(vint32_t)) {
-        vint32_t* data_int32 = reinterpret_cast<vint32_t*>(buf);
-        Initialize1DArray(value_count, tmpdata, data_int32);
-        Release1DArray(data_int32);
-    } else if (size_dtype == sizeof(vint16_t)) {
-        vint16_t* data_int16 = reinterpret_cast<vint16_t*>(buf);
-        Initialize1DArray(value_count, tmpdata, data_int16);
-        Release1DArray(data_int16);
-    } else if (size_dtype == sizeof(vint8_t)) {
-        vint8_t* data_int8 = reinterpret_cast<vint8_t*>(buf);
-        Initialize1DArray(value_count, tmpdata, data_int8);
-        Release1DArray(data_int8);
-    } else {
-        StatusMessage("Unknown data type!");
-        return false;
-    }
-    buf = nullptr;
-
-    // 3. Store data.
+    if (include_nodata && n_cells_ != fullsize) { return false; }
     // check the valid values count and determine whether can read directly.
     bool mask_pos_subset = true;
-    if (validcount <= n_cells_ && calc_pos_ && use_mask_ext_ &&
-        nullptr != mask_ && validcount == mask_->GetCellNumber()) {
-        mask_pos_subset = false;
+    if (nullptr != mask_ && calc_pos_ && use_mask_ext_ && n_cells_ == mask_->GetCellNumber()) {
         store_pos_ = false;
         mask_->GetRasterPositionData(&n_cells_, &pos_data_);
+        mask_pos_subset = false;
     }
-    // read data directly in two ways of getting indexes
+
+    if (include_nodata) {
+        if (n_cells_ != fullsize) { return false; }
+    } else {
+        if (nullptr == pos_data_) { return false; }
+        calc_pos_ = true;
+    }
+
     if (n_lyrs_ == 1) {
-        Initialize1DArray(n_cells_, raster_, no_data_value_);
-#pragma omp parallel for
-        for (int i = 0; i < n_cells_; i++) {
-            int tmpidx = i;
-            if (!mask_pos_subset) { tmpidx = pos_data_[i][0] * GetCols() + pos_data_[i][1]; }
-            raster_[i] = static_cast<T>(tmpdata[tmpidx]);
-        }
-        Release1DArray(tmpdata);
         is_2draster = false;
+        if (include_nodata && !mask_pos_subset) {
+            Initialize1DArray(n_cells_, raster_, no_data_value_);
+#pragma omp parallel for
+            for (int i = 0; i < n_cells_; i++) {
+                int tmpidx = pos_data_[i][0] * n_cols + pos_data_[i][1];
+                raster_[i] = static_cast<T>(dbdata[tmpidx]);
+            }
+            Release1DArray(dbdata);
+        } else {
+            raster_ = dbdata;
+        }
     } else {
         Initialize2DArray(n_cells_, n_lyrs_, raster_2d_, no_data_value_);
 #pragma omp parallel for
         for (int i = 0; i < n_cells_; i++) {
             int tmpidx = i;
-            if (!mask_pos_subset) { tmpidx = pos_data_[i][0] * GetCols() + pos_data_[i][1]; }
+            if (!mask_pos_subset) { tmpidx = pos_data_[i][0] * n_cols + pos_data_[i][1]; }
             for (int j = 0; j < n_lyrs_; j++) {
                 int idx = tmpidx * n_lyrs_ + j;
-                raster_2d_[i][j] = static_cast<T>(tmpdata[idx]);
+                raster_2d_[i][j] = dbdata[idx];
             }
         }
         is_2draster = true;
-        Release1DArray(tmpdata);
+        Release1DArray(dbdata);
     }
     CheckDefaultValue();
-    if (mask_pos_subset) {
+    if (include_nodata && mask_pos_subset) {
         return MaskAndCalculateValidPosition() >= 0;
     }
     return true;
@@ -3468,7 +3726,8 @@ clsRasterData<T, MASK_T>::clsRasterData(clsRasterData<T, MASK_T>* another) {
 }
 
 template <typename T, typename MASK_T>
-void clsRasterData<T, MASK_T>::Copy(const clsRasterData<T, MASK_T>* orgraster) {
+void clsRasterData<T, MASK_T>::Copy(clsRasterData<T, MASK_T>* orgraster) {
+    // Release current data
     if (is_2draster && nullptr != raster_2d_ && n_cells_ > 0) {
         Release2DArray(raster_2d_);
     }
@@ -3482,35 +3741,33 @@ void clsRasterData<T, MASK_T>::Copy(const clsRasterData<T, MASK_T>* orgraster) {
         ReleaseStatsMap2D();
         stats_calculated_ = false;
     }
-    InitializeRasterClass();
-    full_path_ = orgraster->GetFilePath();
-    core_name_ = orgraster->GetCoreName();
+    if (!subset_.empty()) {
+        ReleaseSubset();
+    }
+    // Initialize now Raster and copy data
+    InitializeReadFunction(orgraster->GetFilePath(), orgraster->PositionsCalculated(),
+                           orgraster->GetMask(), orgraster->MaskExtented(),
+                           orgraster->GetDefaultValue(), orgraster->GetOptions());
     n_cells_ = orgraster->GetCellNumber();
     n_lyrs_ = orgraster->GetLayers();
     rs_type_ = orgraster->GetDataType();
     rs_type_out_ = orgraster->GetOutDataType();
     no_data_value_ = orgraster->GetNoDataValue();
-    default_value_ = orgraster->GetDefaultValue();
     if (orgraster->Is2DRaster()) {
         is_2draster = true;
         Initialize2DArray(n_cells_, n_lyrs_, raster_2d_,
                           orgraster->Get2DRasterDataPointer());
     } else {
-        raster_ = nullptr;
         Initialize1DArray(n_cells_, raster_, orgraster->GetRasterDataPointer());
     }
-    mask_ = orgraster->GetMask();
-    calc_pos_ = orgraster->PositionsCalculated();
     if (calc_pos_) {
         store_pos_ = true;
         Initialize2DArray(n_cells_, 2, pos_data_,
                           orgraster->GetRasterPositionDataPointer());
     }
-    use_mask_ext_ = orgraster->MaskExtented();
     stats_calculated_ = orgraster->StatisticsCalculated();
     if (stats_calculated_) {
         if (is_2draster) {
-            if (!stats_2d_.empty()) ReleaseStatsMap2D();
             map<string, double *> stats2D = orgraster->GetStatistics2D();
             for (auto iter = stats2D.begin(); iter != stats2D.end(); ++iter) {
                 double* tmpstatvalues = nullptr;
@@ -3529,7 +3786,17 @@ void clsRasterData<T, MASK_T>::Copy(const clsRasterData<T, MASK_T>* orgraster) {
         }
     }
     CopyHeader(orgraster->GetRasterHeader(), headers_);
-    CopyStringMap(orgraster->GetOptions(), options_);
+    // deep copy subset
+    if (!orgraster->GetSubset().empty()) {
+        for (auto it = orgraster->GetSubset().begin(); it != orgraster->GetSubset().end(); ++it) {
+            SubsetPositions* tmp = new SubsetPositions(it->second, true);
+#ifdef HAS_VARIADIC_TEMPLATES
+            subset_.emplace(it->first, tmp);
+#else
+            subset_.insert(make_pair(it->first, tmp));
+#endif
+        }
+    }
 }
 
 template <typename T, typename MASK_T>
@@ -3617,8 +3884,18 @@ ROW_COL clsRasterData<T, MASK_T>::GetPositionByCoordinate(const double x, const 
 template <typename T, typename MASK_T>
 void clsRasterData<T, MASK_T>::CopyHeader(const map<string, double>& refers,
                                           map<string, double>& dst) {
-    for (auto iter = refers.begin(); iter != refers.end(); ++iter) {
-        dst[iter->first] = iter->second;
+    if (refers.empty()) { return; }
+    for (auto it = refers.begin(); it != refers.end(); ++it) {
+        if (dst.find(it->first) != dst.end()) {
+            dst[it->first] = it->second;
+        }
+        else {
+#ifdef HAS_VARIADIC_TEMPLATES
+            dst.emplace(it->first, it->second);
+#else
+            dst.insert(make_pair(it->first, it->second));
+#endif
+        }
     }
 }
 
