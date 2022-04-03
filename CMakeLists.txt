@@ -20,12 +20,12 @@
 #     1. Windows 10 with Visual Studio 2010/2015/2019, mongo-c-driver-1.16.2, GDAL-1.11.4/2.4.4/3.3.3
 #     2. CentOS 6.2 (cluster) with GCC-4.8.4, mongo-c-driver-1.5.5, GDAL-1.9.0
 #     3. Ubuntu 16.04 (VMware) with GCC-5.4.0, mongo-c-driver-1.6.3, GDAL-2.4.4
-#     4. macOS 12.1 with AppleClang-13.0 (Xcode built-in and brew installed) and GCC-11.2 (brew installed),
+#     4. macOS 12.x with AppleClang-13.0 (Xcode built-in and brew installed) and GCC-11.2 (brew installed),
 #              mongo-c-driver-1.16.2, GDAL-3.3.3 (brew installed and framework by kyngchaos.com)
 #
 #  Created and maintained by Liangjun Zhu, zlj(a)lreis.ac.cn
 #  Latest updated: Dec. 23, 2021
-#  Copyright (C) 2017-2021 Lreis, IGSNRR, CAS
+#  Copyright (C) 2017-2022 Lreis, IGSNRR, CAS
 # ----------------------------------------------------------------------------
 ### Disable in-source builds to prevent source tree corruption.
 IF (" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
@@ -159,6 +159,7 @@ IF(CV_CLANG AND NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
         NAMES "omp"
         HINTS ${LLVM_LIBRARY_DIRS})
     SET(OPENMP_FOUND 1)
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LLVM_LDFLAGS}")
   ENDIF ()
 ELSE ()
   FIND_PACKAGE(OpenMP)
@@ -216,7 +217,7 @@ IF (GDAL_FOUND)
   ADD_DEFINITIONS(-DUSE_GDAL)
   INCLUDE(SetFlagGDAL)
   geo_include_directories(${GDAL_INCLUDE_DIR})
-  TARGET_LINK_LIBRARIES(${CCGLNAME} PRIVATE ${GDAL_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${CCGLNAME} ${TARGET_VISIBILITY} ${GDAL_LIBRARIES})
   SET_TARGET_PROPERTIES(${CCGLNAME} PROPERTIES LINKER_LANGUAGE CXX)
   MESSAGE(STATUS "Compiling with GDAL...")
 ENDIF ()
@@ -225,7 +226,7 @@ IF (BSON_FOUND AND MONGOC_FOUND)
   SET(WITH_MONGOC 1)
   ADD_DEFINITIONS(-DUSE_MONGODB)
   geo_include_directories(${BSON_INCLUDE_DIR} ${MONGOC_INCLUDE_DIR})
-  TARGET_LINK_LIBRARIES(${CCGLNAME} PRIVATE ${BSON_LIBRARIES} ${MONGOC_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${CCGLNAME} ${TARGET_VISIBILITY} ${BSON_LIBRARIES} ${MONGOC_LIBRARIES})
   MESSAGE(STATUS "Compiling with mongo-c-driver...")
 ENDIF ()
 
