@@ -24,7 +24,7 @@ namespace ccgl {
  */
 namespace utils_filesystem {
 /*!
- * \brief Check the given directory path is exists or not.
+ * \brief Check the given directory path (not regular file!) is exists or not.
  */
 bool DirectoryExists(const string& dirpath);
 
@@ -96,6 +96,20 @@ string AppendCoreFileName(string const& full_filename, string const& endstr, cha
 string AppendCoreFileName(string const& full_filename, vint endint, char deli = '_');
 
 /*!
+ * \brief Add a prefix to the core filename
+ * \param[in] full_filename Full file path
+ * \param[in] prestr Start string
+ * \param[in] deli (Optional) Delimiter
+ * \return new full_filename
+ */
+string PrefixCoreFileName(string const& full_filename, string const& prestr, char deli = '_');
+
+/*!
+ * \brief Add a prefix to the core filename
+ */
+string PrefixCoreFileName(string const& full_filename, vint preint, char deli = '_');
+
+/*!
  * \brief Get Path From full file path string
  * \param[in] full_filename Full file path
  * \sa GetCoreFileName
@@ -115,7 +129,14 @@ string ConcatFullName(string const& fdir, string const& corename, string const& 
 bool FileExists(string const& filename);
 
 /*!
- * \brief Return a flag indicating if the given path exists
+ * \brief Return a flag indicating if given files exist
+ * \param[in] filenames Vector of full file paths
+ * \return True if all existed, else false
+ */
+bool FilesExist(vector<string>& filenames);
+
+/*!
+ * \brief Return a flag indicating if the given path (directory or file) exists
  * \param[in] path String path
  * \return True if Exists, and false if not.
  */

@@ -24,6 +24,7 @@
 #endif
 #include "../test_global.h"
 
+using namespace ccgl;
 using namespace ccgl::data_raster;
 using namespace ccgl::utils_filesystem;
 using namespace ccgl::utils_array;
@@ -56,7 +57,7 @@ public:
     virtual ~clsRasterDataTestNoMask() { ; }
 
     void SetUp() OVERRIDE {
-        rs_ = clsRasterData<float>::Init(GetParam(), false);
+        rs_ = FltRaster::Init(GetParam(), false);
         ASSERT_NE(nullptr, rs_);
     }
 
@@ -65,7 +66,7 @@ public:
     }
 
 protected:
-    clsRasterData<float>* rs_;
+    FltRaster* rs_;
 };
 
 // calc_pos = False
@@ -94,7 +95,7 @@ TEST_P(clsRasterDataTestNoMask, RasterIO) {
     EXPECT_EQ(nullptr, rs_->GetRasterPositionDataPointer()); // m_rasterPositionData
 
     /** Get metadata, m_headers **/
-    map<string, double> header_info = rs_->GetRasterHeader();
+    STRDBL_MAP header_info = rs_->GetRasterHeader();
     EXPECT_EQ(CVT_INT(header_info.at(HEADER_RS_LAYERS)), rs_->GetLayers());
     EXPECT_EQ(CVT_INT(header_info.at(HEADER_RS_CELLSNUM)), rs_->GetCellNumber());
 
@@ -342,7 +343,7 @@ TEST_P(clsRasterDataTestNoMask, RasterIOWithCalcPos) {
     EXPECT_NE(nullptr, rs_->GetRasterPositionDataPointer()); // m_rasterPositionData
 
     /** Get metadata, m_headers **/
-    map<string, double> header_info = rs_->GetRasterHeader();
+    STRDBL_MAP header_info = rs_->GetRasterHeader();
     EXPECT_EQ(CVT_INT(header_info.at(HEADER_RS_LAYERS)), rs_->GetLayers());
     EXPECT_EQ(CVT_INT(header_info.at(HEADER_RS_CELLSNUM)), rs_->GetCellNumber());
 

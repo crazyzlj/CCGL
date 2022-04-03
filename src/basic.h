@@ -341,6 +341,9 @@ typedef vint64_t pos_t;
 /*! Map of string key and string value */
 typedef std::map<string, string> STRING_MAP;
 
+/*! Map of string key and double value */
+typedef std::map<string, double> STRDBL_MAP;
+
 #ifdef CPP_64
 #define ITOA_S		_i64toa_s
 #define ITOW_S		_i64tow_s

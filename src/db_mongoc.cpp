@@ -310,12 +310,12 @@ MongoGridFs::MongoGridFs(mongoc_gridfs_t* gfs /* = NULL */) : gfs_(gfs) {
 }
 
 MongoGridFs::~MongoGridFs() {
-    if (gfs_ != NULL) mongoc_gridfs_destroy(gfs_);
+    if (gfs_ != NULL) { mongoc_gridfs_destroy(gfs_); }
 }
 
 mongoc_gridfs_file_t* MongoGridFs::GetFile(string const& gfilename, mongoc_gridfs_t* gfs /* = NULL */,
                                            const STRING_MAP& opts /* = STRING_MAP() */) {
-    if (gfs_ != NULL) gfs = gfs_;
+    if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
         StatusMessage("mongoc_gridfs_t must be provided for MongoGridFs!");
         return NULL;
@@ -324,7 +324,7 @@ mongoc_gridfs_file_t* MongoGridFs::GetFile(string const& gfilename, mongoc_gridf
     bson_error_t err;
     bson_t filter = BSON_INITIALIZER;
     BSON_APPEND_UTF8(&filter, "filename", gfilename.c_str());
-    AppendStringOptionsToBson(&filter, opts);
+    AppendStringOptionsToBson(&filter, opts, "metadata.");
     int count = 0;
     while (count < 5) {
         gfile = mongoc_gridfs_find_one_with_opts(gfs, &filter, NULL, &err);
@@ -341,22 +341,44 @@ mongoc_gridfs_file_t* MongoGridFs::GetFile(string const& gfilename, mongoc_gridf
     return gfile;
 }
 
-bool MongoGridFs::RemoveFile(string const& gfilename, mongoc_gridfs_t* gfs /* = NULL */) {
-    if (gfs_ != NULL) gfs = gfs_;
+bool MongoGridFs::RemoveFile(string const& gfilename, mongoc_gridfs_t* gfs /* = NULL */,
+                             STRING_MAP opts /* = STRING_MAP() */) {
+    if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
         StatusMessage("mongoc_gridfs_t must be provided for MongoGridFs!");
         return false;
     }
     bson_error_t err;
-    if (mongoc_gridfs_remove_by_filename(gfs, gfilename.c_str(), &err)) {
-        return true;
+    bson_t filter = BSON_INITIALIZER;
+    BSON_APPEND_UTF8(&filter, "filename", gfilename.c_str());
+    AppendStringOptionsToBson(&filter, opts, "metadata.");
+    // Deprecated: this function will remove all files with the same filename
+    // if (mongoc_gridfs_remove_by_filename(gfs, gfilename.c_str(), &err)) {
+    //     return true;
+    // }
+    mongoc_gridfs_file_list_t* filelist;
+    mongoc_gridfs_file_t* gfile = NULL;
+    filelist = mongoc_gridfs_find_with_opts(gfs, &filter, NULL);
+    while ((gfile = mongoc_gridfs_file_list_next(filelist))) {
+        const bson_value_t* tmpid = mongoc_gridfs_file_get_id(gfile);
+        char charid[25];
+        bson_oid_to_string(&tmpid->value.v_oid, charid);
+        string strid = charid;
+        if (!mongoc_gridfs_file_remove(gfile, &err)) {
+            StatusMessage(("MongoGridFs::RemoveFile(" + gfilename + ") failed: " + err.message).c_str());
+        } else {
+            StatusMessage(("Removed GridFs: " + gfilename + ", _id: " + strid).c_str());
+        }
+        mongoc_gridfs_file_destroy(gfile);
     }
-    StatusMessage(("MongoGridFs::RemoveFile (" + gfilename + ") failed: " + err.message).c_str());
-    return false;
+
+    mongoc_gridfs_file_list_destroy(filelist);
+    bson_destroy(&filter);
+    return true;
 }
 
 void MongoGridFs::GetFileNames(vector<string>& files_existed, mongoc_gridfs_t* gfs /* = NULL */) {
-    if (gfs_ != NULL) gfs = gfs_;
+    if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
         StatusMessage("mongoc_gridfs_t must be provided for MongoGridFs!");
     }
@@ -397,7 +419,7 @@ bson_t* MongoGridFs::GetFileMetadata(string const& gfilename,
 bool MongoGridFs::GetStreamData(string const& gfilename, char*& databuf,
                                 size_t& datalength, mongoc_gridfs_t* gfs /* = NULL */,
                                 STRING_MAP opts /* = STRING_MAP() */) {
-    if (gfs_ != NULL) gfs = gfs_;
+    if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
         StatusMessage("mongoc_gridfs_t must be provided for MongoGridFs!");
         return false;
@@ -424,7 +446,7 @@ bool MongoGridFs::GetStreamData(string const& gfilename, char*& databuf,
 bool MongoGridFs::WriteStreamData(const string& gfilename, char*& buf,
                                   const size_t length, const bson_t* p,
                                   mongoc_gridfs_t* gfs /* = NULL */) {
-    if (gfs_ != NULL) gfs = gfs_;
+    if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
         StatusMessage("mongoc_gridfs_t must be provided for MongoGridFs!");
         return false;
@@ -460,10 +482,13 @@ bool MongoGridFs::WriteStreamData(const string& gfilename, char*& buf,
  * \param[in,out] bson_opts Instance of `bson_t`
  * \param[in] opts STRING_MAP key-value
  */
-void AppendStringOptionsToBson(bson_t* bson_opts, const STRING_MAP& opts) {
+void AppendStringOptionsToBson(bson_t* bson_opts, const STRING_MAP& opts,
+                               const string& prefix /* = string() */) {
     if (opts.empty()) { return; }
     for (auto iter = opts.begin(); iter != opts.end(); ++iter) {
-        string meta_field = "metadata." + iter->first;
+        string meta_field;
+        if (prefix.empty()) { meta_field = iter->first; }
+        else { meta_field = prefix + iter->first; }
         bool is_dbl = false;
         double dbl_value = IsDouble(iter->second, is_dbl);
         if (StringMatch("", iter->second) || !is_dbl) {

@@ -14,14 +14,26 @@
  */
 #include "gtest/gtest.h"
 #include "../../src/data_raster.hpp"
-#include "../../src/utils_array.h"
+#include "../../src/utils_time.h"
 #include "../../src/utils_string.h"
 #include "../../src/utils_filesystem.h"
+#ifdef USE_MONGODB
+#include "../../src/db_mongoc.h"
+#endif
+#include "../test_global.h"
 
+using namespace ccgl;
 using namespace ccgl::data_raster;
-using namespace ccgl::utils_array;
-using namespace ccgl::utils_string;
 using namespace ccgl::utils_filesystem;
+using namespace ccgl::utils_time;
+using namespace ccgl::utils_string;
+using namespace ccgl::utils_array;
+using std::vector;
+#ifdef USE_MONGODB
+using namespace ccgl::db_mongoc;
+#endif
+
+extern GlobalEnvironment* GlobalEnv;
 
 namespace {
 using testing::TestWithParam;
@@ -89,7 +101,7 @@ TEST_P(clsRasterData2DSplitMerge, MaskLyrIO) {
     EXPECT_FALSE(maskrs_->PositionsCalculated());
     EXPECT_TRUE(maskrs_->BuildSubSet());
     EXPECT_TRUE(maskrs_->PositionsCalculated());
-    map<int, SubsetPositions*> subset = maskrs_->GetSubset();
+    map<int, SubsetPositions*>& subset = maskrs_->GetSubset();
     int n_subset = CVT_INT(subset.size());
     EXPECT_EQ(n_subset, 4);
     SubsetPositions* sub1 = subset.at(1);
@@ -143,7 +155,7 @@ TEST_P(clsRasterData2DSplitMerge, MaskLyrIO) {
     new_group[3] = 3;
     new_group[4] = 1;
     EXPECT_TRUE(maskrs_->RebuildSubSet(new_group));
-    map<int, SubsetPositions*> newsubset = maskrs_->GetSubset();
+    map<int, SubsetPositions*>& newsubset = maskrs_->GetSubset();
     n_subset = CVT_INT(newsubset.size());
     EXPECT_EQ(n_subset, 3);
     SubsetPositions* newsub1 = newsubset.at(1);
@@ -229,22 +241,16 @@ TEST_P(clsRasterData2DSplitMerge, MaskLyrIO) {
     newdata[3] = data3;
 
     /** Output subset to new files **/
-    EXPECT_TRUE(maskrs_->OutputSubsetToFile(false, false, Dstpath));
-    string suffix = GetSuffix(GetParam()->mask_name);
+    string outfile = Dstpath + maskrs_->GetCoreName() + "." + GetSuffix(GetParam()->mask_name);
+    EXPECT_TRUE(maskrs_->OutputSubsetToFile(false, false, outfile));
     map<int, SubsetPositions*> subsets = maskrs_->GetSubset();
     for (auto it = subsets.begin(); it != subsets.end(); ++it) {
         vector<string> outfiles(newlyrs);
         for (int ilyr = 0; ilyr < newlyrs; ilyr++) {
-            outfiles[ilyr] = Dstpath;
-            outfiles[ilyr] += maskname;
-            outfiles[ilyr] += "_";
-            outfiles[ilyr] += itoa(it->first);
-            outfiles[ilyr] += "_";
-            outfiles[ilyr] += itoa(ilyr + 1);
-            outfiles[ilyr] += ".";
-            outfiles[ilyr] += suffix;
-            EXPECT_TRUE(FileExists(outfiles[ilyr]));
+            string outfilesubtmp = PrefixCoreFileName(outfile, it->first);
+            outfiles[ilyr] = AppendCoreFileName(outfilesubtmp, ilyr + 1);
         }
+        EXPECT_TRUE(FilesExist(outfiles));
         float** tmp = newdata.at(it->first);
         FltRaster* tmp_rs = FltRaster::Init(outfiles, true);
         EXPECT_FALSE(nullptr == tmp_rs);
@@ -263,40 +269,25 @@ TEST_P(clsRasterData2DSplitMerge, MaskLyrIO) {
         delete tmp_rs;
     }
 
-    /** Output raster data according to subset's data **/
-    string outfile = Dstpath;
-    outfile += maskname;
-    outfile += "_merge_subset.";
-    outfile += suffix;
-    maskrs_->OutputToFile(outfile, true);
-
-    /** Read the output raster data and check **/
-    FltRaster* newrs = FltRaster::Init(outfile, true);
-    EXPECT_NE(nullptr, newrs);
-    EXPECT_EQ(20, newrs->GetCellNumber());
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(0), 2008.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(1), 2019.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(2), 11.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(3), 9.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(4), 2017.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(5), 1.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(6), 2.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(7), 1.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(8), 1.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(9), 1.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(10), 7.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(11), 18.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(12), 1.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(13), 2017.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(14), 5.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(15), 2.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(16), 3.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(17), 3.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(18), 3.f);
-    EXPECT_FLOAT_EQ(newrs->GetValueByIndex(19), 1.f);
-
+    /** Output subset data to new single file **/
+    EXPECT_TRUE(maskrs_->OutputSubsetToFile(false, true, outfile));
+    string outfile_full = PrefixCoreFileName(outfile, 0);
+    /* Same as:
+    EXPECT_TRUE(maskrs_->OutputToFile(outfile_full, true));
+    */
+    vector<string> outfilesfull(newlyrs);
+    for (int ilyr = 0; ilyr < newlyrs; ilyr++) {
+        outfilesfull[ilyr] = AppendCoreFileName(outfile_full, ilyr + 1);
+    }
+    EXPECT_TRUE(FilesExist(outfilesfull));
+    FltRaster* newrs = FltRaster::Init(outfilesfull, true);
     delete newrs;
+    
+#ifdef USE_MONGODB
+    /** Output subset data to MongoDB **/
+    
 
+#endif
     // release newdata
     for (auto it = newdata.begin(); it != newdata.end(); ++it) {
         Release2DArray(it->second);
@@ -331,7 +322,8 @@ TEST_P(clsRasterData2DSplitMerge, SplitRaster) {
     EXPECT_EQ(rs_subset.size(), 2);
 
     /** Output subset to new files **/
-    EXPECT_TRUE(rs->OutputSubsetToFile(true, false, Dstpath));
+    string outfile = ConcatFullName(Dstpath, corename, GetSuffix(GetParam()->raster_name1));
+    EXPECT_TRUE(rs->OutputSubsetToFile(true, false, outfile));
     /** Check the output files **/
     map<int, float**> subarray = map<int, float**>();
     float** data1 = nullptr;
@@ -399,16 +391,10 @@ TEST_P(clsRasterData2DSplitMerge, SplitRaster) {
     for (auto it = rs_subset.begin(); it != rs_subset.end(); ++it) {
         vector<string> outfiles(lyrs);
         for (int ilyr = 0; ilyr < lyrs; ilyr++) {
-            outfiles[ilyr] = Dstpath;
-            outfiles[ilyr] += corename;
-            outfiles[ilyr] += "_";
-            outfiles[ilyr] += itoa(it->first);
-            outfiles[ilyr] += "_";
-            outfiles[ilyr] += itoa(ilyr + 1);
-            outfiles[ilyr] += ".";
-            outfiles[ilyr] += suffix;
-            EXPECT_TRUE(FileExists(outfiles[ilyr]));
+            string outfilesub = PrefixCoreFileName(outfile, it->first);
+            outfiles[ilyr] = AppendCoreFileName(outfilesub, ilyr + 1);
         }
+        EXPECT_TRUE(FilesExist(outfiles));
         float** tmp = subarray.at(it->first);
         FltRaster* tmp_rs = FltRaster::Init(outfiles, true);
         EXPECT_FALSE(nullptr == tmp_rs);

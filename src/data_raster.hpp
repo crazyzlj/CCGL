@@ -130,178 +130,642 @@ typedef enum {
 /** Common functions independent to clsRasterData **/
 
 /*!
- * \brief check the existence of given raster file
- */
-inline bool CheckRasterFilesExist(const string& filename) {
-    if (!FileExists(filename)) {
-        StatusMessage("The raster file " + filename + " does not exist or has not read permission.");
-        return false;
-    }
-    return true;
-}
-
-/*!
- * \brief check the existence of given vector of raster files
- * \return True if all existed, else false
- */
-inline bool CheckRasterFilesExist(vector<string>& filenames) {
-    if (filenames.empty()) return false;
-    for (auto it = filenames.begin(); it != filenames.end(); ++it) {
-        if (!CheckRasterFilesExist(*it)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-/*!
  * \brief Convert RasterDataType to string
  */
-inline string RasterDataTypeToString(const int type) {
-    switch (type) {
-        case RDT_Int8:	    return("INT8");    // 8-bit signed integer
-        case RDT_UInt8:	    return("UINT8");   // 8-bit unsigned integer
-        case RDT_UInt16:	return("UINT16");  // 16-bit unsigned integer
-        case RDT_Int16:	    return("INT16");   // 16-bit signed integer
-        case RDT_UInt32:	return("UINT32");  // 32-bit unsigned integer
-        case RDT_Int32: 	return("INT32");   // 32-bit signed integer
-        case RDT_Float: 	return("FLOAT");   // 32-bit floating point
-        case RDT_Double: 	return("DOUBLE");  // 64-bit floating point
-        default:	        return("Unknown"); // All others
-    }
-}
+string RasterDataTypeToString(int type);
 
 /*!
  * \brief Convert string to RasterDataType
  */
-inline RasterDataType StringToRasterDataType(const string& stype) {
-    if (StringMatch(stype, "UCHAR") || StringMatch(stype, "UINT8")
-        || StringMatch(stype, "GDT_Byte")) return RDT_UInt8;
-    if (StringMatch(stype, "CHAR") || StringMatch(stype, "INT8")) return RDT_Int8;
-    if (StringMatch(stype, "UINT16") || StringMatch(stype, "GDT_UInt16")) return RDT_UInt16;
-    if (StringMatch(stype, "INT16") || StringMatch(stype, "GDT_Int16")) return RDT_Int16;
-    if (StringMatch(stype, "UINT32") || StringMatch(stype, "GDT_UInt32")) return RDT_UInt32;
-    if (StringMatch(stype, "INT32") || StringMatch(stype, "GDT_Int32")) return RDT_Int32;
-    if (StringMatch(stype, "FLOAT") || StringMatch(stype, "GDT_Float32")) return RDT_Float;
-    if (StringMatch(stype, "DOUBLE") || StringMatch(stype, "GDT_Float64")) return RDT_Double;
-    return RDT_Unknown;
-}
+RasterDataType StringToRasterDataType(const string& stype);
 
 /*!
  * \brief Convert C++ data type to RasterDataType
  */
-inline RasterDataType TypeToRasterDataType(const std::type_info& t) {
-    if (t == typeid(unsigned char) || t == typeid(vuint8_t)) return RDT_UInt8;
-    if (t == typeid(char) || t == typeid(vint8_t)) return RDT_Int8;
-    if (t == typeid(vuint16_t)) return RDT_UInt16;
-    if (t == typeid(vint16_t)) return RDT_Int16;
-    if (t == typeid(vuint32_t)) return RDT_UInt32;
-    if (t == typeid(vint32_t)) return RDT_Int32;
-    if (t == typeid(float)) return RDT_Float;
-    if (t == typeid(double)) return RDT_Double;
-    return RDT_Unknown;
-}
+RasterDataType TypeToRasterDataType(const std::type_info& t);
 
 /*!
  * \brief Default NoData value by data type
  */
-inline double DefaultNoDataByType(const RasterDataType type) {
-    switch (type) {
-        case RDT_Unknown:   return NODATA_VALUE;  // Unknown type
-        case RDT_UInt8:	    return UINT8_MAX;     // 8-bit unsigned integer
-        case RDT_Int8:	    return INT8_MIN;      // 8-bit signed integer
-        case RDT_UInt16:	return UINT16_MAX;    // 16-bit unsigned integer
-        case RDT_Int16:	    return INT16_MIN;     // 16-bit signed integer
-        case RDT_UInt32:	return UINT32_MAX;    // 32-bit unsigned integer
-        case RDT_Int32: 	return INT32_MIN;     // 32-bit signed integer
-        case RDT_Float: 	return MISSINGFLOAT;  // 32-bit floating point
-        case RDT_Double: 	return MISSINGFLOAT;  // 64-bit floating point
-        default:	        return NODATA_VALUE;  // All others
-    }
-}
+double DefaultNoDataByType(RasterDataType type);
 
 #ifdef USE_GDAL
-inline GDALDataType CvtToGDALDataType(const RasterDataType type) {
-    switch (type) {
-        case RDT_Unknown:   return GDT_Unknown;  // Unknown
-        case RDT_Int8:	    return GDT_Unknown;  // 8-bit signed integer that GDAL do not have!
-        case RDT_UInt8:	    return GDT_Byte;     // 8-bit unsigned integer
-        case RDT_UInt16:	return GDT_UInt16;   // 16-bit unsigned integer
-        case RDT_Int16:	    return GDT_Int16;    // 16-bit signed integer
-        case RDT_UInt32:	return GDT_UInt32;   // 32-bit unsigned integer
-        case RDT_Int32: 	return GDT_Int32;    // 32-bit signed integer
-        case RDT_Float: 	return GDT_Float32;  // 32-bit floating point
-        case RDT_Double: 	return GDT_Float64;  // 64-bit floating point
-        default:	        return GDT_Unknown;  // All others
-    }
-}
+GDALDataType CvtToGDALDataType(RasterDataType type);
 #endif
 
 /*!
+ * \brief Initialize header information in double
+ */
+STRDBL_MAP InitialHeader();
+
+/*!
+ * \brief Copy header information from one to another
+ * \param[in] refers Reference header
+ * \param[in] dst Destination header
+ */
+void CopyHeader(const STRDBL_MAP& refers, STRDBL_MAP& dst);
+
+/*!
+ * \brief Update value in header information
+ */
+template <typename T>
+void UpdateHeader(STRDBL_MAP& header, const string& key, T val) {
+    if (header.find(key) == header.end()) {
+#ifdef HAS_VARIADIC_TEMPLATES
+        header.emplace(key, CVT_DBL(val));
+#else
+        header.insert(make_pair(key, CVT_DBL(val)));
+#endif
+    }
+    else { header.at(key) = CVT_DBL(val); }
+}
+
+/*!
+ * \brief Initialize header information in string
+ */
+STRING_MAP InitialStrHeader();
+
+/*!
+ * \brief Update header information in string
+ */
+void UpdateStrHeader(STRING_MAP& strheader, const string& key, const string& val);
+/*!
  * \brief Get output raster data type from optional inputs
  */
-inline RasterDataType RasterDataTypeInOptionals(const STRING_MAP& opts) {
-    if (opts.find(HEADER_RSOUT_DATATYPE) != opts.end()) {
-        return StringToRasterDataType(opts.at(HEADER_RSOUT_DATATYPE));
+RasterDataType RasterDataTypeInOptionals(const STRING_MAP& opts);
+
+/*!
+ * \brief Initialize statistics values for 1D and 2D raster data
+ */
+void InitialStatsMap(STRDBL_MAP& stats, map<string, double*>& stats2d);
+
+/*!
+ * \brief Read raster data from ASC file, the simply usage
+ * \param[in] filename Full path of ASC raster file
+ * \param[out] header Raster header information
+ * \param[out] values All raster values in 1d-array including NODATA_VALUE
+ * \return true if read successfully, otherwise return false.
+ */
+template <typename T>
+bool ReadAscFile(const string& filename, STRDBL_MAP& header, T*& values) {
+    StatusMessage(("Read " + filename + "...").c_str());
+    vector<string> content_strs;
+    if (!LoadPlainTextFile(filename, content_strs)) { return false; }
+    if (content_strs.size() < 7) {
+        StatusMessage("Error: ASCII raster data requires at least 7 lines!");
+        return false;
     }
-    return RDT_Unknown;
+    double cellsize = -1.;
+    double xll = MISSINGFLOAT;
+    double yll = MISSINGFLOAT;
+    double nodata = MISSINGFLOAT;
+    bool xllcorner = false;
+    bool yllcorner = false;
+    int rows = -1;
+    int cols = -1;
+    int vidx = 0;
+    for (auto iter = content_strs.begin(); iter != content_strs.end(); ++iter) {
+        vector<string> tokens = SplitString(*iter);
+        if (tokens.empty()) { continue; }
+        bool str2value = false;
+        if (StringMatch(tokens[0], HEADER_RS_NCOLS)) {
+            if (tokens.size() < 2) { return false; }
+            cols = CVT_INT(IsInt(tokens[1], str2value));
+            if (!str2value) { return false; }
+        }
+        else if (StringMatch(tokens[0], HEADER_RS_NROWS)) {
+            if (tokens.size() < 2) { return false; }
+            rows = CVT_INT(IsInt(tokens[1], str2value));
+            if (!str2value) { return false; }
+        }
+        else if (StringMatch(tokens[0], HEADER_RS_XLL) ||
+            StringMatch(tokens[0], HEADER_RS_XLLCOR)) {
+            if (tokens.size() < 2) { return false; }
+            xll = IsDouble(tokens[1], str2value);
+            if (StringMatch(tokens[0], HEADER_RS_XLLCOR)) { xllcorner = true; }
+            if (!str2value) { return false; }
+        }
+        else if (StringMatch(tokens[0], HEADER_RS_YLL) ||
+            StringMatch(tokens[0], HEADER_RS_YLLCOR)) {
+            if (tokens.size() < 2) { return false; }
+            yll = IsDouble(tokens[1], str2value);
+            if (StringMatch(tokens[0], HEADER_RS_YLLCOR)) { yllcorner = true; }
+            if (!str2value) { return false; }
+        }
+        else if (StringMatch(tokens[0], HEADER_RS_CELLSIZE)) {
+            if (tokens.size() < 2) { return false; }
+            cellsize = IsDouble(tokens[1], str2value);
+            if (!str2value) { return false; }
+        }
+        else if (StringMatch(tokens[0], HEADER_RS_NODATA)) {
+            if (tokens.size() < 2) { return false; }
+            nodata = IsDouble(tokens[1], str2value);
+            if (!str2value) { return false; }
+        }
+        else {
+            if (rows < 0 || cols < 0) {
+                StatusMessage("Warning: NCOLS and NROWS should be defined first!");
+            }
+            Initialize1DArray(rows * cols, values, nodata);
+            for (auto it_value = tokens.begin(); it_value != tokens.end(); ++it_value) {
+                double tmpv = IsDouble(*it_value, str2value);
+                if (!str2value) {
+                    StatusMessage("Error: No value occurred in Raster data matrix!");
+                    if (nullptr != values) { Release1DArray(values); }
+                    return false;
+                }
+                if (vidx == rows * cols) {
+                    StatusMessage("Error: Count of values MUST equal to rows * cols!");
+                    if (nullptr != values) { Release1DArray(values); }
+                    return false;
+                }
+                values[vidx++] = static_cast<T>(tmpv);
+            }
+        }
+    }
+    if (rows < 0 || cols < 0 || cellsize < 0 ||
+        FloatEqual(xll, MISSINGFLOAT) || FloatEqual(yll, MISSINGFLOAT)) {
+        StatusMessage("Error: Header information incomplete!");
+        return false;
+    }
+    // default is center, if corner, then:
+    if (xllcorner) { xll += 0.5 * cellsize; }
+    if (yllcorner) { yll += 0.5 * cellsize; }
+    UpdateHeader(header, HEADER_RS_NCOLS, cols);
+    UpdateHeader(header, HEADER_RS_NROWS, rows);
+    UpdateHeader(header, HEADER_RS_XLL, xll);
+    UpdateHeader(header, HEADER_RS_YLL, yll);
+    UpdateHeader(header, HEADER_RS_CELLSIZE, cellsize);
+    UpdateHeader(header, HEADER_RS_NODATA, nodata);
+    UpdateHeader(header, HEADER_RS_LAYERS, 1);
+    UpdateHeader(header, HEADER_RS_CELLSNUM, cols * rows);
+
+    return true;
 }
 
-inline map<string, double> InitialHeaderMap() {
-    map<string, double> headinfo;
-    const char* raster_headers[8] = {
-        HEADER_RS_NCOLS, HEADER_RS_NROWS, HEADER_RS_XLL, HEADER_RS_YLL,
-        HEADER_RS_CELLSIZE, HEADER_RS_NODATA, HEADER_RS_LAYERS, HEADER_RS_CELLSNUM
-    };
-    for (int i = 0; i < 8; i++) {
-#ifdef HAS_VARIADIC_TEMPLATES
-        headinfo.emplace(raster_headers[i], NODATA_VALUE);
-#else
-        headinfo.insert(make_pair(raster_headers[i], NODATA_VALUE));
-#endif
+/*!
+ * \brief Write raster header information into a ASC file. If the file exists, delete it first.
+ * \param[in] filename ASC full file path
+ * \param[in] header header information
+ */
+bool WriteAscHeaders(const string& filename, const STRDBL_MAP& header);
+
+/*!
+ * \brief Write raster data as a single ASC file. If the file exists, delete it first.
+ * \param[in] filename ASC full file path
+ * \param[in] header header information
+ * \param[in] values raster data array
+ */
+template <typename T>
+bool WriteSingleAsc(const string& filename, const STRDBL_MAP& header, T* values) {
+    string abs_filename = GetAbsolutePath(filename);
+    if (!WriteAscHeaders(abs_filename, header)) { return false; }
+    std::ofstream raster_file(abs_filename.c_str(), std::ios::app | std::ios::out);
+    if (!raster_file.is_open()) {
+        StatusMessage("Error opening file: " + abs_filename);
+        return false;
     }
-    return headinfo;
+    for (int i = 0; i < header.at(HEADER_RS_NROWS) * header.at(HEADER_RS_NCOLS); ++i) {
+        raster_file << setprecision(6) << values[i] << " ";
+    }
+    raster_file << endl;
+    raster_file.close();
+    return true;
 }
 
-inline STRING_MAP InitialHeaderStrMap() {
-    STRING_MAP options;
-#ifdef HAS_VARIADIC_TEMPLATES
-    options.emplace(HEADER_RS_SRS, "");
-    options.emplace(HEADER_RS_DATATYPE, "");
-    options.emplace(HEADER_RSOUT_DATATYPE, "");
-    options.emplace(HEADER_INC_NODATA, "");
-    options.emplace(HEADER_MASK_NAME, "");
-#else
-    options.insert(make_pair(HEADER_RS_SRS, ""));
-    options.insert(make_pair(HEADER_RS_DATATYPE, ""));
-    options.insert(make_pair(HEADER_RSOUT_DATATYPE, ""));
-    options.insert(make_pair(HEADER_INC_NODATA, ""));
-    options.insert(make_pair(HEADER_MASK_NAME, ""));
-#endif
-    return options;
+#ifdef USE_GDAL
+/*!
+ * \brief Read single raster file by GDAL
+ * \param[in] filename Full path of raster data
+ * \param[out] header Raster header information
+ * \param[out] values Raster data matrix
+ * \param[out] in_type Raster data type
+ * \param[out] srs SRS of input raster data as string
+ * \return true if read successfully, otherwise return false.
+ */
+template <typename T>
+bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values,
+                          RasterDataType& in_type, string& srs) {
+    StatusMessage(("Read " + filename + "...").c_str());
+    GDALDataset* po_dataset = static_cast<GDALDataset*>(GDALOpen(filename.c_str(),
+                                                                 GA_ReadOnly));
+    if (nullptr == po_dataset) {
+        StatusMessage("Open file " + filename + " failed.");
+        return false;
+    }
+    GDALRasterBand* po_band = po_dataset->GetRasterBand(1);
+    int n_rows = po_band->GetYSize();
+    int n_cols = po_band->GetXSize();
+    int get_value_flag = false;
+    T nodata = static_cast<T>(po_band->GetNoDataValue(&get_value_flag));
+    int approx_minmax = false;
+    double minmax[2];
+    T* tmprasterdata = nullptr;
+    bool read_as_signedbyte = false;
+    char* char_data = nullptr;
+    unsigned char* uchar_data = nullptr;
+    vuint16_t* uint16_data = nullptr; // 16-bit unsigned integer
+    vint16_t* int16_data = nullptr;   // 16-bit signed integer
+    vuint32_t* uint32_data = nullptr; // 32-bit unsigned integer
+    vint32_t* int32_data = nullptr;   // 32-bit signed integer
+    float* float_data = nullptr;
+    double* double_data = nullptr;
+    CPLErr result;
+    switch (po_band->GetRasterDataType()) {
+    case GDT_Byte:
+        // In GDAL, GDT_Byte is an 8-bit unsigned integer (unsigned char), ranges from 0 to 255.
+        // While in ArcGIS, both 8-bit signed char (ranges from -128 to 127) and unsigned char
+        //   are supported. Both types will be recognized as GDT_Byte by GDAL.
+        //
+        // So,
+        //    1) maximum <= 127 and minimum < 0 ==> signed char
+        //    2) maximum <= 127 and minimum >= 0 and no_data_value_ < 0 ==> signed char
+        // Otherwise, unsigned char.
+        //
+        po_band->ComputeRasterMinMax(approx_minmax, minmax);
+        if ((minmax[1] <= 127 && minmax[0] < 0)
+            || (minmax[1] <= 127 && minmax[0] >= 0 &&
+                (!get_value_flag || get_value_flag && nodata < 0))) {
+            read_as_signedbyte = true;
+        }
+        if (read_as_signedbyte) {
+            char_data = static_cast<char*>(CPLMalloc(sizeof(char) * n_cols * n_rows));
+            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, char_data,
+                                       n_cols, n_rows, GDT_Byte, 0, 0);
+            if (result != CE_None) {
+                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            }
+            else {
+                Initialize1DArray(n_rows * n_cols, tmprasterdata, char_data);
+                CPLFree(char_data);
+            }
+            in_type = RDT_Int8;
+        }
+        else {
+            uchar_data = static_cast<unsigned char*>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
+            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uchar_data,
+                                       n_cols, n_rows, GDT_Byte, 0, 0);
+            if (result != CE_None) {
+                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            }
+            else {
+                Initialize1DArray(n_rows * n_cols, tmprasterdata, uchar_data);
+                CPLFree(uchar_data);
+            }
+            in_type = RDT_UInt8;
+        }
+        break;
+    case GDT_UInt16:
+        uint16_data = static_cast<vuint16_t*>(CPLMalloc(sizeof(vuint16_t) * n_cols * n_rows));
+        result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uint16_data,
+                                   n_cols, n_rows, GDT_UInt16, 0, 0);
+        if (result != CE_None) {
+            StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+        }
+        else {
+            Initialize1DArray(n_rows * n_cols, tmprasterdata, uint16_data);
+            CPLFree(uint16_data);
+        }
+        in_type = RDT_UInt16;
+        break;
+    case GDT_Int16:
+        int16_data = static_cast<vint16_t*>(CPLMalloc(sizeof(vint16_t) * n_cols * n_rows));
+        result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, int16_data,
+                                   n_cols, n_rows, GDT_Int16, 0, 0);
+        if (result != CE_None) {
+            StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+        }
+        else {
+            Initialize1DArray(n_rows * n_cols, tmprasterdata, int16_data);
+            CPLFree(int16_data);
+        }
+        in_type = RDT_Int16;
+        break;
+    case GDT_UInt32:
+        uint32_data = static_cast<vuint32_t*>(CPLMalloc(sizeof(vuint32_t) * n_cols * n_rows));
+        result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uint32_data,
+                                   n_cols, n_rows, GDT_UInt32, 0, 0);
+        if (result != CE_None) {
+            StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+        }
+        else {
+            Initialize1DArray(n_rows * n_cols, tmprasterdata, uint32_data);
+            CPLFree(uint32_data);
+        }
+        in_type = RDT_UInt32;
+        break;
+    case GDT_Int32:
+        int32_data = static_cast<vint32_t*>(CPLMalloc(sizeof(vint32_t) * n_cols * n_rows));
+        result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, int32_data,
+                                   n_cols, n_rows, GDT_Int32, 0, 0);
+        if (result != CE_None) {
+            StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+        }
+        else {
+            Initialize1DArray(n_rows * n_cols, tmprasterdata, int32_data);
+            CPLFree(int32_data);
+        }
+        in_type = RDT_Int32;
+        break;
+    case GDT_Float32:
+        float_data = static_cast<float*>(CPLMalloc(sizeof(float) * n_cols * n_rows));
+        result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, float_data,
+                                   n_cols, n_rows, GDT_Float32, 0, 0);
+        if (result != CE_None) {
+            StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+        }
+        else {
+            Initialize1DArray(n_rows * n_cols, tmprasterdata, float_data);
+            CPLFree(float_data);
+        }
+        in_type = RDT_Float;
+        break;
+    case GDT_Float64:
+        double_data = static_cast<double*>(CPLMalloc(sizeof(double) * n_cols * n_rows));
+        result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, double_data,
+                                   n_cols, n_rows, GDT_Float64, 0, 0);
+        if (result != CE_None) {
+            StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+        }
+        else {
+            Initialize1DArray(n_rows * n_cols, tmprasterdata, double_data);
+            CPLFree(double_data);
+        }
+        in_type = RDT_Double;
+        break;
+    default:
+        StatusMessage("Unexpected GDALDataType: " + string(RasterDataTypeToString(in_type)));
+        GDALClose(po_dataset);
+        return false;
+    }
+
+    if (!get_value_flag) { // NoData value is not defined!
+        nodata = static_cast<T>(DefaultNoDataByType(in_type));
+    }
+
+    double geo_trans[6];
+    po_dataset->GetGeoTransform(geo_trans);
+    UpdateHeader(header, HEADER_RS_NCOLS, n_cols);
+    UpdateHeader(header, HEADER_RS_NROWS, n_rows);
+    UpdateHeader(header, HEADER_RS_NODATA, nodata);
+    UpdateHeader(header, HEADER_RS_CELLSIZE, geo_trans[1]);
+    UpdateHeader(header, HEADER_RS_XLL, geo_trans[0] + 0.5 * geo_trans[1]);
+    UpdateHeader(header, HEADER_RS_YLL, geo_trans[3] + (n_rows - 0.5) * geo_trans[5]);
+    UpdateHeader(header, HEADER_RS_LAYERS, 1.);
+    UpdateHeader(header, HEADER_RS_CELLSNUM, n_cols * n_rows);
+    srs = string(po_dataset->GetProjectionRef());
+
+    GDALClose(po_dataset);
+    
+    values = tmprasterdata;
+    return true;
 }
 
-inline void InitialStatsMap(map<string, double>& stats, map<string, double*>& stats2d) {
-    string statsnames[6] = {
-        STATS_RS_VALIDNUM, STATS_RS_MIN, STATS_RS_MAX, STATS_RS_MEAN,
-        STATS_RS_STD, STATS_RS_RANGE
-    };
-    for (int i = 0; i < 6; i++) {
-#ifdef HAS_VARIADIC_TEMPLATES
-        stats.emplace(statsnames[i], NODATA_VALUE);
-        stats2d.emplace(statsnames[i], nullptr);
-#else
-        stats.insert(make_pair(statsnames[i], NODATA_VALUE));
-        stats2d.insert(map<string, double*>::value_type(statsnames[i], nullptr));
-#endif
+/*!
+ * \brief Write single geotiff file
+ * If the file exists, delete it first.
+ * \param[in] filename \a string, output ASC file path
+ * \param[in] header header information
+ * \param[in] opts Options, e.g., `srs` - Coordinate system string
+ * \param[in] values raster data array
+ */
+template <typename T>
+bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
+                        const STRING_MAP& opts, T* values) {
+    int n_rows = CVT_INT(header.at(HEADER_RS_NROWS));
+    int n_cols = CVT_INT(header.at(HEADER_RS_NCOLS));
+    char** papsz_options = nullptr;
+    void* new_values = nullptr;
+    bool recreate_flag = true; // recreate data array because inconsistent of datatypes
+    double old_nodata = header.at(HEADER_RS_NODATA);
+    bool change_nodata = false;
+    double new_nodata = old_nodata; // change nodata when convert signed datatype to unsigned
+    bool convert_permit = true; // DO NOT allow negative cell values be converted to unsigned datatype
+    RasterDataType tmptype = TypeToRasterDataType(typeid(T));
+    RasterDataType outtype = RasterDataTypeInOptionals(opts);
+    if (outtype == RDT_Unknown) {
+        outtype = tmptype;
+        recreate_flag = false;
     }
+    else if (outtype == tmptype) {
+        recreate_flag = false;
+    }
+    else {
+        if (outtype == RDT_UInt8) { // [0, 255] --> GDT_Byte in GDAL, use unsigned char
+            new_values = static_cast<unsigned char*>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
+            unsigned char* values_uchar = static_cast<unsigned char*>(new_values);
+            if (old_nodata < 0 || old_nodata > UINT8_MAX) {
+                new_nodata = UINT8_MAX;
+                change_nodata = true;
+            }
+            int illegal_count = 0;
+#pragma omp parallel for reduction(+:illegal_count)
+            for (int i = 0; i < n_cols * n_rows; i++) {
+                if (FloatEqual(values[i], old_nodata) && change_nodata) {
+                    values_uchar[i] = UINT8_MAX;
+                    continue;
+                }
+                if (values[i] < 0 || values[i] > UINT8_MAX) illegal_count += 1;
+                values_uchar[i] = static_cast<unsigned char>(values[i]);
+            }
+            if (illegal_count > 0) convert_permit = false;
+        }
+        else if (outtype == RDT_Int8) { // [-128, 127]
+            // https://gdal.org/drivers/raster/gtiff.html
+            papsz_options = CSLSetNameValue(papsz_options, "PIXELTYPE", "SIGNEDBYTE");
+            new_values = static_cast<char*>(CPLMalloc(sizeof(char) * n_cols * n_rows));
+            char* values_char = static_cast<char*>(new_values);
+            if (old_nodata < INT8_MIN || old_nodata > INT8_MAX) {
+                new_nodata = INT8_MIN;
+                change_nodata = true;
+            }
+            int illegal_count = 0;
+#pragma omp parallel for reduction(+:illegal_count)
+            for (int i = 0; i < n_cols * n_rows; i++) {
+                if (FloatEqual(values[i], old_nodata) && change_nodata) {
+                    values_char[i] = INT8_MIN;
+                    continue;
+                }
+                if (values[i] < INT8_MIN || values[i] > INT8_MAX) illegal_count += 1;
+                values_char[i] = static_cast<char>(values[i]);
+            }
+            if (illegal_count > 0) convert_permit = false;
+        }
+        else if (outtype == RDT_UInt16) { // [0, 65535]
+            new_values = static_cast<vuint16_t*>(CPLMalloc(sizeof(vuint16_t) * n_cols * n_rows));
+            vuint16_t* values_uint16 = static_cast<vuint16_t*>(new_values);
+            if (old_nodata < 0 || old_nodata > UINT16_MAX) {
+                new_nodata = UINT16_MAX;
+                change_nodata = true;
+            }
+            int illegal_count = 0;
+#pragma omp parallel for reduction(+:illegal_count)
+            for (int i = 0; i < n_cols * n_rows; i++) {
+                if (FloatEqual(values[i], old_nodata) && change_nodata) {
+                    values_uint16[i] = UINT16_MAX;
+                    continue;
+                }
+                if (values[i] < 0 || values[i] > UINT16_MAX) illegal_count += 1;
+                values_uint16[i] = static_cast<vuint16_t>(values[i]);
+            }
+            if (illegal_count > 0) convert_permit = false;
+        }
+        else if (outtype == RDT_Int16) { // [-32768, 32767]
+            new_values = static_cast<vint16_t*>(CPLMalloc(sizeof(vint16_t) * n_cols * n_rows));
+            vint16_t* values_int16 = static_cast<vint16_t*>(new_values);
+            if (old_nodata < INT16_MIN || old_nodata > INT16_MAX) {
+                new_nodata = INT16_MIN;
+                change_nodata = true;
+            }
+            int illegal_count = 0;
+#pragma omp parallel for reduction(+:illegal_count)
+            for (int i = 0; i < n_cols * n_rows; i++) {
+                if (FloatEqual(values[i], old_nodata) && change_nodata) {
+                    values_int16[i] = INT16_MIN;
+                    continue;
+                }
+                if (values[i] < INT16_MIN || values[i] > INT16_MAX) illegal_count += 1;
+                values_int16[i] = static_cast<vint16_t>(values[i]);
+            }
+            if (illegal_count > 0) convert_permit = false;
+        }
+        else if (outtype == RDT_UInt32) { // [0, 4294967295]
+            new_values = static_cast<vuint32_t*>(CPLMalloc(sizeof(vuint32_t) * n_cols * n_rows));
+            vuint32_t* values_uint32 = static_cast<vuint32_t*>(new_values);
+            if (old_nodata < 0 || old_nodata > UINT32_MAX) {
+                new_nodata = UINT32_MAX;
+                change_nodata = true;
+            }
+            int illegal_count = 0;
+#pragma omp parallel for reduction(+:illegal_count)
+            for (int i = 0; i < n_cols * n_rows; i++) {
+                if (FloatEqual(values[i], old_nodata) && change_nodata) {
+                    values_uint32[i] = UINT32_MAX;
+                    continue;
+                }
+                if (values[i] < 0 || values[i] > UINT32_MAX) illegal_count += 1;
+                values_uint32[i] = static_cast<vuint32_t>(values[i]);
+            }
+            if (illegal_count > 0) convert_permit = false;
+        }
+        else if (outtype == RDT_Int32) { // [-2147483648, 2147483647]
+            new_values = static_cast<vint32_t*>(CPLMalloc(sizeof(vint32_t) * n_cols * n_rows));
+            vint32_t* values_int32 = static_cast<vint32_t*>(new_values);
+            if (old_nodata < INT32_MIN || old_nodata > INT32_MAX) {
+                new_nodata = INT32_MIN;
+                change_nodata = true;
+            }
+            int illegal_count = 0;
+#pragma omp parallel for reduction(+:illegal_count)
+            for (int i = 0; i < n_cols * n_rows; i++) {
+                if (FloatEqual(values[i], old_nodata) && change_nodata) {
+                    values_int32[i] = INT32_MIN;
+                    continue;
+                }
+                if (values[i] < INT32_MIN || values[i] > INT32_MAX) illegal_count += 1;
+                values_int32[i] = static_cast<vint32_t>(values[i]);
+            }
+            if (illegal_count > 0) convert_permit = false;
+        }
+        else if (outtype == RDT_Float) {
+            new_values = static_cast<float*>(CPLMalloc(sizeof(float) * n_cols * n_rows));
+            float* values_float = static_cast<float*>(new_values);
+#pragma omp parallel for
+            for (int i = 0; i < n_cols * n_rows; i++) values_float[i] = static_cast<float>(values[i]);
+        }
+        else if (outtype == RDT_Double) {
+            new_values = static_cast<double*>(CPLMalloc(sizeof(double) * n_cols * n_rows));
+            double* values_double = static_cast<double*>(new_values);
+#pragma omp parallel for
+            for (int i = 0; i < n_cols * n_rows; i++) values_double[i] = static_cast<double>(values[i]);
+        }
+    }
+    if ((outtype == RDT_Unknown || recreate_flag && nullptr == new_values)
+        || !convert_permit) {
+        cout << "Error: The specific raster output data type is not allowed!\n";
+        if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
+        if (new_values != nullptr) { CPLFree(new_values); }
+        return false;
+    }
+    GDALDriver* po_driver = GetGDALDriverManager()->GetDriverByName("GTiff");
+    if (nullptr == po_driver) { return false; }
+    GDALDataset* po_dst_ds = po_driver->Create(filename.c_str(), n_cols, n_rows, 1,
+                                               CvtToGDALDataType(outtype), papsz_options);
+    if (nullptr == po_dst_ds) { return false; }
+    GDALRasterBand* po_dst_band = po_dst_ds->GetRasterBand(1);
+    CPLErr result = CE_None;
+    if (!recreate_flag) {
+        result = po_dst_band->RasterIO(GF_Write, 0, 0, n_cols, n_rows, values,
+                                       n_cols, n_rows, CvtToGDALDataType(outtype), 0, 0);
+    }
+    else {
+        result = po_dst_band->RasterIO(GF_Write, 0, 0, n_cols, n_rows, new_values,
+                                       n_cols, n_rows, CvtToGDALDataType(outtype), 0, 0);
+    }
+    if (result != CE_None || nullptr == po_dst_band) {
+        StatusMessage("RaterIO Error: " + string(CPLGetLastErrorMsg()));
+        if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
+        if (new_values != nullptr) { CPLFree(new_values); }
+        GDALClose(po_dst_ds);
+        return false;
+    }
+    po_dst_band->SetNoDataValue(new_nodata);
+
+    double geo_trans[6]; // Write header information
+    geo_trans[0] = header.at(HEADER_RS_XLL) - 0.5 * header.at(HEADER_RS_CELLSIZE);
+    geo_trans[1] = header.at(HEADER_RS_CELLSIZE);
+    geo_trans[2] = 0.;
+    geo_trans[3] = header.at(HEADER_RS_YLL) + (n_rows - 0.5) * header.at(HEADER_RS_CELLSIZE);
+    geo_trans[4] = 0.;
+    geo_trans[5] = -header.at(HEADER_RS_CELLSIZE);
+    po_dst_ds->SetGeoTransform(geo_trans);
+    if (opts.find(HEADER_RS_SRS) == opts.end()) {
+        po_dst_ds->SetProjection("");
+    }
+    else {
+        po_dst_ds->SetProjection(opts.at(HEADER_RS_SRS).c_str());
+    }
+    if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
+    if (new_values != nullptr) { CPLFree(new_values); }
+    GDALClose(po_dst_ds);
+
+    return true;
+}
+#endif /* USE_GDAL */
+
+/*!
+ * \brief Write single raster file, if the file exists, delete it first.
+ * \param[in] filename output full file path
+ * \param[in] header header information
+ * \param[in] opts Options, e.g., srs: Coordinate system string
+ * \param[in] values raster data array
+ */
+template <typename T>
+bool WriteRasterToFile(const string& filename, const STRDBL_MAP& header,
+                       const STRING_MAP& opts, T* values) {
+    if (GetPathFromFullName(filename).empty()) { return false; }
+    string abs_filename = GetAbsolutePath(filename);
+    string filetype = GetUpper(GetSuffix(abs_filename));
+    if (StringMatch(filetype, ASCIIExtension)) {
+        return WriteSingleAsc(abs_filename, header, values);
+    }
+#ifdef USE_GDAL
+    if (StringMatch(filetype, GTiffExtension)) {
+        return WriteSingleGeotiff(abs_filename, header, opts, values);
+    }
+    return WriteSingleGeotiff(ReplaceSuffix(abs_filename, GTiffExtension),
+                              header, opts, values);
+#else
+    StatusMessage("Warning: Without GDAL, ASC file will be exported as default!");
+    return WriteSingleAsc(ReplaceSuffix(abs_filename, ASCIIExtension), header, values);
+#endif /* USE_GDAL */
 }
 
 #ifdef USE_MONGODB
 /*!
- * \brief Read GridFs file from MongoDB, return data in char* and header information
- * \param[in] gfs \a mongoc_gridfs_t
- * \param[in] filename \a char*, raster file name
+ * \brief Read GridFs file from MongoDB
+ * \param[in] gfs MongoGridFs pointer
+ * \param[in] filename GridFs filename
  * \param[out] data Data stored in GridFs file
  * \param[out] header Header information
  * \param[out] header_str Header information in strings
@@ -309,7 +773,7 @@ inline void InitialStatsMap(map<string, double>& stats, map<string, double*>& st
  */
 template <typename T>
 bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
-                    T*& data, map<string, double>& header,
+                    T*& data, STRDBL_MAP& header,
                     STRING_MAP& header_str,
                     const STRING_MAP& opts /* = STRING_MAP() */) {
     // Get stream data and metadata by file name
@@ -404,6 +868,46 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
     }
     return true;
 }
+
+/*!
+ * \brief Write full-sized raster data as GridFS file. If the file exists, delete it first.
+ * \param[in] gfs GridFs of MongoDB
+ * \param[in] filename GridFS file name
+ * \param[in] header header information
+ * \param[in] values float raster data array
+ * \param[in] datalength Length of data
+ * \param[in] opts (optional) Key-value map for user-specific metadata
+ */
+template <typename T>
+bool WriteStreamDataAsGridfs(MongoGridFs* gfs, const string& filename,
+                             STRDBL_MAP& header, T* values, const int datalength,
+                             const STRING_MAP& opts = STRING_MAP()) {
+    gfs->RemoveFile(filename, NULL, opts);
+    bson_t p = BSON_INITIALIZER;
+    for (auto iter = header.begin(); iter != header.end(); ++iter) {
+        if (std::fmod(iter->second, 1.) == 0) {
+            BSON_APPEND_INT32(&p, iter->first.c_str(), CVT_INT(iter->second));
+        }
+        else {
+            BSON_APPEND_DOUBLE(&p, iter->first.c_str(), iter->second);
+        }
+    }
+    // Add user-specific key-values into metadata
+    AppendStringOptionsToBson(&p, opts);
+    char* buf = reinterpret_cast<char*>(values);
+    int buflength = datalength * sizeof(T);
+    int try_times = 0;
+    bool gstatus = false;
+    while (try_times <= 3) { // Try 3 times
+        gstatus = gfs->WriteStreamData(filename, buf, buflength, &p);
+        if (gstatus) { break; }
+        SleepMs(2); // Sleep 0.002 sec and retry
+        try_times++;
+    }
+    bson_destroy(&p);
+    return gstatus;
+}
+
 #endif /* USE_MONGODB */
 
 /*!
@@ -412,69 +916,15 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
  */
 class SubsetPositions: NotCopyable {
 public:
-    SubsetPositions() {
-        Initialization();
-    }
+    SubsetPositions();
 
-    SubsetPositions(const int srow, const int erow, const int scol, const int ecol)
-        : n_cells(0), n_lyrs(-1), g_srow(srow), g_erow(erow), g_scol(scol), g_ecol(ecol), alloc_(false),
-          local_pos_(nullptr), global_(nullptr), data_(nullptr), data2d_(nullptr) {
-    }
+    SubsetPositions(int srow, int erow, int scol, int ecol);
 
-    SubsetPositions(SubsetPositions*& src, const bool deep_copy = false) {
-        Initialization();
-        n_cells = src->n_cells;
-        n_lyrs = src->n_lyrs;
-        g_srow = src->g_srow;
-        g_erow = src->g_erow;
-        g_scol = src->g_scol;
-        g_ecol = src->g_ecol;
-        if (deep_copy) {
-            alloc_ = true;
-            Initialize1DArray(n_cells, global_, src->global_);
-            Initialize2DArray(n_cells, 2, local_pos_, src->local_pos_);
-            if (nullptr != src->data_) {
-                Initialize1DArray(n_cells, data_, src->data_);
-            }
-            if (nullptr != src->data2d_) {
-                Initialize2DArray(n_cells, n_lyrs, data2d_, src->data2d_);
-            }
-        } else {
-            alloc_ = false;
-            global_ = src->global_;
-            local_pos_ = src->local_pos_;
-            if (nullptr != src->data_) { data_ = src->data_; }
-            if (nullptr != src->data2d_) { data2d_ = src->data2d_; }
-        }
-    }
+    SubsetPositions(SubsetPositions*& src, const bool deep_copy = false);
 
-    ~SubsetPositions() {
-        if (nullptr != local_pos_) {
-            if (alloc_) { Release2DArray(local_pos_); }
-            else { local_pos_ = nullptr; }
-        }
-        if (nullptr != global_) {
-            if (alloc_) { Release1DArray(global_); }
-            else { global_ = nullptr; }
-        }
-        if (nullptr != data_) { Release1DArray(data_); }
-        if (nullptr != data2d_) { Release2DArray(data2d_); }
-    }
+    ~SubsetPositions();
 
-    bool Initialization() {
-        n_cells = 0;
-        n_lyrs = -1;
-        g_srow = -1;
-        g_erow = -1;
-        g_scol = -1;
-        g_ecol = -1;
-        alloc_ = false;
-        local_pos_ = nullptr;
-        global_ = nullptr;
-        data_ = nullptr;
-        data2d_ = nullptr; 
-        return true;
-    }
+    bool Initialization();
 
     template <typename T>
     bool SetData(const int n, T* data) {
@@ -507,56 +957,10 @@ public:
     }
 #ifdef USE_MONGODB
     bool ReadFromMongoDB(MongoGridFs* gfs, const string& fname,
-                         const STRING_MAP& opts = STRING_MAP()) {
-        double* dbdata = nullptr;
-        map<string, double> header_dbl = InitialHeaderMap();
-        STRING_MAP header_str = InitialHeaderStrMap();
-        if (!ReadGridFsFile(gfs, fname, dbdata, header_dbl, header_str, opts)) { return false; }
-        int nrows = g_erow - g_srow + 1;
-        int ncols = g_ecol - g_scol + 1;
-        int nfull = nrows * ncols;
-        int db_ncells = CVT_INT(header_dbl.at(HEADER_RS_CELLSNUM));
-        int db_nlyrs = CVT_INT(header_dbl.at(HEADER_RS_LAYERS));
-        if (nfull != db_ncells && n_cells != db_ncells || db_nlyrs < 0) {
-            Release1DArray(dbdata);
-            return false;
-        }
-        n_lyrs = db_nlyrs;
-        if (n_lyrs == 1) {
-            if (n_cells == db_ncells) { return SetData(db_ncells, dbdata); }
-            if (nullptr == data_) {
-                Initialize1DArray(n_cells, data_, NODATA_VALUE);
-            }
-            for (int i = 0; i < n_cells; i++) {
-                data_[i] = dbdata[local_pos_[i][0] * ncols + local_pos_[i][1]];
-            }
-        } else {
-            if (nullptr == data2d_) {
-                Initialize2DArray(n_cells, n_lyrs, data2d_, NODATA_VALUE);
-            }
-            for (int i = 0; i < n_cells; i++) {
-                for (int j = 0; j < n_lyrs; j++) {
-                    if (nfull == db_ncells) { // consider data from MongoDB is fullsize data
-                        data2d_[i][j] = dbdata[(local_pos_[i][0] * ncols + local_pos_[i][1]) * n_lyrs + j];
-                    }
-                    else { data2d_[i][j] = dbdata[i * n_lyrs + j]; }
-                }
-            }
-        }
-        return true;
-    }
+                         const STRING_MAP& opts = STRING_MAP());
 #endif
-    void GetHeader(const double gxll, const double gyll, const int gnrows, const double cellsize,
-                   const double nodata, map<string, double>& subheader) {
-        subheader[HEADER_RS_XLL] = g_scol * cellsize + gxll;
-        subheader[HEADER_RS_YLL] = (gnrows - g_erow - 1) * cellsize + gyll;
-        subheader[HEADER_RS_NODATA] = nodata;
-        subheader[HEADER_RS_NROWS] = CVT_DBL(g_erow - g_srow + 1);
-        subheader[HEADER_RS_NCOLS] = CVT_DBL(g_ecol - g_scol + 1);
-        subheader[HEADER_RS_CELLSIZE] = cellsize;
-        subheader[HEADER_RS_CELLSNUM] = -1;
-        subheader[HEADER_RS_LAYERS] = -1;
-    }
+    void GetHeader(double gxll, double gyll, int gnrows, double cellsize,
+                   double nodata, STRDBL_MAP& subheader);
     template <typename T>
     void Output(T nodata, vector<T*>& fulldata) {
         if (nullptr == data_ && nullptr == data2d_) { return; }
@@ -579,6 +983,7 @@ public:
         }
     }
 
+    bool usable; ///< flag for usable subset data
     int n_cells; ///< valid cell count
     int n_lyrs; ///< layer count
     int g_srow; ///< start row in global data
@@ -794,21 +1199,6 @@ public:
                        const STRING_MAP& opts = STRING_MAP());
 
 #ifdef USE_MONGODB
-
-    
-    // static bool ReadGridFsFile(MongoGridFs* gfs, const string& filename, T*& data,
-    //                            map<string, double>& header, STRING_MAP& header_str,
-    //                            const STRING_MAP& opts = STRING_MAP());
-
-    // /*!
-    //  * \brief Read raster data from MongoDB
-    //  * \param[in] gfs \a mongoc_gridfs_t
-    //  * \param[in] filename \a char*, raster file name
-    //  * \param[in] opts Optional key-value stored in metadata, used to filter GridFs file
-    //  */
-    // bool ReadValidDataFromMongoDB(MongoGridFs* gfs, const string& filename,
-    //                               const STRING_MAP& opts = STRING_MAP());
-
     /*!
      * \brief Read raster data from MongoDB
      * \param[in] gfs \a mongoc_gridfs_t
@@ -838,7 +1228,7 @@ public:
      * \brief Write one or more raster's subset to files, default name format: corename_SubID_LyrNum
      * \param out_origin (Optional) Output original raster data or data_ assigned for subset
      * \param out_combined (Optional) Output combined data of subset
-     * \param outname (Optional) Output filename, if not specified, use origin raster's directory
+     * \param outname (Optional) Output filename, if not specified, use origin directory and default name
      * \param recls (Optional) Reclassification map, no need to SetData before output subset
      * \param default_value (Optional) Default value for missed type of reclassification map
      */
@@ -901,7 +1291,7 @@ public:
     /*    Set information functions                                         */
     /************************************************************************/
 
-    void SetHeader(const map<string, double>& refers);
+    void SetHeader(const STRDBL_MAP& refers);
 
     //! Set new core file name
     void SetCoreName(const string& name) { core_name_ = name; }
@@ -1132,10 +1522,10 @@ public:
     bool Get2DRasterData(int* n_cells, int* n_lyrs, T*** data);
 
     //! Get raster header information
-    const map<string, double>& GetRasterHeader() const { return headers_; }
+    const STRDBL_MAP& GetRasterHeader() const { return headers_; }
 
     //! Get raster statistics information
-    const map<string, double>& GetStatistics() const { return stats_; }
+    const STRDBL_MAP& GetStatistics() const { return stats_; }
 
     //! Get raster statistics information of 2D raster
     const map<string, double *>& GetStatistics2D() const { return stats_2d_; };
@@ -1290,14 +1680,7 @@ public:
      * \param[in] header Optional, header map of raster layer data, the default is m_header
      * \return pair<int row, int col>
      */
-    ROW_COL GetPositionByCoordinate(double x, double y, map<string, double>* header = nullptr);
-
-    /*!
-     * \brief Copy header information to current Raster data
-     * \param[in] refers Reference header
-     * \param[in] dst Destination header
-     */
-    static void CopyHeader(const map<string, double>& refers, map<string, double>& dst);
+    ROW_COL GetPositionByCoordinate(double x, double y, STRDBL_MAP* header = nullptr);
 
 private:
     /*!
@@ -1326,15 +1709,6 @@ private:
     bool ConstructFromSingleFile(const string& filename, bool calc_pos = false, clsRasterData<MASK_T>* mask = nullptr,
                                  bool use_mask_ext = true, T default_value = static_cast<T>(NODATA_VALUE),
                                  const STRING_MAP& opts = STRING_MAP());
-
-    /*!
-     * \brief Read raster data from ASC file, the simply usage
-     * \param[in] asc_filename \a string
-     * \param[out] header Raster header information
-     * \param[out] values Raster data matrix
-     * \return true if read successfully, otherwise return false.
-     */
-    static bool ReadAscFile(const string& asc_filename, map<string, double>* header, T** values);
 
     /*!
      * \brief Extract by mask data and calculate position index, if necessary.
@@ -1374,79 +1748,8 @@ private:
      * \brief Output full size raster data to files
      */
     bool OutputFullsizeToFiles(T* fullsizedata, const int fsize, const int datalyrs,
-                               const string& fullfilename, const map<string, double>& header,
+                               const string& fullfilename, const STRDBL_MAP& header,
                                const STRING_MAP& opts);
-
-    /*!
-     * \brief Write raster header information into ASC file
-     * If the file exists, delete it first.
-     * \param[in] filename \a string, output ASC file path
-     * \param[in] header header information
-     */
-    static bool WriteAscHeaders(const string& filename, const map<string, double>& header);
-
-    /*!
-     * \brief Write single geotiff file
-     * If the file exists, delete it first.
-     * \param[in] filename \a string, output ASC file path
-     * \param[in] header header information
-     * \param[in] values raster data array
-     */
-    static bool WriteSingleAsc(const string& filename, const map<string, double>& header,
-                               T* values);
-
-#ifdef USE_GDAL
-    /*!
-    * \brief Read raster data by GDAL, the simply usage
-    * \param[in] filename \a string
-    * \param[out] header Raster header information
-    * \param[out] values Raster data matrix
-    * \param[out] in_type Raster data type
-    * \param[out] srs SRS of input raster data as string
-    * \return true if read successfully, otherwise return false.
-    */
-    static bool ReadRasterFileByGdal(const string& filename, map<string, double>* header, T** values,
-                                     RasterDataType* in_type, string* srs);
-
-    /*!
-     * \brief Write single geotiff file
-     * If the file exists, delete it first.
-     * \param[in] filename \a string, output ASC file path
-     * \param[in] header header information
-     * \param[in] opts Options, e.g., `srs` - Coordinate system string
-     * \param[in] values raster data array
-     */
-    static bool WriteSingleGeotiff(const string& filename, const map<string, double>& header,
-                                   const STRING_MAP& opts, T* values);
-#endif /* USE_GDAL */
-
-    /*!
-     * \brief Write single raster file, if the file exists, delete it first.
-     * \param[in] filename \a string, output ASC file path
-     * \param[in] header header information
-     * \param[in] opts Options, e.g., `srs` - Coordinate system string
-     * \param[in] values raster data array
-     */
-    static bool WriteRasterToFile(const string& filename, const map<string, double>& header,
-                                  const STRING_MAP& opts, T* values);
-
-#ifdef USE_MONGODB
-
-    /*!
-     * \brief Write full-sized raster data as GridFS file. If the file exists, delete it first.
-     * \param[in] gfs GridFs of MongoDB
-     * \param[in] filename GridFS file name
-     * \param[in] header header information
-     * \param[in] values float raster data array
-     * \param[in] datalength Length of data
-     * \param[in] opts (optional) Key-value map for user-specific metadata
-     */
-    static bool WriteStreamDataAsGridfs(MongoGridFs* gfs, const string& filename,
-                                        map<string, double>& header,
-                                        T* values, int datalength,
-                                        const STRING_MAP& opts = STRING_MAP());
-
-#endif /* USE_MONGODB */
 
     /*!
      * \brief Add other layer's rater data to raster_2d_
@@ -1458,7 +1761,7 @@ private:
      * \param[in] lyrdata Raster layer data
      */
     void AddOtherLayerRasterData(int row, int col, int cellidx, int lyr,
-                                 map<string, double> lyrheader, T* lyrdata);
+                                 STRDBL_MAP lyrheader, T* lyrdata);
 
     /*!
      * \brief If NoDataValue not equal to NODATA_VALUE, while default value do, then change default value.
@@ -1470,14 +1773,11 @@ private:
         }
     }
 
-private:
     /*!
      * \brief Operator= without implementation
      */
-    clsRasterData& operator=(const clsRasterData&) {
-    };
+    clsRasterData& operator=(const clsRasterData&) { ; }
 
-private:
     /*! cell number of raster data, i.e. the data length of \sa raster_data_ or \sa raster_2d_
      * 1. all grid cell number, i.e., ncols * nrows, when m_calcPositions is False
      * 2. valid cell number excluding NoDATA, when m_calcPositions is True and m_useMaskExtent is False.
@@ -1508,9 +1808,9 @@ private:
     //! Key-value options in string format, including spatial reference
     STRING_MAP options_;
     //! Header information, using double in case of truncation of coordinate value
-    map<string, double> headers_;
+    STRDBL_MAP headers_;
     //! Map to store basic statistics values for 1D raster data
-    map<string, double> stats_;
+    STRDBL_MAP stats_;
     //! Map to store basic statistics values for 2D raster data
     map<string, double *> stats_2d_;
     //! mask clsRasterData instance
@@ -1577,13 +1877,8 @@ void clsRasterData<T, MASK_T>::InitializeRasterClass(bool is_2d /* = false */) {
     store_pos_ = false;
     use_mask_ext_ = false;
     stats_calculated_ = false;
-    headers_ = InitialHeaderMap();
-    options_ = InitialHeaderStrMap();
-#ifdef HAS_VARIADIC_TEMPLATES
-    options_.emplace(HEADER_RS_SRS, "");
-#else
-    options_.insert(make_pair(HEADER_RS_SRS, ""));
-#endif
+    headers_ = InitialHeader();
+    options_ = InitialStrHeader();
     InitialStatsMap(stats_, stats_2d_);
     initialized_ = true;
 }
@@ -1615,12 +1910,8 @@ template <typename T, typename MASK_T>
 clsRasterData<T, MASK_T>::clsRasterData(T* data, int cols, int rows, T nodata,
                                         double dx, double xll, double yll,
                                         const string& srs) {
-    STRING_MAP opts;
-#ifdef HAS_VARIADIC_TEMPLATES
-    opts.emplace(HEADER_RS_SRS, srs);
-#else
-    opts.insert(make_pair(HEADER_RS_SRS, srs));
-#endif
+    STRING_MAP opts = InitialStrHeader();
+    UpdateStrHeader(opts, HEADER_RS_SRS, srs);
     clsRasterData(data, cols, rows, nodata, dx, xll, yll, opts);
 }
 
@@ -1650,12 +1941,8 @@ template <typename T, typename MASK_T>
 clsRasterData<T, MASK_T>::clsRasterData(T** data2d, const int cols, const int rows, const int nlayers,
                                         T nodata, const double dx, const double xll, const double yll,
                                         const string& srs) {
-    STRING_MAP opts;
-#ifdef HAS_VARIADIC_TEMPLATES
-    opts.emplace(HEADER_RS_SRS, srs);
-#else
-    opts.insert(make_pair(HEADER_RS_SRS, srs));
-#endif
+    STRING_MAP opts = InitialStrHeader();
+    UpdateStrHeader(opts, HEADER_RS_SRS, srs);
     clsRasterData(data2d, cols, rows, nlayers, nodata, dx, xll, yll, opts);
 }
 
@@ -1698,7 +1985,7 @@ clsRasterData<T, MASK_T>* clsRasterData<T, MASK_T>::Init(const string& filename,
                                                          const bool use_mask_ext /* = true */,
                                                          T default_value /* = NODATA_VALUE */,
                                                          const STRING_MAP& opts /* = STRING_MAP() */) {
-    if (!CheckRasterFilesExist(filename)) { return nullptr; }
+    if (!FileExists(filename)) { return nullptr; }
     clsRasterData<T, MASK_T>* rs = new clsRasterData<T, MASK_T>();
     rs->SetOutDataType(RasterDataTypeInOptionals(opts));
     if (!rs->ReadFromFile(filename, calc_pos, mask, use_mask_ext, default_value, opts)) {
@@ -1715,7 +2002,7 @@ clsRasterData<T, MASK_T>::clsRasterData(vector<string>& filenames,
                                         const bool use_mask_ext /* = true */,
                                         T default_value /* = static_cast<T>(NODATA_VALUE) */,
                                         const STRING_MAP& opts /* = STRING_MAP() */) {
-    if (!CheckRasterFilesExist(filenames)) {
+    if (!FilesExist(filenames)) {
         StatusMessage("Please make sure all file path existed!");
         return;
     }
@@ -1734,7 +2021,7 @@ clsRasterData<T, MASK_T>* clsRasterData<T, MASK_T>::Init(vector<string>& filenam
                                                          bool use_mask_ext /* = true */,
                                                          T default_value /* = NODATA_VALUE */,
                                                          const STRING_MAP& opts /* = STRING_MAP() */) {
-    if (!CheckRasterFilesExist(filenames)) {
+    if (!FilesExist(filenames)) {
         StatusMessage("Please make sure all file path existed!");
         return nullptr;
     }
@@ -1769,11 +2056,7 @@ clsRasterData<T, MASK_T>::clsRasterData(clsRasterData<MASK_T>* mask, T* const va
     Initialize1DArray(n_cells_, raster_, values); // DO NOT ASSIGN ARRAY DIRECTLY!
     default_value_ = static_cast<T>(mask_->GetDefaultValue());
     CopyHeader(mask_->GetRasterHeader(), headers_);
-#ifdef HAS_VARIADIC_TEMPLATES
-    options_.emplace(HEADER_RS_SRS, mask_->GetSrsString());
-#else
-    options_.insert(make_pair(HEADER_RS_SRS, mask_->GetSrsString()));
-#endif
+    UpdateStrHeader(options_, HEADER_RS_SRS, mask_->GetSrsString());
     CopyStringMap(opts, options_);
 }
 
@@ -1794,11 +2077,7 @@ clsRasterData<T, MASK_T>::clsRasterData(clsRasterData<MASK_T>* mask, T** const v
     Initialize2DArray(n_cells_, n_lyrs_, raster_2d_, values); // DO NOT ASSIGN ARRAY DIRECTLY!
     CopyHeader(mask_->GetRasterHeader(), headers_);
     headers_.at(HEADER_RS_LAYERS) = n_lyrs_;
-#ifdef HAS_VARIADIC_TEMPLATES
-    options_.emplace(HEADER_RS_SRS, mask_->GetSrsString());
-#else
-    options_.insert(make_pair(HEADER_RS_SRS, mask_->GetSrsString()));
-#endif
+    UpdateStrHeader(options_, HEADER_RS_SRS, mask_->GetSrsString());
     CopyStringMap(opts, options_);
 }
 
@@ -1846,10 +2125,10 @@ bool clsRasterData<T, MASK_T>::ConstructFromSingleFile(const string& filename,
     bool readflag = false;
     string srs = string();
     if (StringMatch(GetUpper(GetSuffix(filename)), ASCIIExtension)) {
-        readflag = ReadAscFile(full_path_, &headers_, &raster_);
+        readflag = ReadAscFile(full_path_, headers_, raster_);
     } else {
 #ifdef USE_GDAL
-        readflag = ReadRasterFileByGdal(full_path_, &headers_, &raster_, &rs_type_, &srs);
+        readflag = ReadRasterFileByGdal(full_path_, headers_, raster_, rs_type_, srs);
 #else
         StatusMessage("Warning: Only ASC format is supported without GDAL!");
         return false;
@@ -1857,29 +2136,16 @@ bool clsRasterData<T, MASK_T>::ConstructFromSingleFile(const string& filename,
     }
     // After read raster data from ASCII file or GeoTiff.
     no_data_value_ = static_cast<T>(headers_.at(HEADER_RS_NODATA));
-    if (options_.find(HEADER_RS_SRS) == options_.end()) {
-#ifdef HAS_VARIADIC_TEMPLATES
-        options_.emplace(HEADER_RS_SRS, srs);
-#else
-        options_.insert(make_pair(HEADER_RS_SRS, srs));
-#endif
-    }
+    UpdateStrHeader(options_, HEADER_RS_SRS, srs);
     // if not specified, set output data type the same as input
     if (rs_type_out_ == 0) {
         rs_type_out_ = rs_type_;
-        if (options_.find(HEADER_RSOUT_DATATYPE) == options_.end()) {
-#ifdef HAS_VARIADIC_TEMPLATES
-            options_.emplace(HEADER_RSOUT_DATATYPE, "");
-#else
-            options_.insert(make_pair(HEADER_RSOUT_DATATYPE, ""));
-#endif
-        }
-        options_.at(HEADER_RSOUT_DATATYPE) = RasterDataTypeToString(rs_type_out_);
+        UpdateStrHeader(options_, HEADER_RSOUT_DATATYPE, RasterDataTypeToString(rs_type_out_));
     }
     CheckDefaultValue();
     if (readflag) {
-        if (n_lyrs_ < 0) n_lyrs_ = 1;
-        if (is_2draster) is_2draster = false;
+        if (n_lyrs_ < 0) { n_lyrs_ = 1; }
+        if (is_2draster) { is_2draster = false; }
         return MaskAndCalculateValidPosition() >= 0;
     }
     return false;
@@ -1984,34 +2250,17 @@ void clsRasterData<T, MASK_T>::SetOutDataType(const string& strtype) {
 /************* Get information functions ***************/
 template <typename T, typename MASK_T>
 void clsRasterData<T, MASK_T>::CalculateStatistics() {
-    if (stats_calculated_) return;
+    if (stats_calculated_) { return; }
+    if (stats_.empty() || stats_2d_.empty()) { InitialStatsMap(stats_, stats_2d_); }
     if (is_2draster && nullptr != raster_2d_) {
         double** derivedvs;
         BasicStatistics(raster_2d_, n_cells_, n_lyrs_, &derivedvs, no_data_value_);
-        if (stats_2d_.empty()) {
-#ifdef HAS_VARIADIC_TEMPLATES
-            stats_2d_.emplace(STATS_RS_VALIDNUM, derivedvs[0]);
-            stats_2d_.emplace(STATS_RS_MEAN, derivedvs[1]);
-            stats_2d_.emplace(STATS_RS_MAX, derivedvs[2]);
-            stats_2d_.emplace(STATS_RS_MIN, derivedvs[3]);
-            stats_2d_.emplace(STATS_RS_STD, derivedvs[4]);
-            stats_2d_.emplace(STATS_RS_RANGE, derivedvs[5]);
-#else
-            stats_2d_.insert(make_pair(STATS_RS_VALIDNUM, derivedvs[0]));
-            stats_2d_.insert(make_pair(STATS_RS_MEAN, derivedvs[1]));
-            stats_2d_.insert(make_pair(STATS_RS_MAX, derivedvs[2]));
-            stats_2d_.insert(make_pair(STATS_RS_MIN, derivedvs[3]));
-            stats_2d_.insert(make_pair(STATS_RS_STD, derivedvs[4]));
-            stats_2d_.insert(make_pair(STATS_RS_RANGE, derivedvs[5]));
-#endif
-        } else {
-            stats_2d_.at(STATS_RS_VALIDNUM) = derivedvs[0];
-            stats_2d_.at(STATS_RS_MEAN) = derivedvs[1];
-            stats_2d_.at(STATS_RS_MAX) = derivedvs[2];
-            stats_2d_.at(STATS_RS_MIN) = derivedvs[3];
-            stats_2d_.at(STATS_RS_STD) = derivedvs[4];
-            stats_2d_.at(STATS_RS_RANGE) = derivedvs[5];
-        }
+        stats_2d_.at(STATS_RS_VALIDNUM) = derivedvs[0];
+        stats_2d_.at(STATS_RS_MEAN) = derivedvs[1];
+        stats_2d_.at(STATS_RS_MAX) = derivedvs[2];
+        stats_2d_.at(STATS_RS_MIN) = derivedvs[3];
+        stats_2d_.at(STATS_RS_STD) = derivedvs[4];
+        stats_2d_.at(STATS_RS_RANGE) = derivedvs[5];
         // 1D array elements of derivedvs will be released by the destructor: releaseStatsMap2D()
         Release1DArray(derivedvs);
     } else {
@@ -2300,7 +2549,7 @@ void clsRasterData<T, MASK_T>::GetValue(const int row, const int col, T*& values
 }
 
 template <typename T, typename MASK_T>
-void clsRasterData<T, MASK_T>::SetHeader(const map<string, double>& refers) {
+void clsRasterData<T, MASK_T>::SetHeader(const STRDBL_MAP& refers) {
     CopyHeader(refers, headers_);
     // Update header related variables
     auto it = headers_.find(HEADER_RS_CELLSNUM);
@@ -2392,14 +2641,9 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
                                                   const double default_value /*  = NODATA_VALUE */) {
     if (!ValidateRasterData()) { return false; }
     if (subset_.empty()) { return false; }
-    string outpathact = full_path_;
-    if (!outname.empty()) {
-        outpathact = GetAbsolutePath(outname);
-        if (PathExists(outpathact)) {
-            if (outpathact.back() != SEP) { outpathact += SEP; }
-            outpathact += core_name_;
-            outpathact += "." + GetSuffix(full_path_);
-        }
+    string outpathact = outname;
+    if (outpathact.empty()) {
+        outpathact = full_path_;
     }
     // output combined subsets
     bool out_comb = out_combined;
@@ -2409,21 +2653,20 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
         int sublen;
         bool flag = PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
                                           true, recls, default_value);
+        STRDBL_MAP tmpheader;
+        CopyHeader(headers_, tmpheader);
+        UpdateHeader(tmpheader, HEADER_RS_LAYERS, sublyrs);
+        UpdateHeader(tmpheader, HEADER_RS_CELLSNUM, sublen);
         flag = flag && OutputFullsizeToFiles(data1d, sublen / sublyrs, sublyrs,
-                                             outpathact, headers_, options_);
+                                             PrefixCoreFileName(outpathact, 0),
+                                             tmpheader, options_);
         Release1DArray(data1d);
         return flag;
     }
-    // output each subset
-    string filetype = GetSuffix(outpathact);
-    string subfname = GetPathFromFullName(outpathact);
-    string corename = GetCoreFileName(outpathact);
-    if (subfname.back() != SEP) { subfname += SEP; }
-    subfname += corename;
-    subfname += "_";
-    map<string, double> subheader;
+    STRDBL_MAP subheader;
     bool flag = true;
     for (auto it = subset_.begin(); it != subset_.end(); ++it) {
+        if (!it->second->usable) { continue; }
         it->second->GetHeader(GetXllCenter(), GetYllCenter(), GetRows(),
                               GetCellWidth(), CVT_DBL(no_data_value_), subheader);
         T* tmpdata1d = nullptr;
@@ -2433,10 +2676,11 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
                                out_origin, true, recls, default_value)) {
             continue;
         }
-        string tmpfname = subfname + itoa(CVT_VINT(it->first)) + "_";
-        tmpfname += "." + filetype;
+        UpdateHeader(subheader, HEADER_RS_LAYERS, tmplyrs);
+        UpdateHeader(subheader, HEADER_RS_CELLSNUM, tmpdatalen / tmplyrs);
         flag = flag && OutputFullsizeToFiles(tmpdata1d, tmpdatalen / tmplyrs, tmplyrs,
-                                             tmpfname, subheader, options_);
+                                             PrefixCoreFileName(outpathact, it->first),
+                                             subheader, options_);
         Release1DArray(tmpdata1d);
     }
     return flag;
@@ -2449,15 +2693,17 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
                                                      double default_value /* NODATA_VALUE*/) {
     if (subset_.empty()) { return false; }
     T* data1d = nullptr; // Both raster 1D and 2D data can be combined as 1D array
-    int lyrs = subset_.begin()->second->n_lyrs;
+    int lyrs = -1;
     for (auto it = subset_.begin(); it != subset_.end(); ++it) {
+        if (!it->second->usable) { continue; }
         if (!(nullptr != it->second->data_    // Only if all subset have data_
             || nullptr != it->second->data2d_ // or data2d_,
             || !recls.empty()))               // or reclassification map specified
         {
             return false;
         }
-        if (it->second->n_lyrs != lyrs) {
+        if (lyrs < 0) { lyrs = it->second->n_lyrs; }
+        else if (it->second->n_lyrs != lyrs) {
             StatusMessage("Error: Subset's layer count MUST be consistent!");
             return false;
         }
@@ -2468,6 +2714,7 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
     int data_length = gncells * lyrs;
     Initialize1DArray(data_length, data1d, no_data_value_);
     for (auto it = subset_.begin(); it != subset_.end(); ++it) {
+        if (!it->second->usable) { continue; }
         for (int vi = 0; vi < it->second->n_cells; vi++) {
             for (int ilyr = 0; ilyr < lyrs; ilyr++) {
                 int gidx = it->second->global_[vi];
@@ -2555,7 +2802,7 @@ bool clsRasterData<T, MASK_T>::PrepareSubsetData(const int sub_id, SubsetPositio
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::OutputFullsizeToFiles(T* fullsizedata, const int fsize, const int datalyrs,
                                                      const string& fullfilename,
-                                                     const map<string, double>& header,
+                                                     const STRDBL_MAP& header,
                                                      const STRING_MAP& opts) {
     if (nullptr == fullsizedata) { return false; }
     if (datalyrs < 1) { return false; }
@@ -2569,52 +2816,11 @@ bool clsRasterData<T, MASK_T>::OutputFullsizeToFiles(T* fullsizedata, const int 
         for (int gi = 0; gi < fsize; gi++) {
             tmpdata1d[gi] = fullsizedata[gi * datalyrs + ilyr];
         }
-        flag = flag && WriteRasterToFile(AppendCoreFileName(fullfilename, CVT_VINT(ilyr + 1), '\0'),
+        flag = flag && WriteRasterToFile(AppendCoreFileName(fullfilename, ilyr + 1),
                                          header, opts, tmpdata1d);
     }
     if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
     return flag;
-}
-
-template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::WriteAscHeaders(const string& filename, const map<string, double>& header) {
-    DeleteExistedFile(filename);
-    string abs_filename = GetAbsolutePath(filename);
-    std::ofstream raster_file(abs_filename.c_str(), std::ios::app | std::ios::out);
-    if (!raster_file.is_open()) {
-        StatusMessage("Error opening file: " + abs_filename);
-        return false;
-    }
-    // write file
-    int rows = CVT_INT(header.at(HEADER_RS_NROWS));
-    int cols = CVT_INT(header.at(HEADER_RS_NCOLS));
-    // write header
-    raster_file << HEADER_RS_NCOLS << " " << cols << endl;
-    raster_file << HEADER_RS_NROWS << " " << rows << endl;
-    raster_file << HEADER_RS_XLL << " " << header.at(HEADER_RS_XLL) << endl;
-    raster_file << HEADER_RS_YLL << " " << header.at(HEADER_RS_YLL) << endl;
-    raster_file << HEADER_RS_CELLSIZE << " " << header.at(HEADER_RS_CELLSIZE) << endl;
-    raster_file << HEADER_RS_NODATA << " " << setprecision(6) << header.at(HEADER_RS_NODATA) << endl;
-    raster_file.close();
-    return true;
-}
-
-template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::WriteSingleAsc(const string& filename,
-                                              const map<string, double>& header, T* values) {
-    string abs_filename = GetAbsolutePath(filename);
-    if (!WriteAscHeaders(abs_filename, header)) { return false; }
-    std::ofstream raster_file(abs_filename.c_str(), std::ios::app | std::ios::out);
-    if (!raster_file.is_open()) {
-        StatusMessage("Error opening file: " + abs_filename);
-        return false;
-    }
-    for (int i = 0; i < header.at(HEADER_RS_NROWS) * header.at(HEADER_RS_NCOLS); ++i) {
-        raster_file << setprecision(6) << values[i] << " ";
-    }
-    raster_file << endl;
-    raster_file.close();
-    return true;
 }
 
 template <typename T, typename MASK_T>
@@ -2690,222 +2896,7 @@ bool clsRasterData<T, MASK_T>::OutputAscFile(const string& filename) {
     return true;
 }
 
-template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::WriteRasterToFile(const string& filename,
-                                                 const map<string, double>& header,
-                                                 const STRING_MAP& opts, T* values) {
-    if (GetPathFromFullName(filename).empty()) { return false; }
-    string abs_filename = GetAbsolutePath(filename);
-    string filetype = GetUpper(GetSuffix(abs_filename));
-    if (StringMatch(filetype, ASCIIExtension)) {
-        return WriteSingleAsc(abs_filename, header, values);
-    }
 #ifdef USE_GDAL
-    if (StringMatch(filetype, GTiffExtension)) {
-        return WriteSingleGeotiff(abs_filename, header, opts, values);
-    }
-    return WriteSingleGeotiff(ReplaceSuffix(abs_filename, GTiffExtension),
-                              header, opts, values);
-#else
-    StatusMessage("Warning: Without GDAL, ASC file will be exported as default!");
-    return WriteSingleAsc(ReplaceSuffix(abs_filename, ASCIIExtension), header, values);
-#endif /* USE_GDAL */
-}
-
-#ifdef USE_GDAL
-template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::WriteSingleGeotiff(const string& filename,
-                                                  const map<string, double>& header,
-                                                  const STRING_MAP& opts, T* values) {
-    int n_rows = CVT_INT(header.at(HEADER_RS_NROWS));
-    int n_cols = CVT_INT(header.at(HEADER_RS_NCOLS));
-    char** papsz_options = nullptr;
-    void* new_values = nullptr;
-    bool recreate_flag = true; // recreate data array because inconsistent of datatypes
-    double old_nodata = header.at(HEADER_RS_NODATA);
-    bool change_nodata = false;
-    double new_nodata = old_nodata; // change nodata when convert signed datatype to unsigned
-    bool convert_permit = true; // DO NOT allow negative cell values be converted to unsigned datatype
-    RasterDataType tmptype = TypeToRasterDataType(typeid(T));
-    RasterDataType outtype = RasterDataTypeInOptionals(opts);
-    if (outtype == RDT_Unknown) {
-        outtype = tmptype;
-        recreate_flag = false;
-    } else if (outtype == tmptype) {
-        recreate_flag = false;
-    } else {
-        if (outtype == RDT_UInt8) { // [0, 255] --> GDT_Byte in GDAL, use unsigned char
-            new_values = static_cast<unsigned char*>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
-            unsigned char* values_uchar = static_cast<unsigned char*>(new_values);
-            if (old_nodata < 0 || old_nodata > UINT8_MAX) {
-                new_nodata = UINT8_MAX;
-                change_nodata = true;
-            }
-            int illegal_count = 0;
-#pragma omp parallel for reduction(+:illegal_count)
-            for (int i = 0; i < n_cols * n_rows; i++) {
-                if (FloatEqual(values[i], old_nodata) && change_nodata) {
-                    values_uchar[i] = UINT8_MAX;
-                    continue;
-                }
-                if (values[i] < 0 || values[i] > UINT8_MAX) illegal_count += 1;
-                values_uchar[i] = static_cast<unsigned char>(values[i]);
-            }
-            if (illegal_count > 0) convert_permit = false;
-        } else if (outtype == RDT_Int8) { // [-128, 127]
-            // https://gdal.org/drivers/raster/gtiff.html
-            papsz_options = CSLSetNameValue(papsz_options, "PIXELTYPE", "SIGNEDBYTE");
-            new_values = static_cast<char*>(CPLMalloc(sizeof(char) * n_cols * n_rows));
-            char* values_char = static_cast<char*>(new_values);
-            if (old_nodata < INT8_MIN || old_nodata > INT8_MAX) {
-                new_nodata = INT8_MIN;
-                change_nodata = true;
-            }
-            int illegal_count = 0;
-#pragma omp parallel for reduction(+:illegal_count)
-            for (int i = 0; i < n_cols * n_rows; i++) {
-                if (FloatEqual(values[i], old_nodata) && change_nodata) {
-                    values_char[i] = INT8_MIN;
-                    continue;
-                }
-                if (values[i] < INT8_MIN || values[i] > INT8_MAX) illegal_count += 1;
-                values_char[i] = static_cast<char>(values[i]);
-            }
-            if (illegal_count > 0) convert_permit = false;
-        } else if (outtype == RDT_UInt16) { // [0, 65535]
-            new_values = static_cast<vuint16_t*>(CPLMalloc(sizeof(vuint16_t) * n_cols * n_rows));
-            vuint16_t* values_uint16 = static_cast<vuint16_t*>(new_values);
-            if (old_nodata < 0 || old_nodata > UINT16_MAX) {
-                new_nodata = UINT16_MAX;
-                change_nodata = true;
-            }
-            int illegal_count = 0;
-#pragma omp parallel for reduction(+:illegal_count)
-            for (int i = 0; i < n_cols * n_rows; i++) {
-                if (FloatEqual(values[i], old_nodata) && change_nodata) {
-                    values_uint16[i] = UINT16_MAX;
-                    continue;
-                }
-                if (values[i] < 0 || values[i] > UINT16_MAX) illegal_count += 1;
-                values_uint16[i] = static_cast<vuint16_t>(values[i]);
-            }
-            if (illegal_count > 0) convert_permit = false;
-        } else if (outtype == RDT_Int16) { // [-32768, 32767]
-            new_values = static_cast<vint16_t*>(CPLMalloc(sizeof(vint16_t) * n_cols * n_rows));
-            vint16_t* values_int16 = static_cast<vint16_t*>(new_values);
-            if (old_nodata < INT16_MIN || old_nodata > INT16_MAX) {
-                new_nodata = INT16_MIN;
-                change_nodata = true;
-            }
-            int illegal_count = 0;
-#pragma omp parallel for reduction(+:illegal_count)
-            for (int i = 0; i < n_cols * n_rows; i++) {
-                if (FloatEqual(values[i], old_nodata) && change_nodata) {
-                    values_int16[i] = INT16_MIN;
-                    continue;
-                }
-                if (values[i] < INT16_MIN || values[i] > INT16_MAX) illegal_count += 1;
-                values_int16[i] = static_cast<vint16_t>(values[i]);
-            }
-            if (illegal_count > 0) convert_permit = false;
-        } else if (outtype == RDT_UInt32) { // [0, 4294967295]
-            new_values = static_cast<vuint32_t*>(CPLMalloc(sizeof(vuint32_t) * n_cols * n_rows));
-            vuint32_t* values_uint32 = static_cast<vuint32_t*>(new_values);
-            if (old_nodata < 0 || old_nodata > UINT32_MAX) {
-                new_nodata = UINT32_MAX;
-                change_nodata = true;
-            }
-            int illegal_count = 0;
-#pragma omp parallel for reduction(+:illegal_count)
-            for (int i = 0; i < n_cols * n_rows; i++) {
-                if (FloatEqual(values[i], old_nodata) && change_nodata) {
-                    values_uint32[i] = UINT32_MAX;
-                    continue;
-                }
-                if (values[i] < 0 || values[i] > UINT32_MAX) illegal_count += 1;
-                values_uint32[i] = static_cast<vuint32_t>(values[i]);
-            }
-            if (illegal_count > 0) convert_permit = false;
-        } else if (outtype == RDT_Int32) { // [-2147483648, 2147483647]
-            new_values = static_cast<vint32_t*>(CPLMalloc(sizeof(vint32_t) * n_cols * n_rows));
-            vint32_t* values_int32 = static_cast<vint32_t*>(new_values);
-            if (old_nodata < INT32_MIN || old_nodata > INT32_MAX) {
-                new_nodata = INT32_MIN;
-                change_nodata = true;
-            }
-            int illegal_count = 0;
-#pragma omp parallel for reduction(+:illegal_count)
-            for (int i = 0; i < n_cols * n_rows; i++) {
-                if (FloatEqual(values[i], old_nodata) && change_nodata) {
-                    values_int32[i] = INT32_MIN;
-                    continue;
-                }
-                if (values[i] < INT32_MIN || values[i] > INT32_MAX) illegal_count += 1;
-                values_int32[i] = static_cast<vint32_t>(values[i]);
-            }
-            if (illegal_count > 0) convert_permit = false;
-        } else if (outtype == RDT_Float) {
-            new_values = static_cast<float*>(CPLMalloc(sizeof(float) * n_cols * n_rows));
-            float* values_float = static_cast<float*>(new_values);
-#pragma omp parallel for
-            for (int i = 0; i < n_cols * n_rows; i++) values_float[i] = static_cast<float>(values[i]);
-        } else if (outtype == RDT_Double) {
-            new_values = static_cast<double*>(CPLMalloc(sizeof(double) * n_cols * n_rows));
-            double* values_double = static_cast<double*>(new_values);
-#pragma omp parallel for
-            for (int i = 0; i < n_cols * n_rows; i++) values_double[i] = static_cast<double>(values[i]);
-        }
-    }
-    if ((outtype == RDT_Unknown || recreate_flag && nullptr == new_values)
-        || !convert_permit) {
-        cout << "Error: The specific raster output data type is not allowed!\n";
-        if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
-        if (new_values != nullptr) { CPLFree(new_values); }
-        return false;
-    }
-    GDALDriver* po_driver = GetGDALDriverManager()->GetDriverByName("GTiff");
-    if (nullptr == po_driver) { return false; }
-    GDALDataset* po_dst_ds = po_driver->Create(filename.c_str(), n_cols, n_rows, 1,
-                                               CvtToGDALDataType(outtype), papsz_options);
-    if (nullptr == po_dst_ds) { return false; }
-    GDALRasterBand* po_dst_band = po_dst_ds->GetRasterBand(1);
-    CPLErr result = CE_None;
-    if (!recreate_flag) {
-        result = po_dst_band->RasterIO(GF_Write, 0, 0, n_cols, n_rows, values,
-                                       n_cols, n_rows, CvtToGDALDataType(outtype), 0, 0);
-    } else {
-        result = po_dst_band->RasterIO(GF_Write, 0, 0, n_cols, n_rows, new_values,
-                                       n_cols, n_rows, CvtToGDALDataType(outtype), 0, 0);
-    }
-    if (result != CE_None || nullptr == po_dst_band) {
-        StatusMessage("RaterIO Error: " + string(CPLGetLastErrorMsg()));
-        if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
-        if (new_values != nullptr) { CPLFree(new_values); }
-        GDALClose(po_dst_ds);
-        return false;
-    }
-    po_dst_band->SetNoDataValue(new_nodata);
-
-    double geo_trans[6]; // Write header information
-    geo_trans[0] = header.at(HEADER_RS_XLL) - 0.5 * header.at(HEADER_RS_CELLSIZE);
-    geo_trans[1] = header.at(HEADER_RS_CELLSIZE);
-    geo_trans[2] = 0.;
-    geo_trans[3] = header.at(HEADER_RS_YLL) + (n_rows - 0.5) * header.at(HEADER_RS_CELLSIZE);
-    geo_trans[4] = 0.;
-    geo_trans[5] = -header.at(HEADER_RS_CELLSIZE);
-    po_dst_ds->SetGeoTransform(geo_trans);
-    if (opts.find(HEADER_RS_SRS) == opts.end()) {
-        po_dst_ds->SetProjection("");
-    } else {
-        po_dst_ds->SetProjection(opts.at(HEADER_RS_SRS).c_str());
-    }
-    if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
-    if (new_values != nullptr) { CPLFree(new_values); }
-    GDALClose(po_dst_ds);
-
-    return true;
-}
-
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::OutputFileByGdal(const string& filename) {
     string abs_filename = GetAbsolutePath(filename);
@@ -3051,30 +3042,39 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
     if (nullptr == gfs) { return false; }
     if (subset_.empty()) { return false; }
     CopyStringMap(opts, options_); // Update metadata
+    if (include_nodata) {
+        UpdateStringMap(options_, HEADER_INC_NODATA, "true");
+    }
+    else {
+        UpdateStringMap(options_, HEADER_INC_NODATA, "false");
+    }
     options_[HEADER_RSOUT_DATATYPE] = RasterDataTypeToString(TypeToRasterDataType(typeid(T)));
 
     int gcols = GetCols();
     int grows = GetRows();
-    int gncells = gcols * grows; // global full size
-    string outnameact = filename.empty() ? core_name_ + "_subset" : filename;
-    if (!include_nodata) { outnameact += "_valid"; }
+    string outnameact = filename.empty() ? core_name_ : filename;
     // output combined subsets
     bool out_comb = out_combined;
     if (out_comb) {
         T* data1d = nullptr;
         int sublyrs;
         int sublen;
-        if (filename.empty()) { outnameact += "_combined"; }
         bool flag = PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
                                           include_nodata, recls, default_value);
-        flag = flag && WriteStreamDataAsGridfs(gfs, outnameact, headers_, data1d, sublen, options_);
+        STRDBL_MAP tmpheader;
+        CopyHeader(headers_, tmpheader);
+        UpdateHeader(tmpheader, HEADER_RS_LAYERS, sublyrs);
+        UpdateHeader(tmpheader, HEADER_RS_CELLSNUM, sublen);
+        flag = flag && WriteStreamDataAsGridfs(gfs, "0_" + outnameact,
+                                               tmpheader, data1d, sublen, options_);
         Release1DArray(data1d);
         return flag;
     }
     // output each subset
-    map<string, double> subheader;
+    STRDBL_MAP subheader;
     bool flag = true;
     for (auto it = subset_.begin(); it != subset_.end(); ++it) {
+        if (!it->second->usable) { continue; }
         it->second->GetHeader(GetXllCenter(), GetYllCenter(), GetRows(),
                               GetCellWidth(), CVT_DBL(no_data_value_), subheader);
         T* tmpdata1d = nullptr;
@@ -3084,62 +3084,13 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
                                out_origin, include_nodata, recls, default_value)) {
             continue;
         }
-        subheader[HEADER_RS_LAYERS] = it->second->n_lyrs;
-        subheader[HEADER_RS_CELLSNUM] = tmpdatalen;
-        string tmpfname = outnameact + "_" + itoa(CVT_VINT(it->first));
+        UpdateHeader(subheader, HEADER_RS_LAYERS, it->second->n_lyrs);
+        UpdateHeader(subheader, HEADER_RS_CELLSNUM, tmpdatalen / tmplyrs);
+        string tmpfname = itoa(CVT_VINT(it->first)) + "_" + outnameact;
         flag = flag && WriteStreamDataAsGridfs(gfs, tmpfname, subheader, tmpdata1d, tmpdatalen, options_);
         if (nullptr != tmpdata1d) { Release1DArray(tmpdata1d); }
     }
     return true;
-}
-
-
-template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::WriteStreamDataAsGridfs(MongoGridFs* gfs,
-                                                       const string& filename,
-                                                       map<string, double>& header,
-                                                       T* values,
-                                                       const int datalength,
-                                                       const STRING_MAP& opts /* = STRING_MAP() */) {
-    // Remove first
-    gfs->RemoveFile(filename);
-
-    bson_t p = BSON_INITIALIZER;
-    for (auto iter = header.begin(); iter != header.end(); ++iter) {
-        if (std::fmod(iter->second, 1.) == 0) {
-            BSON_APPEND_INT32(&p, iter->first.c_str(), CVT_INT(iter->second));
-        } else {
-            BSON_APPEND_DOUBLE(&p, iter->first.c_str(), iter->second);
-        }
-    }
-    // Add user-specific key-values into metadata
-    if (!opts.empty()) {
-        for (auto kviter = opts.begin(); kviter != opts.end(); ++kviter) {
-            bool is_dbl = false;
-            double dbl_value = IsDouble(kviter->second, is_dbl);
-            if (StringMatch("", kviter->second) || !is_dbl) {
-                BSON_APPEND_UTF8(&p, kviter->first.c_str(), kviter->second.c_str());
-            } else {
-                if (std::fmod(dbl_value, 1.) == 0) {
-                    BSON_APPEND_INT32(&p, kviter->first.c_str(), CVT_INT(dbl_value));
-                } else {
-                    BSON_APPEND_DOUBLE(&p, kviter->first.c_str(), dbl_value);
-                }
-            }
-        }
-    }
-    char* buf = reinterpret_cast<char *>(values);
-    int buflength = datalength * sizeof(T);
-    int try_times = 0;
-    bool gstatus = false;
-    while (try_times <= 3) { // Try 3 times
-        gstatus = gfs->WriteStreamData(filename, buf, buflength, &p);
-        if (gstatus) { break; }
-        SleepMs(2); // Sleep 0.002 sec and retry
-        try_times++;
-    }
-    bson_destroy(&p);
-    return gstatus;
 }
 
 #endif /* USE_MONGODB */
@@ -3151,7 +3102,7 @@ bool clsRasterData<T, MASK_T>::ReadFromFile(const string& filename, const bool c
                                             const bool use_mask_ext /* = true */,
                                             T default_value /* = static_cast<T>(NODATA_VALUE) */,
                                             const STRING_MAP& opts /* = STRING_MAP() */) {
-    if (!CheckRasterFilesExist(filename)) { return false; }
+    if (!FileExists(filename)) { return false; }
     if (!initialized_) { InitializeRasterClass(); }
     rs_type_out_ = RasterDataTypeInOptionals(opts);
     return ConstructFromSingleFile(filename, calc_pos, mask, use_mask_ext, default_value, opts);
@@ -3163,7 +3114,7 @@ bool clsRasterData<T, MASK_T>::ReadFromFiles(vector<string>& filenames, const bo
                                              const bool use_mask_ext /* = true */,
                                              T default_value /* = static_cast<T>(NODATA_VALUE) */,
                                              const STRING_MAP& opts /* = STRING_MAP() */) {
-    if (!CheckRasterFilesExist(filenames)) { return false; }
+    if (!FilesExist(filenames)) { return false; }
     n_lyrs_ = CVT_INT(filenames.size());
     if (n_lyrs_ == 1) { return ReadFromFile(filenames[0], calc_pos, mask, use_mask_ext, default_value, opts); }
     if (!initialized_) { InitializeRasterClass(true); }
@@ -3192,17 +3143,17 @@ bool clsRasterData<T, MASK_T>::ReadFromFiles(vector<string>& filenames, const bo
     int cols = GetCols();
     // take the first layer as mask, and use_mask_ext is true, and no need to calculate position data
     for (int fileidx = 1; fileidx < CVT_INT(filenames.size()); fileidx++) {
-        map<string, double> tmpheader;
+        STRDBL_MAP tmpheader;
         T* tmplyrdata = nullptr;
         string curfilename = filenames[fileidx];
         if (StringMatch(GetUpper(GetSuffix(curfilename)), string(ASCIIExtension))) {
-            ReadAscFile(curfilename, &tmpheader, &tmplyrdata);
+            ReadAscFile(curfilename, tmpheader, tmplyrdata);
         }
         else {
 #ifdef USE_GDAL
             RasterDataType tmpintype;
             string tmpsrs;
-            ReadRasterFileByGdal(curfilename, &tmpheader, &tmplyrdata, &tmpintype, &tmpsrs);
+            ReadRasterFileByGdal(curfilename, tmpheader, tmplyrdata, tmpintype, tmpsrs);
 #else
             StatusMessage("Warning: Only ASC format is supported without GDAL!");
             return false;
@@ -3248,8 +3199,8 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
                                                const STRING_MAP& opts /* = STRING_MAP() */) {
     InitializeReadFunction(filename, calc_pos, mask, use_mask_ext, default_value, opts);
     T* dbdata = nullptr;
-    map<string, double> header_dbl = InitialHeaderMap();
-    STRING_MAP header_str = InitialHeaderStrMap();
+    STRDBL_MAP header_dbl = InitialHeader();
+    STRING_MAP header_str = InitialStrHeader();
     if (!ReadGridFsFile(gfs, filename, dbdata, header_dbl, header_str, opts)) { return false; }
 
     if (headers_.at(HEADER_RS_NROWS) > 0 && headers_.at(HEADER_RS_NCOLS) > 0
@@ -3330,315 +3281,9 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
 #endif /* USE_MONGODB */
 
 template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::ReadAscFile(const string& asc_filename, map<string, double>* header,
-                                           T** values) {
-    StatusMessage(("Read " + asc_filename + "...").c_str());
-    vector<string> content_strs;
-    if (!LoadPlainTextFile(asc_filename, content_strs)) { return false; }
-    if (content_strs.size() < 7) {
-        StatusMessage("Err: ASCII raster data requires at least 7 lines!");
-        return false;
-    }
-    map<string, double> tmpheader;
-    double cellsize = -1.;
-    double xll = MISSINGFLOAT;
-    double yll = MISSINGFLOAT;
-    double nodata = MISSINGFLOAT;
-    bool xllcorner = false;
-    bool yllcorner = false;
-    int rows = -1;
-    int cols = -1;
-    T* tmprasterdata = nullptr;  // all raster values including NODATA_VALUE
-    int vidx = 0;
-    for (auto iter = content_strs.begin(); iter != content_strs.end(); ++iter) {
-        vector<string> tokens = SplitString(*iter);
-        if (tokens.empty()) continue;
-        bool str2value = false;
-        if (StringMatch(tokens[0], HEADER_RS_NCOLS)) {
-            if (tokens.size() < 2) return false;
-            cols = CVT_INT(IsInt(tokens[1], str2value));
-            if (!str2value) return false;
-        }
-        else if (StringMatch(tokens[0], HEADER_RS_NROWS)) {
-            if (tokens.size() < 2) return false;
-            rows = CVT_INT(IsInt(tokens[1], str2value));
-            if (!str2value) return false;
-        }
-        else if (StringMatch(tokens[0], HEADER_RS_XLL) ||
-            StringMatch(tokens[0], HEADER_RS_XLLCOR)) {
-            if (tokens.size() < 2) return false;
-            xll = IsDouble(tokens[1], str2value);
-            if (StringMatch(tokens[0], HEADER_RS_XLLCOR)) xllcorner = true;
-            if (!str2value) return false;
-        }
-        else if (StringMatch(tokens[0], HEADER_RS_YLL) ||
-            StringMatch(tokens[0], HEADER_RS_YLLCOR)) {
-            if (tokens.size() < 2) return false;
-            yll = IsDouble(tokens[1], str2value);
-            if (StringMatch(tokens[0], HEADER_RS_YLLCOR)) yllcorner = true;
-            if (!str2value) return false;
-        }
-        else if (StringMatch(tokens[0], HEADER_RS_CELLSIZE)) {
-            if (tokens.size() < 2) return false;
-            cellsize = IsDouble(tokens[1], str2value);
-            if (!str2value) return false;
-        }
-        else if (StringMatch(tokens[0], HEADER_RS_NODATA)) {
-            if (tokens.size() < 2) return false;
-            nodata = IsDouble(tokens[1], str2value);
-            if (!str2value) return false;
-        }
-        else {
-            if (rows < 0 || cols < 0) {
-                StatusMessage("NCOLS and NROWS should be defined first!");
-            }
-            if (nullptr == tmprasterdata) {
-                Initialize1DArray(rows * cols, tmprasterdata, nodata);
-            }
-            for (auto it_value = tokens.begin(); it_value != tokens.end(); ++it_value) {
-                double tmpv = IsDouble(*it_value, str2value);
-                if (!str2value) {
-                    StatusMessage("Err: No value occurred in Raster data matrix!");
-                    if (nullptr != tmprasterdata) Release1DArray(tmprasterdata);
-                    return false;
-                }
-                if (vidx == rows * cols) {
-                    StatusMessage("Error: Count of values MUST equal to rows * cols!");
-                    if (nullptr != tmprasterdata) Release1DArray(tmprasterdata);
-                    return false;
-                }
-                tmprasterdata[vidx++] = static_cast<T>(tmpv);
-            }
-        }
-    }
-    if (rows < 0 || cols < 0 || cellsize < 0 ||
-        FloatEqual(xll, MISSINGFLOAT) || FloatEqual(yll, MISSINGFLOAT)) {
-        StatusMessage("Err: Header information incomplete!");
-        return false;
-    }
-#ifdef HAS_VARIADIC_TEMPLATES
-    tmpheader.emplace(HEADER_RS_NCOLS, CVT_DBL(cols));
-    tmpheader.emplace(HEADER_RS_NROWS, CVT_DBL(rows));
-    tmpheader.emplace(HEADER_RS_XLL, xll);
-    tmpheader.emplace(HEADER_RS_YLL, yll);
-    tmpheader.emplace(HEADER_RS_CELLSIZE, cellsize);
-    tmpheader.emplace(HEADER_RS_NODATA, nodata);
-    tmpheader.emplace(HEADER_RS_LAYERS, 1.);
-    tmpheader.emplace(HEADER_RS_CELLSNUM, -1.);
-#else
-    tmpheader.insert(make_pair(HEADER_RS_NCOLS, CVT_DBL(cols)));
-    tmpheader.insert(make_pair(HEADER_RS_NROWS, CVT_DBL(rows)));
-    tmpheader.insert(make_pair(HEADER_RS_XLL, xll));
-    tmpheader.insert(make_pair(HEADER_RS_YLL, yll));
-    tmpheader.insert(make_pair(HEADER_RS_CELLSIZE, cellsize));
-    tmpheader.insert(make_pair(HEADER_RS_NODATA, nodata));
-    tmpheader.insert(make_pair(HEADER_RS_LAYERS, 1.));
-    tmpheader.insert(make_pair(HEADER_RS_CELLSNUM, -1.));
-#endif
-    // default is center, if corner, then:
-    if (xllcorner) tmpheader.at(HEADER_RS_XLL) += 0.5 * tmpheader.at(HEADER_RS_CELLSIZE);
-    if (yllcorner) tmpheader.at(HEADER_RS_YLL) += 0.5 * tmpheader.at(HEADER_RS_CELLSIZE);
-
-    // returned parameters
-    *header = tmpheader;
-    *values = tmprasterdata;
-    return true;
-}
-
-#ifdef USE_GDAL
-template <typename T, typename MASK_T>
-bool clsRasterData<T, MASK_T>::ReadRasterFileByGdal(const string& filename,
-                                                    map<string, double>* header, T** values,
-                                                    RasterDataType* in_type, string* srs) {
-    StatusMessage(("Read " + filename + "...").c_str());
-    GDALDataset* po_dataset = static_cast<GDALDataset *>(GDALOpen(filename.c_str(), GA_ReadOnly));
-    if (nullptr == po_dataset) {
-        StatusMessage("Open file " + filename + " failed.");
-        return false;
-    }
-    GDALRasterBand* po_band = po_dataset->GetRasterBand(1);
-    map<string, double> tmpheader;
-    int n_rows = po_band->GetYSize();
-    int n_cols = po_band->GetXSize();
-    int get_value_flag = false;
-    T nodata = static_cast<T>(po_band->GetNoDataValue(&get_value_flag));
-    int approx_minmax = false;
-    double minmax[2];
-
-    // get all raster values (i.e., include NODATA_VALUE)
-    int fullsize_n = n_rows * n_cols;
-    // if (n_cells_ < 0) { // if n_cells_ has been assigned
-    //     n_cells_ = fullsize_n;
-    // }
-    T* tmprasterdata = nullptr;
-    bool read_as_signedbyte = false;
-    char* char_data = nullptr;
-    unsigned char* uchar_data = nullptr;
-    vuint16_t* uint16_data = nullptr; // 16-bit unsigned integer
-    vint16_t* int16_data = nullptr;   // 16-bit signed integer
-    vuint32_t* uint32_data = nullptr; // 32-bit unsigned integer
-    vint32_t* int32_data = nullptr;   // 32-bit signed integer
-    float* float_data = nullptr;
-    double* double_data = nullptr;
-    CPLErr result;
-    switch (po_band->GetRasterDataType()) {
-        case GDT_Byte:
-            // In GDAL, GDT_Byte is an 8-bit unsigned integer (unsigned char), ranges from 0 to 255.
-            // While in ArcGIS, both 8-bit signed char (ranges from -128 to 127) and unsigned char
-            //   are supported. Both types will be recognized as GDT_Byte by GDAL.
-            //
-            // So,
-            //    1) maximum <= 127 and minimum < 0 ==> signed char
-            //    2) maximum <= 127 and minimum >= 0 and no_data_value_ < 0 ==> signed char
-            // Otherwise, unsigned char.
-            //
-            po_band->ComputeRasterMinMax(approx_minmax, minmax);
-            if ((minmax[1] <= 127 && minmax[0] < 0)
-                || (minmax[1] <= 127 && minmax[0] >= 0 &&
-                    (!get_value_flag || get_value_flag && nodata < 0))) {
-                read_as_signedbyte = true;
-            }
-            if (read_as_signedbyte) {
-                char_data = static_cast<char *>(CPLMalloc(sizeof(char) * n_cols * n_rows));
-                result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, char_data,
-                                           n_cols, n_rows, GDT_Byte, 0, 0);
-                if (result != CE_None) {
-                    StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-                } else {
-                    Initialize1DArray(n_rows * n_cols, tmprasterdata, char_data);
-                    CPLFree(char_data);
-                }
-                *in_type = RDT_Int8;
-            } else {
-                uchar_data = static_cast<unsigned char *>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
-                result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uchar_data,
-                                           n_cols, n_rows, GDT_Byte, 0, 0);
-                if (result != CE_None) {
-                    StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-                } else {
-                    Initialize1DArray(n_rows * n_cols, tmprasterdata, uchar_data);
-                    CPLFree(uchar_data);
-                }
-                *in_type = RDT_UInt8;
-            }
-            break;
-        case GDT_UInt16:
-            uint16_data = static_cast<vuint16_t *>(CPLMalloc(sizeof(vuint16_t) * n_cols * n_rows));
-            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uint16_data,
-                                       n_cols, n_rows, GDT_UInt16, 0, 0);
-            if (result != CE_None) {
-                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            } else {
-                Initialize1DArray(n_rows * n_cols, tmprasterdata, uint16_data);
-                CPLFree(uint16_data);
-            }
-            *in_type = RDT_UInt16;
-            break;
-        case GDT_Int16:
-            int16_data = static_cast<vint16_t *>(CPLMalloc(sizeof(vint16_t) * n_cols * n_rows));
-            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, int16_data,
-                                       n_cols, n_rows, GDT_Int16, 0, 0);
-            if (result != CE_None) {
-                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            } else {
-                Initialize1DArray(n_rows * n_cols, tmprasterdata, int16_data);
-                CPLFree(int16_data);
-            }
-            *in_type = RDT_Int16;
-            break;
-        case GDT_UInt32:
-            uint32_data = static_cast<vuint32_t *>(CPLMalloc(sizeof(vuint32_t) * n_cols * n_rows));
-            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uint32_data,
-                                       n_cols, n_rows, GDT_UInt32, 0, 0);
-            if (result != CE_None) {
-                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            } else {
-                Initialize1DArray(n_rows * n_cols, tmprasterdata, uint32_data);
-                CPLFree(uint32_data);
-            }
-            *in_type = RDT_UInt32;
-            break;
-        case GDT_Int32:
-            int32_data = static_cast<vint32_t *>(CPLMalloc(sizeof(vint32_t) * n_cols * n_rows));
-            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, int32_data,
-                                       n_cols, n_rows, GDT_Int32, 0, 0);
-            if (result != CE_None) {
-                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            } else {
-                Initialize1DArray(n_rows * n_cols, tmprasterdata, int32_data);
-                CPLFree(int32_data);
-            }
-            *in_type = RDT_Int32;
-            break;
-        case GDT_Float32:
-            float_data = static_cast<float *>(CPLMalloc(sizeof(float) * n_cols * n_rows));
-            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, float_data,
-                                       n_cols, n_rows, GDT_Float32, 0, 0);
-            if (result != CE_None) {
-                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            } else {
-                Initialize1DArray(n_rows * n_cols, tmprasterdata, float_data);
-                CPLFree(float_data);
-            }
-            *in_type = RDT_Float;
-            break;
-        case GDT_Float64:
-            double_data = static_cast<double *>(CPLMalloc(sizeof(double) * n_cols * n_rows));
-            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, double_data,
-                                       n_cols, n_rows, GDT_Float64, 0, 0);
-            if (result != CE_None) {
-                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            } else {
-                Initialize1DArray(n_rows * n_cols, tmprasterdata, double_data);
-                CPLFree(double_data);
-            }
-            *in_type = RDT_Double;
-            break;
-        default:
-            StatusMessage("Unexpected GDALDataType: " + string(RasterDataTypeToString(*in_type)));
-            GDALClose(po_dataset);
-            return false;
-    }
-
-    if (!get_value_flag) { // NoData value is not defined!
-        nodata = static_cast<T>(DefaultNoDataByType(*in_type));
-    }
-
-    double geo_trans[6];
-    po_dataset->GetGeoTransform(geo_trans);
-#ifdef HAS_VARIADIC_TEMPLATES
-    tmpheader.emplace(HEADER_RS_NCOLS, CVT_DBL(n_cols));
-    tmpheader.emplace(HEADER_RS_NROWS, CVT_DBL(n_rows));
-    tmpheader.emplace(HEADER_RS_NODATA, nodata);
-    tmpheader.emplace(HEADER_RS_CELLSIZE, geo_trans[1]);
-    tmpheader.emplace(HEADER_RS_XLL, geo_trans[0] + 0.5 * tmpheader.at(HEADER_RS_CELLSIZE));
-    tmpheader.emplace(HEADER_RS_YLL, geo_trans[3] + (tmpheader.at(HEADER_RS_NROWS) - 0.5) * geo_trans[5]);
-    tmpheader.emplace(HEADER_RS_LAYERS, 1.);
-    tmpheader.emplace(HEADER_RS_CELLSNUM, -1.);
-#else
-    tmpheader.insert(make_pair(HEADER_RS_NCOLS, CVT_DBL(n_cols)));
-    tmpheader.insert(make_pair(HEADER_RS_NROWS, CVT_DBL(n_rows)));
-    tmpheader.insert(make_pair(HEADER_RS_NODATA, nodata));
-    tmpheader.insert(make_pair(HEADER_RS_CELLSIZE, geo_trans[1]));
-    tmpheader.insert(make_pair(HEADER_RS_XLL, geo_trans[0] + 0.5 * tmpheader.at(HEADER_RS_CELLSIZE)));
-    tmpheader.insert(make_pair(HEADER_RS_YLL, geo_trans[3] + (tmpheader.at(HEADER_RS_NROWS) - 0.5) * geo_trans[5]));
-    tmpheader.insert(make_pair(HEADER_RS_LAYERS, 1.));
-    tmpheader.insert(make_pair(HEADER_RS_CELLSNUM, -1.));
-#endif
-    *srs = string(po_dataset->GetProjectionRef());
-
-    GDALClose(po_dataset);
-
-    *header = tmpheader;
-    *values = tmprasterdata;
-    return true;
-}
-#endif /* USE_GDAL */
-
-template <typename T, typename MASK_T>
 void clsRasterData<T, MASK_T>::AddOtherLayerRasterData(const int row, const int col,
                                                        const int cellidx, const int lyr,
-                                                       map<string, double> lyrheader, T* lyrdata) {
+                                                       STRDBL_MAP lyrheader, T* lyrdata) {
     int tmpcols = CVT_INT(lyrheader.at(HEADER_RS_NCOLS));
     double tmpnodata = lyrheader.at(HEADER_RS_NODATA);
     XY_COOR tmp_xy = GetCoordinateByRowCol(row, col);
@@ -3705,14 +3350,10 @@ void clsRasterData<T, MASK_T>::Copy(clsRasterData<T, MASK_T>* orgraster) {
             for (auto iter = stats2D.begin(); iter != stats2D.end(); ++iter) {
                 double* tmpstatvalues = nullptr;
                 Initialize1DArray(n_lyrs_, tmpstatvalues, iter->second);
-#ifdef HAS_VARIADIC_TEMPLATES
-                stats_2d_.emplace(iter->first, tmpstatvalues);
-#else
-                stats_2d_.insert(make_pair(iter->first, tmpstatvalues));
-#endif
+                stats_2d_.at(iter->first) = tmpstatvalues;
             }
         } else {
-            map<string, double> stats = orgraster->GetStatistics();
+            STRDBL_MAP stats = orgraster->GetStatistics();
             for (auto iter = stats.begin(); iter != stats.end(); ++iter) {
                 stats_[iter->first] = iter->second;
             }
@@ -3794,7 +3435,7 @@ XY_COOR clsRasterData<T, MASK_T>::GetCoordinateByRowCol(const int row, const int
 
 template <typename T, typename MASK_T>
 ROW_COL clsRasterData<T, MASK_T>::GetPositionByCoordinate(const double x, const double y,
-                                                          map<string, double>* header /* = nullptr */) {
+                                                          STRDBL_MAP* header /* = nullptr */) {
     if (nullptr == header) { header = &headers_; }
     double xll_center = (*header).at(HEADER_RS_XLL);
     double yll_center = (*header).at(HEADER_RS_YLL);
@@ -3812,24 +3453,6 @@ ROW_COL clsRasterData<T, MASK_T>::GetPositionByCoordinate(const double x, const 
         return ROW_COL(-1, -1);
     }
     return ROW_COL(CVT_INT((y_max - y) / dy), CVT_INT((x - x_min) / dx));
-}
-
-template <typename T, typename MASK_T>
-void clsRasterData<T, MASK_T>::CopyHeader(const map<string, double>& refers,
-                                          map<string, double>& dst) {
-    if (refers.empty()) { return; }
-    for (auto it = refers.begin(); it != refers.end(); ++it) {
-        if (dst.find(it->first) != dst.end()) {
-            dst[it->first] = it->second;
-        }
-        else {
-#ifdef HAS_VARIADIC_TEMPLATES
-            dst.emplace(it->first, it->second);
-#else
-            dst.insert(make_pair(it->first, it->second));
-#endif
-        }
-    }
 }
 
 template <typename T, typename MASK_T>
@@ -4013,13 +3636,13 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
     }
     // 2.2a Copy header of mask data
     CopyHeader(mask_->GetRasterHeader(), headers_);
-    // Copy subset of mask data
+    // DEEP Copy subset of mask data
     map<int, SubsetPositions*>& mask_subset = mask_->GetSubset();
     bool has_subset = !mask_subset.empty(); // if mask data has subsets
     if (has_subset) {
         ReleaseSubset();
         for (auto it = mask_subset.begin(); it != mask_subset.end(); ++it) {
-            SubsetPositions* tmp = new SubsetPositions(it->second);
+            SubsetPositions* tmp = new SubsetPositions(it->second, true);
             tmp->n_lyrs = n_lyrs_;
 #ifdef HAS_VARIADIC_TEMPLATES
             subset_.emplace(it->first, tmp);
@@ -4068,18 +3691,9 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
         vector<int>(pos_cols).swap(pos_cols);
     }
     // 2.3 Handling NoData, SRS, and Layers
-    headers_.at(HEADER_RS_NODATA) = CVT_DBL(no_data_value_);
-    ///< use the coordinate system of mask data
-    if (options_.find(HEADER_RS_SRS) == options_.end()) {
-#ifdef HAS_VARIADIC_TEMPLATES
-        options_.emplace(HEADER_RS_SRS, mask_->GetSrsString());
-#else
-        options_.insert(make_pair(HEADER_RS_SRS, mask_->GetSrsString()));
-#endif
-    } else {
-        options_[HEADER_RS_SRS] = mask_->GetSrsString();
-    }
-    headers_.at(HEADER_RS_LAYERS) = n_lyrs_;
+    UpdateHeader(headers_, HEADER_RS_NODATA, no_data_value_);
+    UpdateStrHeader(options_, HEADER_RS_SRS, mask_->GetSrsString());
+    UpdateHeader(headers_, HEADER_RS_LAYERS, n_lyrs_);
 
     // 3. Create new raster data, and handling positions data
     // 3.1 Determine the n_cells_, and whether to allocate new position data space
@@ -4202,6 +3816,6 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
     return 2; // all situations that use mask data
 }
 
-} /* namespace: data_raster */
-} /* namespace: ccgl */
+} // namespace data_raster
+} // namespace ccgl
 #endif /* CCGL_DATA_RASTER_H */

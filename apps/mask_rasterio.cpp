@@ -275,7 +275,7 @@ void mask_rasterio(IntRaster* mask_rs, vector<string>& infiles,
                                               mask_rs, true, // Use entire extent of Mask
                                               defvalues[i], // For masked nodata areas
                                               opts // Additional options, e.g., out data type
-        );
+                                             );
         if (nullptr == rs) {
             cout << "\tError occurred! No masked raster be output!\n";
             continue;

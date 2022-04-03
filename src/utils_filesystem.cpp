@@ -32,15 +32,25 @@ bool FileExists(string const& filename) {
 #endif /* WINDOWS */
 }
 
+bool FilesExist(vector<string>& filenames) {
+    if (filenames.empty()) { return false; }
+    for (auto it = filenames.begin(); it != filenames.end(); ++it) {
+        if (!FileExists(*it)) { return false; }
+    }
+    return true;
+}
+
 bool PathExists(string const& fullpath) {
     string abspath = GetAbsolutePath(fullpath);
     const char* path = abspath.c_str();
 #ifdef WINDOWS
     struct _stat file_stat;
-    return _stat(path, &file_stat) == 0 && file_stat.st_mode & _S_IFDIR;
+    return _stat(path, &file_stat) == 0
+            && (file_stat.st_mode & _S_IFDIR || file_stat.st_mode & _S_IFREG);
 #else
     struct stat file_stat;
-    return stat(path, &file_stat) == 0 && S_ISDIR(file_stat.st_mode);
+    return stat(path, &file_stat) == 0
+            && (S_ISDIR(file_stat.st_mode) || S_ISREG(file_stat.st_mode));
 #endif /* WINDOWS */
 }
 
@@ -112,10 +122,17 @@ int FindFiles(const char* lp_path, const char* expression, vector<string>& vec_f
 
 bool DirectoryExists(const string& dirpath) {
     string abspath = GetAbsolutePath(dirpath);
+    const char* path = abspath.c_str();
 #ifdef WINDOWS
-    return ::GetFileAttributes(abspath.c_str()) != INVALID_FILE_ATTRIBUTES;
+    // These two method are equivalent
+    // DWORD attr = GetFileAttributes(path);
+    // return (INVALID_FILE_ATTRIBUTES != attr)
+    //         && 0 != (attr & FILE_ATTRIBUTE_DIRECTORY);
+    struct _stat file_stat;
+    return _stat(path, &file_stat) == 0 && file_stat.st_mode & _S_IFDIR;
 #else
-    return access(abspath.c_str(), F_OK) == 0;
+    struct stat file_stat;
+    return stat(path, &file_stat) == 0 && S_ISDIR(file_stat.st_mode);
 #endif /* WINDOWS */
 }
 
@@ -306,21 +323,27 @@ string AppendCoreFileName(string const& full_filename, string const& endstr, cha
     string filedir = GetPathFromFullName(full_filename);
     string corename = GetCoreFileName(full_filename);
     string old_suffix = GetSuffix(full_filename);
-    if (deli == '\0') {
-        if (old_suffix.empty()) { return filedir + corename + endstr; }
-        return filedir + corename + endstr + "." + old_suffix;
-    }
-    if (old_suffix.empty()) return filedir + corename + deli + endstr;
-    return filedir + corename + deli + endstr + "." + old_suffix;
+    return ConcatFullName(filedir, corename + deli + endstr, old_suffix);
 }
 
 string AppendCoreFileName(string const& full_filename, vint endint, char deli /* = '_' */) {
     return AppendCoreFileName(full_filename, ccgl::utils_string::itoa(endint), deli);
 }
 
+string PrefixCoreFileName(string const& full_filename, string const& prestr, char deli /* = '_' */) {
+    string filedir = GetPathFromFullName(full_filename);
+    string corename = GetCoreFileName(full_filename);
+    string old_suffix = GetSuffix(full_filename);
+    return ConcatFullName(filedir, prestr + deli + corename, old_suffix);
+}
+
+string PrefixCoreFileName(string const& full_filename, vint preint, char deli /* = '_' */) {
+    return PrefixCoreFileName(full_filename, ccgl::utils_string::itoa(preint), deli);
+}
+
 string GetPathFromFullName(string const& full_filename) {
     string abspath = GetAbsolutePath(full_filename);
-    if (PathExists(abspath)) { return abspath; } // already be a path
+    if (DirectoryExists(abspath)) { return abspath; } // already be a directory path
     string::size_type i = abspath.find_last_of(SEP);
     if (i == string::npos) {
         cout << "No valid path in " << full_filename << ", please check!" << endl;

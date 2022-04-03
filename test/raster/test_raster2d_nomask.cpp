@@ -4,9 +4,9 @@
  *        TEST CASE NAME (or TEST SUITE):
  *            clsRasterDataTest2DNoMask: Read 2D raster without a mask
  *
- *        Since the core code is irrelevant with the format of raster data, we take ASC
- *        as example here.
- * \version 1.2
+ *        Since we mainly support ASC and GDAL(e.g., TIFF),
+ *        value-parameterized tests of Google Test will be used.
+ * \version 1.3
  * \authors Liangjun Zhu, zlj(at)lreis.ac.cn; crazyzlj(at)gmail.com
  * \remarks 2017-12-02 - lj - Original version.
  *          2018-05-03 - lj - Integrated into CCGL.
@@ -17,10 +17,20 @@
 #include "../../src/data_raster.hpp"
 #include "../../src/utils_filesystem.h"
 #include "../../src/utils_array.h"
+#ifdef USE_MONGODB
+#include "../../src/db_mongoc.h"
+#endif
+#include "../test_global.h"
 
+using namespace ccgl;
 using namespace ccgl::data_raster;
 using namespace ccgl::utils_filesystem;
 using namespace ccgl::utils_array;
+#ifdef USE_MONGODB
+using namespace ccgl::db_mongoc;
+#endif
+
+extern GlobalEnvironment* GlobalEnv;
 
 namespace {
 using ::testing::TestWithParam;
@@ -91,7 +101,7 @@ TEST_P(clsRasterDataTest2DNoMask, RasterIO) {
     EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
     
     EXPECT_TRUE(rs_->Initialized());           // m_initialized
-    EXPECT_TRUE(rs_->Is2DRaster());           // m_is2DRaster
+    EXPECT_TRUE(rs_->Is2DRaster());            // m_is2DRaster
     EXPECT_FALSE(rs_->PositionsCalculated());  // m_calcPositions
     EXPECT_FALSE(rs_->PositionsAllocated());   // m_storePositions
     EXPECT_FALSE(rs_->MaskExtented());         // m_useMaskExtent
@@ -104,7 +114,7 @@ TEST_P(clsRasterDataTest2DNoMask, RasterIO) {
     EXPECT_EQ(nullptr, rs_->GetRasterPositionDataPointer()); // m_rasterPositionData
 
     /** Get metadata, m_headers **/
-    map<string, double> header_info = rs_->GetRasterHeader();
+    STRDBL_MAP header_info = rs_->GetRasterHeader();
     EXPECT_EQ(CVT_INT(header_info.at(HEADER_RS_LAYERS)), rs_->GetLayers());
     EXPECT_EQ(CVT_INT(header_info.at(HEADER_RS_CELLSNUM)), rs_->GetCellNumber());
 
@@ -377,13 +387,63 @@ TEST_P(clsRasterDataTest2DNoMask, RasterIO) {
     string newfullname = Dstpath + newcorename + "." + GetSuffix(oldfullname);
     EXPECT_TRUE(rs_->OutputToFile(newfullname));
 
+    // Change values back
+    rs_->SetValue(3, 1, -9999.f, 1);
+    rs_->SetValue(3, 2, 6.f);
+    EXPECT_FLOAT_EQ(-9999.f, rs_->GetValue(3, 1));
+    EXPECT_FLOAT_EQ(6.f, rs_->GetValue(3, 2));
 
+#ifdef USE_MONGODB
+    /** MongoDB I/O test **/
+    MongoGridFs* gfs_ = GlobalEnv->gfs_;
+    EXPECT_NE(nullptr, gfs_);
+    string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+    string gfsfilename_valid = newcorename + "_valid_" + GetSuffix(oldfullname);
+    gfs_->RemoveFile(gfsfilename); // remove if already existed
+    gfs_->RemoveFile(gfsfilename_valid);
+    EXPECT_TRUE(rs_->OutputToMongoDB(gfs_, gfsfilename)); // store fullsize raster
+    map<string, string> additional_header;
+    additional_header[HEADER_MASK_NAME] = rs_->GetCoreName();
+    EXPECT_TRUE(rs_->OutputToMongoDB(gfs_, gfsfilename_valid, additional_header, false));
+
+    // Read from MongoDB without mask layer
+    FltRaster* mongors = FltRaster::Init(gfs_, gfsfilename.c_str(), false);
+
+    // Read from MongoDB with predefined valid positions
+    FltRaster* mongors_valid = new FltRaster(); // create empty raster, set and read data
+    mongors_valid->SetHeader(rs_->GetRasterHeader()); // set header
+    int** posdata;
+    int poslen;
+    rs_->GetRasterPositionData(&poslen, &posdata);
+    mongors_valid->SetPositions(poslen, posdata);
+    mongors_valid->ReadFromMongoDB(gfs_, gfsfilename_valid);
+
+    // Check the consistency of mongors and mongors_valid
+    EXPECT_NE(mongors->GetCellNumber(), mongors_valid->GetCellNumber());
+    EXPECT_NE(mongors->GetDataLength(), mongors_valid->GetDataLength());
+    EXPECT_EQ(mongors->GetValidNumber(), mongors_valid->GetValidNumber());
+    EXPECT_DOUBLE_EQ(mongors->GetAverage(), mongors_valid->GetAverage());
+    EXPECT_DOUBLE_EQ(mongors->GetStd(), mongors_valid->GetStd());
+    EXPECT_EQ(mongors->GetLayers(), 3);
+    EXPECT_EQ(mongors->GetLayers(), mongors_valid->GetLayers());
+    EXPECT_EQ(mongors->GetRows(), mongors_valid->GetRows());
+    EXPECT_EQ(mongors->GetCols(), mongors_valid->GetCols());
+    for (int ir = 0; ir < mongors->GetRows(); ir++) {
+        for (int ic = 0; ic < mongors->GetCols(); ic++) {
+            for (int il = 0; il < mongors->GetLayers(); il++) {
+                EXPECT_FLOAT_EQ(mongors->GetValue(ir, ic, il), mongors_valid->GetValue(ir, ic, il));
+            }
+        }
+    }
+    delete mongors;
+    delete mongors_valid;
+#endif
 }
 
 // calc_pos = True
 TEST_P(clsRasterDataTest2DNoMask, RasterIOWithCalcPos) {
-    /* Get position data, which will be calculated if not existed */
     EXPECT_FALSE(rs_->PositionsCalculated());
+    /* Get position data, which will be calculated if not existed */
     int ncells = -1;
     int** positions = nullptr;
     rs_->GetRasterPositionData(&ncells, &positions); // m_rasterPositionData
@@ -428,7 +488,7 @@ TEST_P(clsRasterDataTest2DNoMask, RasterIOWithCalcPos) {
     EXPECT_NE(nullptr, rs_->GetRasterPositionDataPointer()); // m_rasterPositionData
 
     /** Get metadata, m_headers **/
-    map<string, double> header_info = rs_->GetRasterHeader();
+    STRDBL_MAP header_info = rs_->GetRasterHeader();
     EXPECT_EQ(CVT_INT(header_info.at(HEADER_RS_LAYERS)), rs_->GetLayers());
     EXPECT_EQ(CVT_INT(header_info.at(HEADER_RS_CELLSNUM)), rs_->GetCellNumber());
 
@@ -656,6 +716,56 @@ TEST_P(clsRasterDataTest2DNoMask, RasterIOWithCalcPos) {
     string newfullname = GetPathFromFullName(oldfullname) + "result" + SEP +
             newcorename + "." + GetSuffix(oldfullname);
     EXPECT_TRUE(rs_->OutputToFile(newfullname));
+
+    // Change values back
+    rs_->SetValue(3, 2, 6.f);
+    EXPECT_FLOAT_EQ(6.f, rs_->GetValue(3, 2));
+
+#ifdef USE_MONGODB
+    /** MongoDB I/O test **/
+    MongoGridFs* gfs_ = GlobalEnv->gfs_;
+    EXPECT_NE(nullptr, gfs_);
+    string gfsfilename = newcorename + "_" + GetSuffix(oldfullname);
+    string gfsfilename_valid = newcorename + "_valid_" + GetSuffix(oldfullname);
+    gfs_->RemoveFile(gfsfilename); // remove if already existed
+    gfs_->RemoveFile(gfsfilename_valid);
+    EXPECT_TRUE(rs_->OutputToMongoDB(gfs_, gfsfilename)); // store fullsize raster
+    map<string, string> additional_header;
+    additional_header[HEADER_MASK_NAME] = rs_->GetCoreName();
+    EXPECT_TRUE(rs_->OutputToMongoDB(gfs_, gfsfilename_valid, additional_header, false));
+
+    // Read from MongoDB without mask layer
+    FltRaster* mongors = FltRaster::Init(gfs_, gfsfilename.c_str(), false);
+
+    // Read from MongoDB with predefined valid positions
+    FltRaster* mongors_valid = new FltRaster(); // create empty raster, set and read data
+    mongors_valid->SetHeader(rs_->GetRasterHeader()); // set header
+    int** posdata;
+    int poslen;
+    rs_->GetRasterPositionData(&poslen, &posdata);
+    mongors_valid->SetPositions(poslen, posdata);
+    mongors_valid->ReadFromMongoDB(gfs_, gfsfilename_valid);
+
+    // Check the consistency of mongors and mongors_valid
+    EXPECT_NE(mongors->GetCellNumber(), mongors_valid->GetCellNumber());
+    EXPECT_NE(mongors->GetDataLength(), mongors_valid->GetDataLength());
+    EXPECT_EQ(mongors->GetValidNumber(), mongors_valid->GetValidNumber());
+    EXPECT_DOUBLE_EQ(mongors->GetAverage(), mongors_valid->GetAverage());
+    EXPECT_DOUBLE_EQ(mongors->GetStd(), mongors_valid->GetStd());
+    EXPECT_EQ(mongors->GetLayers(), 3);
+    EXPECT_EQ(mongors->GetLayers(), mongors_valid->GetLayers());
+    EXPECT_EQ(mongors->GetRows(), mongors_valid->GetRows());
+    EXPECT_EQ(mongors->GetCols(), mongors_valid->GetCols());
+    for (int ir = 0; ir < mongors->GetRows(); ir++) {
+        for (int ic = 0; ic < mongors->GetCols(); ic++) {
+            for (int il = 0; il < mongors->GetLayers(); il++) {
+                EXPECT_FLOAT_EQ(mongors->GetValue(ir, ic, il), mongors_valid->GetValue(ir, ic, il));
+            }
+        }
+    }
+    delete mongors;
+    delete mongors_valid;
+#endif
 }
 // In order to run value-parameterized tests, you need to instantiate them,
 // or bind them to a list of values which will be used as test parameters.
