@@ -278,7 +278,7 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
     int len;
     float* validdata = nullptr;
     tmp_rs->GetRasterData(&len, &validdata);
-    EXPECT_TRUE(len, maskrs_->GetCellNumber());
+    EXPECT_EQ(len, maskrs_->GetCellNumber());
     EXPECT_NE(nullptr, validdata);
     for (int k = 0; k < len; k++) {
         EXPECT_FLOAT_EQ(validdata[k], datafull[k]);

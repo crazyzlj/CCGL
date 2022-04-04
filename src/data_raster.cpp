@@ -70,7 +70,7 @@ double DefaultNoDataByType(const RasterDataType type) {
 GDALDataType CvtToGDALDataType(const RasterDataType type) {
     switch (type) {
         case RDT_Unknown:   return GDT_Unknown;  // Unknown
-        case RDT_Int8:	    return GDT_Unknown;  // 8-bit signed integer that GDAL do not have!
+        case RDT_Int8:	    return GDT_Byte;     // 8-bit signed integer is not initially supported by GDAL!
         case RDT_UInt8:	    return GDT_Byte;     // 8-bit unsigned integer
         case RDT_UInt16:	return GDT_UInt16;   // 16-bit unsigned integer
         case RDT_Int16:	    return GDT_Int16;    // 16-bit signed integer
