@@ -77,22 +77,22 @@ TEST(TestutilsFileIO, GetCoreFileName) {
 
 TEST(TestutilsFileIO, DirectoryExists) { // only for directory path
     string testpath = GetAppPath() + "./data/delDirRecursively/blankDir";
-    EXPECT_TRUE(DirectoryExists(testpath));
-    EXPECT_TRUE(DeleteDirectory(testpath));
     EXPECT_FALSE(DirectoryExists(testpath));
     EXPECT_TRUE(CleanDirectory(testpath));
     EXPECT_TRUE(DirectoryExists(testpath));
+    EXPECT_TRUE(DeleteDirectory(testpath));
+    EXPECT_FALSE(DirectoryExists(testpath));
     string realfile = GetAppPath() + "./data/raster/int32.tif";
     EXPECT_FALSE(DirectoryExists(realfile));
 }
 
 TEST(TestutilsFileIO, PathExists) { // directory or file paths
     string testpath = GetAppPath() + "./data/delDirRecursively/blankDir";
-    EXPECT_TRUE(PathExists(testpath));
-    EXPECT_TRUE(DeleteDirectory(testpath));
     EXPECT_FALSE(PathExists(testpath));
     EXPECT_TRUE(CleanDirectory(testpath));
     EXPECT_TRUE(PathExists(testpath));
+    EXPECT_TRUE(DeleteDirectory(testpath));
+    EXPECT_FALSE(PathExists(testpath));
     string realfile = GetAppPath() + "./data/raster/int32.tif";
     EXPECT_TRUE(PathExists(realfile));
 }
