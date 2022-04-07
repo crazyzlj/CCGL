@@ -809,7 +809,7 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
         return false;
     }
     int value_count = n_cells * n_lyrs;
-    int size_dtype = length / value_count;
+    size_t size_dtype = length / value_count;
 
     RasterDataType rstype = RDT_Unknown;
     if (header_str.find(HEADER_RSOUT_DATATYPE) != header_str.end()) {
@@ -2541,7 +2541,7 @@ void clsRasterData<T, MASK_T>::SetHeader(const STRDBL_MAP& refers) {
     it = headers_.find(HEADER_RS_LAYERS);
     if (it != headers_.end()) { n_lyrs_ = CVT_INT(it->second); }
     it = headers_.find(HEADER_RS_NODATA);
-    if (it != headers_.end()) { no_data_value_ = it->second; }
+    if (it != headers_.end()) { no_data_value_ = static_cast<T>(it->second); }
 }
 
 

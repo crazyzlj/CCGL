@@ -127,8 +127,8 @@ TEST_P(clsRasterDataTestMaskExceed, NoPosNoMaskExt) {
     EXPECT_EQ(2, rs_->GetDataLength());
     EXPECT_EQ(2, rs_->GetCellNumber());
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName
@@ -329,8 +329,8 @@ TEST_P(clsRasterDataTestMaskExceed, NoPosUseMaskExt) {
     EXPECT_EQ(9, rs_->GetDataLength());
     EXPECT_EQ(9, rs_->GetCellNumber());
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName
@@ -558,8 +558,8 @@ TEST_P(clsRasterDataTestMaskExceed, CalPosNoMaskExt) {
     EXPECT_EQ(2, rs_->GetDataLength());
     EXPECT_EQ(2, rs_->GetCellNumber());
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName
@@ -781,8 +781,8 @@ TEST_P(clsRasterDataTestMaskExceed, CalPosUseMaskExt) {
     EXPECT_EQ(5, rs_->GetDataLength());
     EXPECT_EQ(5, rs_->GetCellNumber());
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName

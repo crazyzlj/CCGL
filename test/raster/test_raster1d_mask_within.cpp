@@ -125,8 +125,8 @@ TEST_P(clsRasterDataTestMaskWithin, NoPosNoMaskExt) {
     EXPECT_EQ(4, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
     EXPECT_EQ(4, rs_->GetCellNumber()); // m_nCells
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName
@@ -347,8 +347,8 @@ TEST_P(clsRasterDataTestMaskWithin, NoPosUseMaskExt) {
     EXPECT_EQ(4, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
     EXPECT_EQ(4, rs_->GetCellNumber()); // m_nCells
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName
@@ -569,8 +569,8 @@ TEST_P(clsRasterDataTestMaskWithin, CalPosNoMaskExt) {
     EXPECT_EQ(2, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
     EXPECT_EQ(2, rs_->GetCellNumber()); // m_nCells
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName
@@ -758,8 +758,8 @@ TEST_P(clsRasterDataTestMaskWithin, CalPosUseMaskExt) {
     EXPECT_EQ(2, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
     EXPECT_EQ(2, rs_->GetCellNumber()); // m_nCells
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName

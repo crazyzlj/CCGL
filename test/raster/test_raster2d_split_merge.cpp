@@ -386,8 +386,7 @@ TEST_P(clsRasterData2DSplitMerge, SplitRaster) {
     data3[4][2] = 67.67f;
     data3[5][2] = -9999.f;
     subarray[3] = data3;
-
-    string suffix = GetSuffix(GetParam()->raster_name1);
+    
     for (auto it = rs_subset.begin(); it != rs_subset.end(); ++it) {
         vector<string> outfiles(lyrs);
         for (int ilyr = 0; ilyr < lyrs; ilyr++) {
