@@ -143,26 +143,29 @@ INCLUDE(AddFindPaths)
 INCLUDE(GNUInstallDirs)
 
 ### Find OMP which is optional
-IF(CV_CLANG AND NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
-  message(STATUS "Find OpenMP from LLVM")
-  # To use OpenMP in Clang built by CMake, the recommended way is to
-  #   install llvm alone by 'brew install llvm', which has builtin 'libomp'
-  IF (NOT LLVM_ROOT_DIR)
-    SET(LLVM_ROOT_DIR "/opt/homebrew/opt/llvm")
+# Refers to https://mac.r-project.org/openmp/ for further method to handle openmp in AppleClang
+IF(NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
+  IF(CV_CLANG)
+    message(STATUS "Find OpenMP from LLVM")
+    # To use OpenMP in Clang built by CMake, the recommended way is to
+    #   install llvm alone by 'brew install llvm', which has builtin 'libomp'
+    IF (NOT LLVM_ROOT_DIR)
+        SET(LLVM_ROOT_DIR "/opt/homebrew/opt/llvm")
+    ENDIF ()
+    FIND_PACKAGE(LLVM)
+    IF(LLVM_VERSION_MAJOR)
+        geo_include_directories(${LLVM_LIBRARY_DIRS}/clang/${LLVM_VERSION_BASE_STRING}/include)
+        SET(OpenMP_CXX_FLAGS "-fopenmp")
+        SET(OpenMP_C_FLAGS "-fopenmp")
+        FIND_LIBRARY(OpenMP_LIBRARY
+            NAMES "omp"
+            HINTS ${LLVM_LIBRARY_DIRS})
+        SET(OPENMP_FOUND 1)
+        SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LLVM_LDFLAGS}")
+    ENDIF ()
+  ELSE ()
+    FIND_PACKAGE(OpenMP)
   ENDIF ()
-  FIND_PACKAGE(LLVM)
-  IF(LLVM_VERSION_MAJOR)
-    geo_include_directories(${LLVM_LIBRARY_DIRS}/clang/${LLVM_VERSION_BASE_STRING}/include)
-    SET(OpenMP_CXX_FLAGS "-fopenmp")
-    SET(OpenMP_C_FLAGS "-fopenmp")
-    FIND_LIBRARY(OpenMP_LIBRARY
-        NAMES "omp"
-        HINTS ${LLVM_LIBRARY_DIRS})
-    SET(OPENMP_FOUND 1)
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LLVM_LDFLAGS}")
-  ENDIF ()
-ELSE ()
-  FIND_PACKAGE(OpenMP)
 ENDIF ()
 
 ### Find GDAL which is optional.
