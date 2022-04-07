@@ -585,7 +585,7 @@ TEST_P(clsRasterData2DSplitMerge, SplitRaster) {
     datacombvalid[13][2] = 67.67f;
     datacombvalid[14][2] = -9999.f;
     datacombvalid[15][2] = -9999.f;
-
+    
     for (auto it = rs_subset.begin(); it != rs_subset.end(); ++it) {
         vector<string> outfiles(lyrs);
         for (int ilyr = 0; ilyr < lyrs; ilyr++) {

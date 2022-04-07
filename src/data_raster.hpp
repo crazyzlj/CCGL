@@ -2539,7 +2539,7 @@ void clsRasterData<T, MASK_T>::SetHeader(const STRDBL_MAP& refers) {
     it = headers_.find(HEADER_RS_LAYERS);
     if (it != headers_.end()) { n_lyrs_ = CVT_INT(it->second); }
     it = headers_.find(HEADER_RS_NODATA);
-    if (it != headers_.end()) { no_data_value_ = it->second; }
+    if (it != headers_.end()) { no_data_value_ = static_cast<T>(it->second); }
 }
 
 

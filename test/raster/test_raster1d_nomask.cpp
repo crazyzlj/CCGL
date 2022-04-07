@@ -75,8 +75,8 @@ TEST_P(clsRasterDataTestNoMask, RasterIO) {
     EXPECT_EQ(12, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
     EXPECT_EQ(12, rs_->GetCellNumber()); // m_nCells
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName
@@ -323,8 +323,8 @@ TEST_P(clsRasterDataTestNoMask, RasterIOWithCalcPos) {
     EXPECT_EQ(6, rs_->GetDataLength()); // m_nCells, which will be nRows * nCols
     EXPECT_EQ(6, rs_->GetCellNumber()); // m_nCells
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     // m_filePathName depends on the path of build, so no need to test.
     EXPECT_EQ(Corename, rs_->GetCoreName()); // m_coreFileName

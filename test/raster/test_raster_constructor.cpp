@@ -59,8 +59,8 @@ TEST(clsRasterDataTestBlankCtor, ValidateAccess) {
     EXPECT_EQ(-1, rs->GetDataLength()); // m_nCells
     EXPECT_EQ(-1, rs->GetCellNumber()); // m_nCells
 
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs->GetDefaultValue()); // m_defaultValue
 
     EXPECT_EQ("", rs->GetFilePath()); // m_filePathName
     EXPECT_EQ("", rs->GetCoreName()); // m_coreFileName

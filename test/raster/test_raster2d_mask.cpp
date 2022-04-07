@@ -133,8 +133,8 @@ TEST_P(clsRasterDataTestMask2D, NoPos) {
     EXPECT_EQ(12, rs_->GetDataLength()); // m_nCells * n_lyrs_
     EXPECT_EQ(4, rs_->GetCellNumber());  // m_nCells
     
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
     
     EXPECT_TRUE(rs_->Initialized());           // m_initialized
     EXPECT_TRUE(rs_->Is2DRaster());            // m_is2DRaster
@@ -422,8 +422,8 @@ TEST_P(clsRasterDataTestMask2D, CalcPos) {
     EXPECT_EQ(6, rs_->GetDataLength()); // m_nCells * n_lyrs_
     EXPECT_EQ(2, rs_->GetCellNumber()); // m_nCells
 
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetNoDataValue());  // m_noDataValue
-    EXPECT_FLOAT_EQ(-9999.f, rs_->GetDefaultValue()); // m_defaultValue
+    EXPECT_EQ(-9999., rs_->GetNoDataValue());  // m_noDataValue
+    EXPECT_EQ(-9999., rs_->GetDefaultValue()); // m_defaultValue
 
     /** Get metadata, m_headers **/
     STRDBL_MAP header_info = rs_->GetRasterHeader();

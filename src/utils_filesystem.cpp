@@ -124,12 +124,12 @@ bool DirectoryExists(const string& dirpath) {
     string abspath = GetAbsolutePath(dirpath);
     const char* path = abspath.c_str();
 #ifdef WINDOWS
-    // These two method are equivalent
-    // DWORD attr = GetFileAttributes(path);
-    // return (INVALID_FILE_ATTRIBUTES != attr)
-    //         && 0 != (attr & FILE_ATTRIBUTE_DIRECTORY);
-    struct _stat file_stat;
-    return _stat(path, &file_stat) == 0 && file_stat.st_mode & _S_IFDIR;
+    DWORD attr = GetFileAttributes(path);
+    return INVALID_FILE_ATTRIBUTES != attr
+            && 0 != (attr & FILE_ATTRIBUTE_DIRECTORY);
+    // These two method are equivalent theoretically, but failed in VS2010
+    // struct _stat file_stat;
+    // return _stat(path, &file_stat) == 0 && file_stat.st_mode & _S_IFDIR;
 #else
     struct stat file_stat;
     return stat(path, &file_stat) == 0 && S_ISDIR(file_stat.st_mode);
