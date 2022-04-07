@@ -20,7 +20,7 @@
  *   - 8. Jun. 2018 lj Use emplace and emplace_back rather than insert and push_back whenever possible.
  *   - 9. Nov. 2018 lj Add specific field-value as options of raster data, including SRS.
  *   -10. Jul. 2021 lj No need to use pointer-to-pointer as arguments in GetValue and GetValueByIndex.
- *   -11. Jan. 2022 lj Comprehensive functional testing, bug fixing, and robustness improving.
+ *   -11. Apr. 2022 lj Comprehensive functional testing, bug fixing, and robustness improving.
  *                     Add subset feature to support data decomposition and combination.
  *
  * \author Liangjun Zhu, zlj(at)lreis.ac.cn
@@ -357,7 +357,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
     int n_rows = po_band->GetYSize();
     int n_cols = po_band->GetXSize();
     int get_value_flag = false;
-    T nodata = static_cast<T>(po_band->GetNoDataValue(&get_value_flag));
+    double nodata = po_band->GetNoDataValue(&get_value_flag);
     int approx_minmax = false;
     double minmax[2];
     T* tmprasterdata = nullptr;
@@ -384,8 +384,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
         //
         po_band->ComputeRasterMinMax(approx_minmax, minmax);
         if ((minmax[1] <= 127 && minmax[0] < 0)
-            || (minmax[1] <= 127 && minmax[0] >= 0 &&
-                (!get_value_flag || get_value_flag && nodata < 0))) {
+            || (minmax[1] <= 127 && minmax[0] >= 0 && (!get_value_flag || get_value_flag && nodata < 0))) {
             read_as_signedbyte = true;
         }
         if (read_as_signedbyte) {
@@ -500,7 +499,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
     }
 
     if (!get_value_flag) { // NoData value is not defined!
-        nodata = static_cast<T>(DefaultNoDataByType(in_type));
+        nodata = DefaultNoDataByType(in_type);
     }
 
     double geo_trans[6];
@@ -680,8 +679,8 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
             for (int i = 0; i < n_cols * n_rows; i++) values_double[i] = static_cast<double>(values[i]);
         }
     }
-    if ((outtype == RDT_Unknown || recreate_flag && nullptr == new_values)
-        || !convert_permit) {
+    if ((outtype == RDT_Unknown || (recreate_flag && nullptr == new_values))
+        || (!convert_permit)) {
         cout << "Error: The specific raster output data type is not allowed!\n";
         if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
         if (new_values != nullptr) { CPLFree(new_values); }
@@ -721,8 +720,7 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
     po_dst_ds->SetGeoTransform(geo_trans);
     if (opts.find(HEADER_RS_SRS) == opts.end()) {
         po_dst_ds->SetProjection("");
-    }
-    else {
+    } else {
         po_dst_ds->SetProjection(opts.at(HEADER_RS_SRS).c_str());
     }
     if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
@@ -809,7 +807,7 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
         return false;
     }
     int value_count = n_cells * n_lyrs;
-    int size_dtype = length / value_count;
+    size_t size_dtype = length / value_count;
 
     RasterDataType rstype = RDT_Unknown;
     if (header_str.find(HEADER_RSOUT_DATATYPE) != header_str.end()) {
@@ -882,7 +880,7 @@ template <typename T>
 bool WriteStreamDataAsGridfs(MongoGridFs* gfs, const string& filename,
                              STRDBL_MAP& header, T* values, const int datalength,
                              const STRING_MAP& opts = STRING_MAP()) {
-    gfs->RemoveFile(filename, NULL, opts);
+    gfs->RemoveFile(filename, nullptr, opts);
     bson_t p = BSON_INITIALIZER;
     for (auto iter = header.begin(); iter != header.end(); ++iter) {
         if (std::fmod(iter->second, 1.) == 0) {
@@ -920,7 +918,7 @@ public:
 
     SubsetPositions(int srow, int erow, int scol, int ecol);
 
-    SubsetPositions(SubsetPositions*& src, const bool deep_copy = false);
+    explicit SubsetPositions(SubsetPositions*& src, bool deep_copy = false);
 
     ~SubsetPositions();
 
@@ -1010,7 +1008,7 @@ public:
     /*!
      * \brief Constructor an empty clsRasterData instance for 1D or 2D raster
      */
-    clsRasterData(bool is_2d = false);
+    explicit clsRasterData(bool is_2d = false);
 
     /*!
      * \brief Constructor 1D raster from necessary data.
@@ -1107,13 +1105,13 @@ public:
     /*!
      * \brief Construct an clsRasterData instance by 1D array data and mask
      */
-    clsRasterData(clsRasterData<MASK_T>* mask, T* const values, int len,
+    clsRasterData(clsRasterData<MASK_T>* mask, T* values, int len,
                   const STRING_MAP& opts = STRING_MAP());
 
     /*!
      * \brief Construct an clsRasterData instance by 2D array data and mask
      */
-    clsRasterData(clsRasterData<MASK_T>* mask, T** const values, int len, int lyrs,
+    clsRasterData(clsRasterData<MASK_T>* mask, T** values, int len, int lyrs,
                   const STRING_MAP& opts = STRING_MAP());
 
 #ifdef USE_MONGODB
@@ -1760,7 +1758,7 @@ private:
     /*!
      * \brief Operator= without implementation
      */
-    clsRasterData& operator=(const clsRasterData&) { ; }
+    clsRasterData& operator=(const clsRasterData&) { }
 
     /*! cell number of raster data, i.e. the data length of \sa raster_data_ or \sa raster_2d_
      * 1. all grid cell number, i.e., ncols * nrows, when m_calcPositions is False
@@ -2093,7 +2091,7 @@ clsRasterData<T, MASK_T>* clsRasterData<T, MASK_T>::Init(MongoGridFs* gfs, const
         return nullptr;
     }
     return rs_mongo;
-};
+}
 
 #endif /* USE_MONGODB */
 
@@ -2448,7 +2446,7 @@ template <typename T, typename MASK_T>
 string clsRasterData<T, MASK_T>::GetOption(const char* key) {
     if (options_.find(key) == options_.end()) {
         StatusMessage((string(key) + " is not existed in the options of the raster data!").c_str());
-        return string("");
+        return "";
     }
     return options_.at(key);
 }
@@ -2640,7 +2638,7 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
         STRDBL_MAP tmpheader;
         CopyHeader(headers_, tmpheader);
         UpdateHeader(tmpheader, HEADER_RS_LAYERS, sublyrs);
-        UpdateHeader(tmpheader, HEADER_RS_CELLSNUM, sublen);
+        UpdateHeader(tmpheader, HEADER_RS_CELLSNUM, sublen / sublyrs);
         flag = flag && OutputFullsizeToFiles(data1d, sublen / sublyrs, sublyrs,
                                              PrefixCoreFileName(outpathact, 0),
                                              tmpheader, options_);
@@ -3048,7 +3046,7 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
         STRDBL_MAP tmpheader;
         CopyHeader(headers_, tmpheader);
         UpdateHeader(tmpheader, HEADER_RS_LAYERS, sublyrs);
-        UpdateHeader(tmpheader, HEADER_RS_CELLSNUM, sublen);
+        UpdateHeader(tmpheader, HEADER_RS_CELLSNUM, sublen / sublyrs);
         flag = flag && WriteStreamDataAsGridfs(gfs, "0_" + outnameact,
                                                tmpheader, data1d, sublen, options_);
         Release1DArray(data1d);
@@ -3246,7 +3244,9 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
 #pragma omp parallel for
         for (int i = 0; i < n_cells_; i++) {
             int tmpidx = i;
-            if (!mask_pos_subset) { tmpidx = pos_data_[i][0] * n_cols + pos_data_[i][1]; }
+            if (include_nodata && !mask_pos_subset) {
+                tmpidx = pos_data_[i][0] * n_cols + pos_data_[i][1];
+            }
             for (int j = 0; j < n_lyrs_; j++) {
                 int idx = tmpidx * n_lyrs_ + j;
                 raster_2d_[i][j] = dbdata[idx];
@@ -3685,7 +3685,7 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
     // 3. Create new raster data, and handling positions data
     // 3.1 Determine the n_cells_, and whether to allocate new position data space
     bool store_fullsize_array = false;
-    bool recalc_subset = has_subset ? true : false;
+    bool recalc_subset = has_subset;
     if ((use_mask_ext_ || within_ext) && calc_pos_) {
         // if pos_data_ has been initialized and calculated, release it to save memory
         if (nullptr != pos_data_) { Release1DArray(pos_data_); }

@@ -269,7 +269,7 @@ bool SubsetPositions::ReadFromMongoDB(MongoGridFs* gfs, const string& fname, con
     int nfull = nrows * ncols;
     int db_ncells = CVT_INT(header_dbl.at(HEADER_RS_CELLSNUM));
     int db_nlyrs = CVT_INT(header_dbl.at(HEADER_RS_LAYERS));
-    if (nfull != db_ncells && n_cells != db_ncells || db_nlyrs < 0) {
+    if ((nfull != db_ncells && n_cells != db_ncells) || db_nlyrs < 0) {
         Release1DArray(dbdata);
         return false;
     }
