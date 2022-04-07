@@ -37,6 +37,7 @@ string dstpath = datapath + "result/";
 
 string not_existed_rs = datapath + "not_existed_rs.tif";
 string not_std_asc = datapath + "tinydemo_not-std-asc_r2c2.asc";
+string miss_std_asc = datapath + "tinydemo_miss-std-asc_r2c2.asc";
 
 string rs_mask = datapath + "mask_byte_r3c2.tif";
 string rs_byte = datapath + "byte_r3c3.tif";
@@ -48,6 +49,8 @@ string rs_uint32 = datapath + "uint32_r3c3.tif";
 string rs_int32 = datapath + "int32_r3c3.tif";
 string rs_float = datapath + "float32_r3c3.tif";
 string rs_double = datapath + "float64_r3c3.tif";
+
+string rs_int32_nodefnodata = datapath + "int32.tif";
 
 TEST(clsRasterDataTestBlankCtor, ValidateAccess) {
     /// 0. Create an clsRasterData instance with blank ctor
@@ -176,9 +179,20 @@ TEST(clsRasterDataTestBlankCtor, ValidateAccess) {
     delete rs;
 }
 
+TEST(clsRasterDataASCConstructor, SupportedCases) {
+    IntRaster* not_std_rs = IntRaster::Init(not_std_asc);
+    EXPECT_NE(nullptr, not_std_rs);
+    EXPECT_EQ(4, not_std_rs->GetCellNumber());
+    EXPECT_EQ(2, not_std_rs->GetValidNumber());
+
+}
+
 TEST(clsRasterDataFailedConstructor, FailedCases) {
     FltIntRaster* noexisted_rs = FltIntRaster::Init(not_existed_rs);
     EXPECT_EQ(nullptr, noexisted_rs);
+
+    IntRaster* miss_std_rs = IntRaster::Init(miss_std_asc);
+    EXPECT_EQ(nullptr, miss_std_rs);
 
     vector<string> files;
     files.push_back(not_existed_rs);
@@ -269,12 +283,32 @@ TEST(clsRasterDatasignedByteNoNegative, FullIO) {
     EXPECT_TRUE(rs->GetRasterData(&ncells, &data));
     EXPECT_TRUE(ncells > 0);
     EXPECT_NE(data, nullptr);
-    string newcorename = GetCoreFileName(rs_byte_signed_noneg) + "_masked";
-    string rs_out = dstpath + newcorename + ".tif";
+    string rs_out = AppendCoreFileName(rs_byte_signed_noneg, "masked");
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
 
+    // Change output data type to RDT_UInt8
+    rs->SetOutDataType(RDT_UInt8);
+    string rs_out2 = AppendCoreFileName(rs_byte_signed_noneg, "masked_UInt8");
+    EXPECT_TRUE(rs->OutputToFile(rs_out2));
+    EXPECT_TRUE(FileExists(rs_out2));
+
+    // Check consistency of the two outputs: RDT_Int8 and RDT_UInt8
+    IntRaster* out_rs = IntRaster::Init(rs_out);
+    IntRaster* out_rs2 = IntRaster::Init(rs_out2);
+    EXPECT_EQ(out_rs->GetCellNumber(), out_rs2->GetCellNumber());
+    EXPECT_NE(out_rs->GetNoDataValue(), out_rs2->GetNoDataValue());
+    EXPECT_EQ(out_rs->GetValidNumber(), out_rs2->GetValidNumber());
+    out_rs->SetCalcPositions();
+    out_rs2->SetCalcPositions();
+    for (int i = 0; i < out_rs->GetValidNumber(); i++) {
+        EXPECT_EQ(out_rs->GetValueByIndex(i), out_rs2->GetValueByIndex(i));
+    }
+    delete out_rs;
+    delete out_rs2;
+
 #ifdef USE_MONGODB
+    string newcorename = GetCoreFileName(rs_byte_signed_noneg) + "_masked";
     EXPECT_TRUE(rs->OutputToMongoDB(GlobalEnv->gfs_, newcorename, STRING_MAP(), false)); // Save valid data
     clsRasterData<vint8_t>* rs_mongo = clsRasterData<vint8_t>::
             Init(GlobalEnv->gfs_, newcorename.c_str(), true, mask_rs);
@@ -406,6 +440,14 @@ TEST(clsRasterDataInt32, FullIO) {
 #endif
     delete mask_rs;
     delete rs;
+}
+
+TEST(clsRasterDataInt32, IOWithoutDefNodata) {
+    clsRasterData<int32_t>* rs = clsRasterData<int32_t>::Init(rs_int32_nodefnodata);
+    EXPECT_NE(nullptr, rs);
+    EXPECT_EQ(INT32_MIN, rs->GetNoDataValue());
+    EXPECT_TRUE(rs->GetDataType() == RDT_Int32);
+    EXPECT_TRUE(rs->GetOutDataType() == RDT_Int32);
 }
 
 TEST(clsRasterDataFloat, FullIO) {

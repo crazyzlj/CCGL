@@ -196,28 +196,36 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
     map<int, float*> newdata = map<int, float*>();
     float* data1 = nullptr;
     Initialize1DArray(newsub1->n_cells, data1, 1.f);
-    data1[0] = 2008.f;
-    data1[1] = 11.f;
-    data1[2] = 9.f;
-    data1[7] = 2017.f;
-    data1[8] = 5.f;
-    data1[9] = 1.f;
+    data1[0] = 2008.f; // gidx: 0
+    data1[1] = 11.f; // gidx: 2
+    data1[2] = 9.f; // gidx: 3
+    // data1[3] = 1.f; // gidx: 7
+    // data1[4] = 1.f; // gidx: 8
+    // data1[5] = 1.f; // gidx: 9
+    // data1[6] = 1.f; // gidx: 12
+    data1[7] = 2017.f; // gidx: 13
+    data1[8] = 5.f; // gidx: 14
+    data1[9] = 1.f; // gidx: 19
     EXPECT_TRUE(newsub1->SetData(newsub1->n_cells, data1));
     newdata[1] = data1;
 
     float* data2 = nullptr;
     Initialize1DArray(newsub2->n_cells, data2, 2.f);
-    data2[0] = 2017.f;
-    data2[1] = 1.f;
-    data2[2] = 7.f;
+    data2[0] = 2017.f; // gidx: 4
+    data2[1] = 1.f; // gidx: 5
+    data2[2] = 7.f; // gidx: 10
+    // data2[3] = 2.f; // gidx: 15
     EXPECT_TRUE(newsub2->SetData(newsub2->n_cells, data2));
     newdata[2] = data2;
 
     float* data3 = nullptr;
     Initialize1DArray(newsub3->n_cells, data3, 3.f);
-    data3[0] = 2019.f;
-    data3[1] = 2.f;
-    data3[2] = 18.f;
+    data3[0] = 2019.f; // gidx: 1
+    data3[1] = 2.f; // gidx: 6
+    data3[2] = 18.f; // gidx: 11
+    // data3[3] = 3.f; // gidx: 16
+    // data3[4] = 3.f; // gidx: 17
+    // data3[5] = 3.f; // gidx: 18
     EXPECT_TRUE(newsub3->SetData(newsub3->n_cells, data3));
     newdata[3] = data3;
 
@@ -300,13 +308,8 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
 
     STRING_MAP opts_full;
     STRING_MAP opts_valid;
-#ifdef HAS_VARIADIC_TEMPLATES
-    opts_full.emplace(HEADER_INC_NODATA, "true");
-    opts_valid.emplace(HEADER_INC_NODATA, "false");
-#else
-    opts_full.insert(make_pair(HEADER_INC_NODATA, "true"));
-    opts_valid.insert(make_pair(HEADER_INC_NODATA, "false"));
-#endif
+    UpdateStrHeader(opts_full, HEADER_INC_NODATA, "true");
+    UpdateStrHeader(opts_valid, HEADER_INC_NODATA, "false");
     for (auto it = subsetsfull.begin(); it != subsetsfull.end(); ++it) {
         string gfsfull = itoa(it->first) + "_" + maskrs_->GetCoreName();
         EXPECT_TRUE(it->second->ReadFromMongoDB(GlobalEnv->gfs_, gfsfull, opts_full));
@@ -327,6 +330,10 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
         EXPECT_EQ(full->g_erow, valid->g_erow);
         EXPECT_EQ(full->g_scol, valid->g_scol);
         EXPECT_EQ(full->g_ecol, valid->g_ecol);
+        EXPECT_NE(nullptr, full->data_);
+        EXPECT_EQ(nullptr, full->data2d_);
+        EXPECT_NE(nullptr, valid->data_);
+        EXPECT_EQ(nullptr, valid->data2d_);
         for (int i = 0; i < full->n_cells; i++) {
             EXPECT_EQ(full->local_pos_[i][0], valid->local_pos_[i][0]);
             EXPECT_EQ(full->local_pos_[i][1], valid->local_pos_[i][1]);
@@ -353,12 +360,8 @@ TEST_P(clsRasterDataSplitMerge, MaskLyrIO) {
 
     for (int k = 0; k < mongofull->GetValidNumber(); k++) {
         EXPECT_EQ(datafull[k], mongofull->GetValueByIndex(k));
+        EXPECT_EQ(mongofull->GetValueByIndex(k), mongovalid->GetValueByIndex(k));
     }
-
-    for (int k = 0; k < mongovalid->GetValidNumber(); k++) {
-        EXPECT_EQ(datafull[k], mongovalid->GetValueByIndex(k));
-    }
-
     delete mongofull;
     delete mongovalid;
 #endif
@@ -388,6 +391,11 @@ TEST_P(clsRasterDataSplitMerge, SplitRaster) {
     FltRaster* rs = FltRaster::Init(GetParam()->raster_name,
                                     true, maskrsflt_, true);
     EXPECT_NE(nullptr, rs);
+    int orglen;
+    float* orgvalues;
+    rs->GetRasterData(&orglen, &orgvalues);
+    EXPECT_EQ(orglen, 20);
+    EXPECT_NE(nullptr, orgvalues);
     
     map<int, SubsetPositions*>& subset = maskrsflt_->GetSubset();
     map<int, SubsetPositions*>& rs_subset = rs->GetSubset();
@@ -426,26 +434,54 @@ TEST_P(clsRasterDataSplitMerge, SplitRaster) {
     subarray[3] = data3;
 
     float* datacom = nullptr;
-    Initialize1DArray(16, datacom, -9999.f);
+    Initialize1DArray(20, datacom, -9999.f);
     datacom[0] = 1.1f;
     datacom[1] = 2.2f;
     datacom[2] = 4.4f;
     datacom[3] = 5.5f;
-    datacom[4] = 8.8f;
-    datacom[5] = 10.f;
-    datacom[6] = 11.11f;
-    datacom[7] = 12.12f;
-    datacom[8] = 14.14f;
-    datacom[9] = 15.15f;
-    datacom[10] = 16.16f;
-    datacom[11] = 17.17f;
-    datacom[12] = 19.19f;
-    datacom[13] = 20.2f;
-    datacom[14] = 21.21f;
-    datacom[15] = 22.22f;
+    datacom[4] = -9999.f;
+    datacom[5] = -9999.f;
+    datacom[6] = 8.8f;
+    datacom[7] = 10.f;
+    datacom[8] = 11.11f;
+    datacom[9] = 12.12f;
+    datacom[10] = -9999.f;
+    datacom[11] = 14.14f;
+    datacom[12] = 15.15f;
+    datacom[13] = 16.16f;
+    datacom[14] = 17.17f;
+    datacom[15] = -9999.f;
+    datacom[16] = 19.19f;
+    datacom[17] = 20.2f;
+    datacom[18] = 21.21f;
+    datacom[19] = 22.22f;
+    for (int i = 0; i < 20; i++) {
+        EXPECT_EQ(orgvalues[i], datacom[i]);
+    }
 
+    float* datacomvalid = nullptr;
+    Initialize1DArray(16, datacomvalid, -9999.f);
+    datacomvalid[0] = 1.1f;
+    datacomvalid[1] = 2.2f;
+    datacomvalid[2] = 4.4f;
+    datacomvalid[3] = 5.5f;
+    datacomvalid[4] = 8.8f;
+    datacomvalid[5] = 10.f;
+    datacomvalid[6] = 11.11f;
+    datacomvalid[7] = 12.12f;
+    datacomvalid[8] = 14.14f;
+    datacomvalid[9] = 15.15f;
+    datacomvalid[10] = 16.16f;
+    datacomvalid[11] = 17.17f;
+    datacomvalid[12] = 19.19f;
+    datacomvalid[13] = 20.2f;
+    datacomvalid[14] = 21.21f;
+    datacomvalid[15] = 22.22f;
+
+    vector<string> outfiles;
     for (auto it = rs_subset.begin(); it != rs_subset.end(); ++it) {
         string outfilesub = PrefixCoreFileName(outfile, it->first);
+        outfiles.push_back(outfilesub);
         EXPECT_TRUE(FileExists(outfilesub));
         float* tmp = subarray.at(it->first);
         FltRaster* tmp_rs = FltRaster::Init(outfilesub, true);
@@ -459,9 +495,18 @@ TEST_P(clsRasterDataSplitMerge, SplitRaster) {
         }
         delete tmp_rs;
     }
-    //string com_fname = AppendCoreFileName(GetParam()->raster_name, "com_frommongo");
-    //EXPECT_TRUE(rs->OutputToFile(com_fname, true));
-    //EXPECT_TRUE(PathExists(com_fname));
+    FltRaster* rs_comb = FltRaster::Init(outfiles, true, maskrsflt_, true);
+    EXPECT_NE(nullptr, rs_comb);
+    int comblen;
+    float* combvalues;
+    rs->GetRasterData(&comblen, &combvalues);
+    EXPECT_EQ(comblen, 20);
+    EXPECT_NE(nullptr, combvalues);
+    for (int i = 0; i < 20; i++) {
+        EXPECT_EQ(combvalues[i], datacom[i]);
+    }
+    delete rs_comb;
+
 #ifdef USE_MONGODB
     // Store valid subset data to MongoDB
     EXPECT_TRUE(rs->OutputSubsetToMongoDB(GlobalEnv->gfs_, "", ccgl::STRING_MAP(),
@@ -475,14 +520,26 @@ TEST_P(clsRasterDataSplitMerge, SplitRaster) {
     }
     string com_fname = rs->GetCoreName() + "_com_frommongo";
     string com_fname_real = "0_" + com_fname;
-    EXPECT_TRUE(maskrsflt_->OutputToMongoDB(GlobalEnv->gfs_, com_fname, ccgl::STRING_MAP(), true, true));
-    FltRaster* com_inrs_mongo = FltRaster::Init(GlobalEnv->gfs_, com_fname_real.c_str(), true);
+    EXPECT_TRUE(maskrsflt_->OutputToMongoDB(GlobalEnv->gfs_, com_fname,
+                                            ccgl::STRING_MAP(), true, true));
+    // read from MongoDB with mask data
+    FltRaster* com_inrs_mongo = FltRaster::Init(GlobalEnv->gfs_, com_fname_real.c_str(),
+                                                true, maskrsflt_, true);
     EXPECT_NE(nullptr, com_inrs_mongo);
-    EXPECT_EQ(16, com_inrs_mongo->GetCellNumber());
-    for (int i = 0; i < 16; i++) {
+    EXPECT_EQ(20, com_inrs_mongo->GetCellNumber());
+    for (int i = 0; i < 20; i++) {
         EXPECT_FLOAT_EQ(datacom[i], com_inrs_mongo->GetValueByIndex(i));
     }
     delete com_inrs_mongo;
+    // read from MongoDB without mask data
+    FltRaster* com_inrs_mongo2 = FltRaster::Init(GlobalEnv->gfs_, com_fname_real.c_str(),
+                                                 true);
+    EXPECT_NE(nullptr, com_inrs_mongo2);
+    EXPECT_EQ(16, com_inrs_mongo2->GetCellNumber());
+    for (int i = 0; i < 16; i++) {
+        EXPECT_FLOAT_EQ(datacomvalid[i], com_inrs_mongo2->GetValueByIndex(i));
+    }
+    delete com_inrs_mongo2;
 #endif
 
     for (auto it = subarray.begin(); it != subarray.end(); ++it) {
