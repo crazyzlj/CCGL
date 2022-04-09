@@ -44,20 +44,25 @@ jobs:
     - name: Build Doc
       uses: mattnotmitt/doxygen-action@v1.9.2
       with:
-          working-directory: ${{github.workspace}}/build
+          working-directory: '.'
           doxyfile-path: 'doc/Doxyfile'
 
     - name: Build Doc in Chinese
       uses: mattnotmitt/doxygen-action@v1.9.2
       with:
-          working-directory: ${{github.workspace}}/build
+          working-directory: '.'
           doxyfile-path: 'doc/Doxyfile.zh-cn'
 
     - name: Deploy Doc
       uses: peaceiris/actions-gh-pages@v3
       with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{github.workspace}}/build/doc/html
+          commit_message: ${{ github.event.head_commit.message }}
+          disable_nojekyll: true
+          publish_branch: gh-pages
+          force_orphan: true
+          publish_dir: html
+
 
   build-windows:
     runs-on: windows-2019
