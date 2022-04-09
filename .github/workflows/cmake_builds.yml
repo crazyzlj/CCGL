@@ -5,10 +5,10 @@ name: Build on native C++
 on:
     push:
         paths-ignore:
-            - 'doc/**'
+        #    - 'doc/**'
     pull_request:
         paths-ignore:
-            - 'doc/**'
+        #    - 'doc/**'
     workflow_dispatch:
 
 env:
@@ -46,14 +46,14 @@ jobs:
       with:
           working-directory: '.'
           doxyfile-path: 'doc/Doxyfile'
-          additional-packages: gdal
+          #additional-packages: gdal, mongo-c-driver
 
     - name: Build Doc in Chinese
       uses: mattnotmitt/doxygen-action@v1.9.2
       with:
           working-directory: '.'
           doxyfile-path: 'doc/Doxyfile.zh-cn'
-          additional-packages: mongo-c-driver
+          #additional-packages: gdal, mongo-c-driver
 
     - name: Deploy Doc
       uses: peaceiris/actions-gh-pages@v3
