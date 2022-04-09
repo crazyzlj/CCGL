@@ -5,10 +5,10 @@ name: Build with GDAL
 on:
     push:
         paths-ignore:
-            - 'doc/**'
+            #- 'doc/**'
     pull_request:
         paths-ignore:
-            - 'doc/**'
+            #- 'doc/**'
     workflow_dispatch:
 
 env:
