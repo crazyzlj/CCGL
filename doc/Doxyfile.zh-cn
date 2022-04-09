@@ -5,8 +5,8 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "CCGL"
-PROJECT_NUMBER         = 2019
-PROJECT_BRIEF          = "通用地学计算库"
+PROJECT_NUMBER         = 2022
+PROJECT_BRIEF          = "简易通用地理计算库"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@
 CREATE_SUBDIRS         = NO
@@ -165,7 +165,7 @@ FILE_PATTERNS          = *.c \
                          *.qsf \
                          *.ice
 RECURSIVE              = YES
-EXCLUDE                = doc/ci doc/misc doc/img
+EXCLUDE                = doc/misc doc/img
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        =

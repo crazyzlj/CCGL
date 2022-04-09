@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "CCGL"
-PROJECT_NUMBER         = 2019
+PROJECT_NUMBER         = 2022
 PROJECT_BRIEF          = "Common Cross-platform Geographic-computing Library"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@
@@ -165,7 +165,7 @@ FILE_PATTERNS          = *.c \
                          *.qsf \
                          *.ice
 RECURSIVE              = YES
-EXCLUDE                = doc/ci doc/misc doc/img
+EXCLUDE                = doc/misc doc/img
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        =

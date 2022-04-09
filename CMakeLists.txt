@@ -317,9 +317,6 @@ INSTALL(TARGETS ${CCGLNAME}
 ### Build doc based on doxygen
 IF(BUILD_DOC)
   ADD_SUBDIRECTORY(./doc)
-  ADD_CUSTOM_TARGET(travis_doc)
-  ADD_CUSTOM_COMMAND(TARGET travis_doc
-                     COMMAND ${CCGL_BASE_DIR}/doc/travis-doxygen.sh)
 ENDIF()
 
 ### Build platform.

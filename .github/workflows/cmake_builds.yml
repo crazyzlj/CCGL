@@ -40,6 +40,24 @@ jobs:
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}} --rerun-failed --output-on-failure
+    
+    - name: Build Doc
+      uses: mattnotmitt/doxygen-action@v1.9.2
+      with:
+          working-directory: ${{github.workspace}}/build
+          doxyfile-path: 'doc/Doxyfile'
+
+    - name: Build Doc in Chinese
+      uses: mattnotmitt/doxygen-action@v1.9.2
+      with:
+          working-directory: ${{github.workspace}}/build
+          doxyfile-path: 'doc/Doxyfile.zh-cn'
+
+    - name: Deploy Doc
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{github.workspace}}/build/doc/html
 
   build-windows:
     runs-on: windows-2019
