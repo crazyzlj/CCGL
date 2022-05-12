@@ -2976,7 +2976,7 @@ bool clsRasterData<T, MASK_T>::OutputFileByGdal(const string& filename) {
         } else {
             Initialize1DArray(n_rows * n_cols, data_1d, no_data_value_);
             for (int vi = 0; vi < n_cells_; vi++) {
-                data_1d[vi] = raster_[vi];
+                data_1d[pos_data_[vi][0] * n_cols + pos_data_[vi][1]] = raster_[vi];
             }
             outflag = WriteSingleGeotiff(abs_filename, headers_, options_, data_1d);
             Release1DArray(data_1d);

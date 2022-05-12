@@ -281,23 +281,27 @@ TEST(clsRasterDatasignedByteNoNegative, FullIO) {
     int ncells = -1;
     vint8_t* data = nullptr;
     EXPECT_TRUE(rs->GetRasterData(&ncells, &data));
-    EXPECT_TRUE(ncells > 0);
+    EXPECT_EQ(ncells, 4); // mask has 4 valid cells, raster has 3. But use mask_extent, so ncells is 4
     EXPECT_NE(data, nullptr);
-    string rs_out = AppendCoreFileName(rs_byte_signed_noneg, "masked");
+    string newcorename = GetCoreFileName(rs_byte_signed_noneg) + "_masked";
+    string rs_out = dstpath + newcorename + ".tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out));
     EXPECT_TRUE(FileExists(rs_out));
 
     // Change output data type to RDT_UInt8
     rs->SetOutDataType(RDT_UInt8);
-    string rs_out2 = AppendCoreFileName(rs_byte_signed_noneg, "masked_UInt8");
+    string newcorename2 = GetCoreFileName(rs_byte_signed_noneg) + "_masked_UInt8";
+    string rs_out2 = dstpath + newcorename2 + ".tif";
     EXPECT_TRUE(rs->OutputToFile(rs_out2));
     EXPECT_TRUE(FileExists(rs_out2));
 
     // Check consistency of the two outputs: RDT_Int8 and RDT_UInt8
     IntRaster* out_rs = IntRaster::Init(rs_out);
     IntRaster* out_rs2 = IntRaster::Init(rs_out2);
+    EXPECT_EQ(out_rs->GetCellNumber(), 6);
     EXPECT_EQ(out_rs->GetCellNumber(), out_rs2->GetCellNumber());
     EXPECT_NE(out_rs->GetNoDataValue(), out_rs2->GetNoDataValue());
+    EXPECT_EQ(out_rs->GetValidNumber(), 3);
     EXPECT_EQ(out_rs->GetValidNumber(), out_rs2->GetValidNumber());
     out_rs->SetCalcPositions();
     out_rs2->SetCalcPositions();
@@ -308,7 +312,6 @@ TEST(clsRasterDatasignedByteNoNegative, FullIO) {
     delete out_rs2;
 
 #ifdef USE_MONGODB
-    string newcorename = GetCoreFileName(rs_byte_signed_noneg) + "_masked";
     EXPECT_TRUE(rs->OutputToMongoDB(GlobalEnv->gfs_, newcorename, STRING_MAP(), false)); // Save valid data
     clsRasterData<vint8_t>* rs_mongo = clsRasterData<vint8_t>::
             Init(GlobalEnv->gfs_, newcorename.c_str(), true, mask_rs);
