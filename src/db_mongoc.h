@@ -165,12 +165,12 @@ public:
                             STRING_MAP opts = STRING_MAP());
 
     /*! Get stream data of a given GridFS file name */
-    bool GetStreamData(string const& gfilename, char*& databuf, size_t& datalength,
+    bool GetStreamData(string const& gfilename, char*& databuf, vint& datalength,
                        mongoc_gridfs_t* gfs = NULL,
                        STRING_MAP opts = STRING_MAP());
 
     /*! Write stream data to a GridFS file */
-    bool WriteStreamData(const string& gfilename, char*& buf, size_t length,
+    bool WriteStreamData(const string& gfilename, char*& buf, vint length,
                          const bson_t* p, mongoc_gridfs_t* gfs = NULL);
 
 private:
