@@ -775,7 +775,7 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
                     STRING_MAP& header_str,
                     const STRING_MAP& opts /* = STRING_MAP() */) {
     // Get stream data and metadata by file name
-    size_t length;
+    vint length;
     char* buf = nullptr;
     if (!gfs->GetStreamData(filename, buf, length, nullptr, opts) ||
         nullptr == buf) {
@@ -868,7 +868,8 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
 }
 
 /*!
- * \brief Write full-sized raster data as GridFS file. If the file exists, delete it first.
+ * \brief Write array data (both valid and full-sized raster data) as GridFS file.
+ *        If the file exists, delete it first.
  * \param[in] gfs GridFs of MongoDB
  * \param[in] filename GridFS file name
  * \param[in] header header information
@@ -880,20 +881,81 @@ template <typename T>
 bool WriteStreamDataAsGridfs(MongoGridFs* gfs, const string& filename,
                              STRDBL_MAP& header, T* values, const int datalength,
                              const STRING_MAP& opts = STRING_MAP()) {
-    gfs->RemoveFile(filename, nullptr, opts);
+    STRING_MAP curopts;
+    CopyStringMap(opts, curopts);
+    RasterDataType temp_type = TypeToRasterDataType(typeid(T));
+    if (curopts.find(HEADER_RSOUT_DATATYPE) == curopts.end()) {
+        UpdateStringMap(curopts, HEADER_RSOUT_DATATYPE, RasterDataTypeToString(temp_type));
+    }
+    gfs->RemoveFile(filename, nullptr, curopts);
     bson_t p = BSON_INITIALIZER;
+    double intpart; // https://stackoverflow.com/a/1521682/4837280
     for (auto iter = header.begin(); iter != header.end(); ++iter) {
-        if (std::fmod(iter->second, 1.) == 0) {
+        if (!StringMatch(HEADER_RS_NODATA, iter->first)
+            && std::modf(iter->second, &intpart) == 0.0) {
+            // std::modf consider inf as an integer,
+            // hence cannot handle -3.40282346639e+38 which is one of commonly used Nodata
             BSON_APPEND_INT32(&p, iter->first.c_str(), CVT_INT(iter->second));
         }
         else {
             BSON_APPEND_DOUBLE(&p, iter->first.c_str(), iter->second);
         }
     }
+    // Check DATATYPE in metadata is consistent with T, transform if necessary
+    char* buf = nullptr;
+    vint buflength = -1;
+    bool transformed = true;
+    RasterDataType opt_type = StringToRasterDataType(curopts.at(HEADER_RSOUT_DATATYPE));
+    if (opt_type == temp_type) {
+        buf = reinterpret_cast<char*>(values);
+        buflength = datalength * sizeof(T);
+        transformed = false;
+    } else {
+        if (opt_type == RDT_UInt8) {
+            vuint8_t* newdata = nullptr;
+            Initialize1DArray(datalength, newdata, values);
+            buf = reinterpret_cast<char*>(newdata);
+            buflength = datalength * sizeof(vuint8_t);
+        } else if (opt_type == RDT_Int8) {
+            vint8_t* newdata = nullptr;
+            Initialize1DArray(datalength, newdata, values);
+            buf = reinterpret_cast<char*>(newdata);
+            buflength = datalength * sizeof(vint8_t);
+        } else if (opt_type == RDT_UInt16) {
+            vuint16_t* newdata = nullptr;
+            Initialize1DArray(datalength, newdata, values);
+            buf = reinterpret_cast<char*>(newdata);
+            buflength = datalength * sizeof(vuint16_t);
+        } else if (opt_type == RDT_Int16) {
+            vint16_t* newdata = nullptr;
+            Initialize1DArray(datalength, newdata, values);
+            buf = reinterpret_cast<char*>(newdata);
+            buflength = datalength * sizeof(vint16_t);
+        } else if (opt_type == RDT_UInt32) {
+            vuint32_t* newdata = nullptr;
+            Initialize1DArray(datalength, newdata, values);
+            buf = reinterpret_cast<char*>(newdata);
+            buflength = datalength * sizeof(vuint32_t);
+        } else if (opt_type == RDT_Int32) {
+            vint32_t* newdata = nullptr;
+            Initialize1DArray(datalength, newdata, values);
+            buf = reinterpret_cast<char*>(newdata);
+            buflength = datalength * sizeof(vint32_t);
+        } else if (opt_type == RDT_Float) {
+            float* newdata = nullptr;
+            Initialize1DArray(datalength, newdata, values);
+            buf = reinterpret_cast<char*>(newdata);
+            buflength = datalength * sizeof(float);
+        } else if (opt_type == RDT_Double) {
+            double* newdata = nullptr;
+            Initialize1DArray(datalength, newdata, values);
+            buf = reinterpret_cast<char*>(newdata);
+            buflength = datalength * sizeof(double);
+        }
+    }
     // Add user-specific key-values into metadata
-    AppendStringOptionsToBson(&p, opts);
-    char* buf = reinterpret_cast<char*>(values);
-    int buflength = datalength * sizeof(T);
+    AppendStringOptionsToBson(&p, curopts);
+
     int try_times = 0;
     bool gstatus = false;
     while (try_times <= 3) { // Try 3 times
@@ -903,6 +965,7 @@ bool WriteStreamDataAsGridfs(MongoGridFs* gfs, const string& filename,
         try_times++;
     }
     bson_destroy(&p);
+    if (transformed) { delete[] buf; }
     return gstatus;
 }
 
@@ -2880,32 +2943,33 @@ bool clsRasterData<T, MASK_T>::OutputFileByGdal(const string& filename) {
     bool outflag = false;
     T* data_1d = nullptr;
     if (is_2draster) {
-        T** data_1d_ptr = new T*[n_rows * n_cols]; // array of pointers for directly output
         string pre_path = GetPathFromFullName(abs_filename);
         if (StringMatch(pre_path, "")) { return false; }
         string core_name = GetCoreFileName(abs_filename);
         for (int lyr = 0; lyr < n_lyrs_; lyr++) {
             string tmpfilename = AppendCoreFileName(abs_filename, lyr + 1);
             if (outputdirectly) {
-                for (int gi = 0; gi < n_rows * n_cols; gi++) {
-                    data_1d_ptr[gi] = raster_2d_[0] + gi * n_lyrs_ + lyr;
-                }
-                outflag = WriteSingleGeotiff(tmpfilename, headers_, options_, *data_1d_ptr);
-            } else {
-                if (nullptr == data_1d)
+                if (nullptr == data_1d) {
                     Initialize1DArray(n_rows * n_cols, data_1d, no_data_value_);
-                for (int vi = 0; vi < n_cells_; vi++) {
-                    data_1d[vi] = raster_2d_[vi][lyr];
                 }
-                outflag = WriteSingleGeotiff(tmpfilename, headers_, options_, data_1d);
-                Release1DArray(data_1d);
+                for (int gi = 0; gi < n_rows * n_cols; gi++) {
+                    data_1d[gi] = raster_2d_[gi][lyr];
+                }
+            } else {
+                if (nullptr == data_1d) {
+                    Initialize1DArray(n_rows * n_cols, data_1d, no_data_value_);
+                }
+                for (int vi = 0; vi < n_cells_; vi++) {
+                    data_1d[pos_data_[vi][0] * n_cols + pos_data_[vi][1]] = raster_2d_[vi][lyr];
+                }
             }
+            outflag = WriteSingleGeotiff(tmpfilename, headers_, options_, data_1d);
             if (!outflag) {
-                delete[] data_1d_ptr;
+                Release1DArray(data_1d);;
                 return false;
             }
         }
-        delete[] data_1d_ptr;
+        Release1DArray(data_1d);
     } else {
         if (outputdirectly) {
             outflag = WriteSingleGeotiff(abs_filename, headers_, options_, raster_);
@@ -2917,7 +2981,7 @@ bool clsRasterData<T, MASK_T>::OutputFileByGdal(const string& filename) {
             outflag = WriteSingleGeotiff(abs_filename, headers_, options_, data_1d);
             Release1DArray(data_1d);
         }
-        if (!outflag) return false;
+        if (!outflag) { return false; }
     }
     return true;
 }
@@ -2934,8 +2998,11 @@ bool clsRasterData<T, MASK_T>::OutputToMongoDB(MongoGridFs* gfs, const string& f
         return OutputSubsetToMongoDB(gfs, filename, opts, false, true, include_nodata);
     }
     CopyStringMap(opts, options_); // Update metadata
-    UpdateStrHeader(options_, HEADER_RSOUT_DATATYPE, RasterDataTypeToString(TypeToRasterDataType(typeid(T))));
-    
+    if (options_.find(HEADER_RSOUT_DATATYPE) == options_.end()
+        || StringMatch("Unknown", options_.at(HEADER_RSOUT_DATATYPE))) {
+        UpdateStrHeader(options_, HEADER_RSOUT_DATATYPE,
+                        RasterDataTypeToString(TypeToRasterDataType(typeid(T))));
+    }
     // Check if we can output directly: 1) pos_data_ is not NULL and include_nodata is false;
     //                                  2) pos_data_ is NULL and include_nodata is true.
     bool outputdirectly = true; // output directly or create new full size array
@@ -3021,7 +3088,11 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
     else {
         UpdateStringMap(options_, HEADER_INC_NODATA, "false");
     }
-    options_[HEADER_RSOUT_DATATYPE] = RasterDataTypeToString(TypeToRasterDataType(typeid(T)));
+    if (options_.find(HEADER_RSOUT_DATATYPE) == options_.end()
+        || StringMatch("Unknown", options_.at(HEADER_RSOUT_DATATYPE))) {
+        UpdateStrHeader(options_, HEADER_RSOUT_DATATYPE,
+                        RasterDataTypeToString(TypeToRasterDataType(typeid(T))));
+    }
 
     int gcols = GetCols();
     int grows = GetRows();

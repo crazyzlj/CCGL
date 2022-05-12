@@ -417,7 +417,7 @@ bson_t* MongoGridFs::GetFileMetadata(string const& gfilename,
 }
 
 bool MongoGridFs::GetStreamData(string const& gfilename, char*& databuf,
-                                size_t& datalength, mongoc_gridfs_t* gfs /* = NULL */,
+                                vint& datalength, mongoc_gridfs_t* gfs /* = NULL */,
                                 STRING_MAP opts /* = STRING_MAP() */) {
     if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
@@ -444,7 +444,7 @@ bool MongoGridFs::GetStreamData(string const& gfilename, char*& databuf,
 }
 
 bool MongoGridFs::WriteStreamData(const string& gfilename, char*& buf,
-                                  const size_t length, const bson_t* p,
+                                  vint length, const bson_t* p,
                                   mongoc_gridfs_t* gfs /* = NULL */) {
     if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
@@ -494,7 +494,8 @@ void AppendStringOptionsToBson(bson_t* bson_opts, const STRING_MAP& opts,
         if (StringMatch("", iter->second) || !is_dbl) {
             BSON_APPEND_UTF8(bson_opts, meta_field.c_str(), iter->second.c_str());
         } else {
-            if (std::fmod(dbl_value, 1.) == 0) {
+            double intpart; // https://stackoverflow.com/a/1521682/4837280
+            if (std::modf(dbl_value, &intpart) == 0.0) {
                 BSON_APPEND_INT32(bson_opts, meta_field.c_str(), CVT_INT(dbl_value));
             } else {
                 BSON_APPEND_DOUBLE(bson_opts, meta_field.c_str(), dbl_value);
