@@ -352,10 +352,10 @@ int main(const int argc, const char** argv) {
             tmpdefv = IsDouble((*ioit).at(dvidx), str2num_flag);
             if (!str2num_flag) { tmpdefv = NODATA_VALUE; }
         }
-        RasterDataType tmpouttype = static_cast<RasterDataType>(Unknown);
+        RasterDataType tmpouttype = static_cast<RasterDataType>(RDT_Unknown);
         if (outtypeidx > 0) {
             tmpouttype = StringToRasterDataType((*ioit).at(outtypeidx));
-            if (tmpouttype == static_cast<RasterDataType>(Unknown)) {
+            if (tmpouttype == static_cast<RasterDataType>(RDT_Unknown)) {
                 tmpouttype = global_outtype;
             }
         }
@@ -398,14 +398,14 @@ int main(const int argc, const char** argv) {
     if (mask_layer != nullptr) {
         if (mode == DEC || mode == COM) {
             mask_layer->BuildSubSet();
-            output_subset = mode == DEC ? true : false;
-            combine_subset = mode == COM ? true : false;
+            output_subset = mode == DEC;
+            combine_subset = mode == COM;
         }
     }
 
     for (auto in_it = in_paths.begin(); in_it != in_paths.end(); ++in_it) {
         size_t in_idx = in_it - in_paths.begin();
-        if (out_types.at(in_idx) == static_cast<RasterDataType>(Unknown)) {
+        if (out_types.at(in_idx) == static_cast<RasterDataType>(RDT_Unknown)) {
             UpdateStringMap(opts, HEADER_RSOUT_DATATYPE, "DOUBLE");
         } else {
             UpdateStringMap(opts, HEADER_RSOUT_DATATYPE, RasterDataTypeToString(out_types.at(in_idx)));
