@@ -38,7 +38,7 @@ TEST(TestutilsFileIO, GetPathFromFullName) {
 #else
     // linux or unix style, the file or directory should be existed.
     string tpath = GetAppPath() + "data/delDirRecursively/";
-    EXPECT_EQ(tpath, GetPathFromFullName(tpath + "./data/delDirRecursively/txtfile.txt"));
+    EXPECT_EQ(tpath, GetPathFromFullName(tpath + "../../data/delDirRecursively/txtfile.txt"));
 #endif /* WINDOWS */
 }
 

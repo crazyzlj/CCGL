@@ -287,7 +287,9 @@ string GetAbsolutePath(string const& full_filename) {
     GetFullPathName(full_filename.c_str(), MAX_PATH, full_path, nullptr);
 #else
     char full_path[PATH_MAX];
-    realpath(full_filename.c_str(), full_path);
+    if (nullptr == realpath(full_filename.c_str(), full_path)) {
+        return full_filename; // Error occurs, just return the input!
+    }
 #endif /* WINDOWS */
     return CVT_STR(full_path);
 }
@@ -295,11 +297,16 @@ string GetAbsolutePath(string const& full_filename) {
 string GetCoreFileName(string const& full_filename) {
     string abspath = GetAbsolutePath(full_filename);
     string::size_type start = abspath.find_last_of(SEP);
+    if (start == string::npos) {
+        start = 0;
+    } else {
+        start += 1;
+    }
     string::size_type end = abspath.find_last_of('.');
     if (end == string::npos) {
         end = abspath.length();
     }
-    return abspath.substr(start + 1, end - start - 1);
+    return abspath.substr(start, end - start);
 }
 
 string GetSuffix(string const& full_filename) {
