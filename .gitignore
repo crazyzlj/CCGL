@@ -50,5 +50,8 @@ cmake-build*
 # putty log
 putty.log
 
+# default Doxygen Html generated dir
+html
+
 # macOS
 .DS_Store

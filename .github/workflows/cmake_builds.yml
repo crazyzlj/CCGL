@@ -5,10 +5,10 @@ name: Build on native C++
 on:
     push:
         paths-ignore:
-            - 'doc/**'
+        #    - 'doc/**'
     pull_request:
         paths-ignore:
-            - 'doc/**'
+        #    - 'doc/**'
     workflow_dispatch:
 
 env:
@@ -40,6 +40,31 @@ jobs:
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}} --rerun-failed --output-on-failure
+    
+    - name: Build Doc
+      uses: mattnotmitt/doxygen-action@v1.9.2
+      with:
+          working-directory: '.'
+          doxyfile-path: 'doc/Doxyfile'
+          #additional-packages: gdal, mongo-c-driver
+
+    - name: Build Doc in Chinese
+      uses: mattnotmitt/doxygen-action@v1.9.2
+      with:
+          working-directory: '.'
+          doxyfile-path: 'doc/Doxyfile.zh-cn'
+          #additional-packages: gdal, mongo-c-driver
+
+    - name: Deploy Doc
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: ${{ github.event.head_commit.message }}
+          disable_nojekyll: true
+          publish_branch: gh-pages
+          force_orphan: true
+          publish_dir: html
+
 
   build-windows:
     runs-on: windows-2019
