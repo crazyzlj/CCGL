@@ -1,5 +1,5 @@
 ##
-# crazyzlj/ccgl:alpine-with-gdal
+# crazyzlj/ccgl:alpine-with-mongodb
 #
 # This script is written based on PROJ and GDAL. 
 #   https://github.com/OSGeo/PROJ/blob/master/Dockerfile
@@ -7,13 +7,13 @@
 #
 # Usage: 
 #   > cd CCGL
-#   > docker build -t <tag> -f docker/apline-with-gdal/Dockerfile .
+#   > docker build -t <tag> -f docker/apline-with-mongodb/Dockerfile .
 #
 # Copyright 2022 Liang-Jun Zhu <zlj@lreis.ac.cn>
 
-# Use GDAL image with the tag of alpine-small-latest as the build and test container
-ARG GDAL_VERSION=latest
-FROM osgeo/gdal:alpine-small-${GDAL_VERSION} as builder
+# Use alpine as the build and test container
+ARG ALPINE_VERSION=3.15
+FROM alpine:${ALPINE_VERSION} as builder
 
 LABEL maintainer="Liang-Jun Zhu <zlj@lreis.ac.cn>"
 
@@ -21,7 +21,7 @@ LABEL maintainer="Liang-Jun Zhu <zlj@lreis.ac.cn>"
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 
 # Setup build env
-RUN apk add --no-cache cmake make g++
+RUN apk add --no-cache cmake make g++ mongo-c-driver-dev
 
 # Copy source directory
 WORKDIR /CCGL
@@ -43,13 +43,13 @@ RUN cd /CCGL \
     && cd ..
 
 # # Build final image
-FROM osgeo/gdal:alpine-small-${GDAL_VERSION} as runner
+FROM alpine:${ALPINE_VERSION} as runner
 
 # Replace alpine repository source cdn
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 
-# Add OpenMP library for running apps based on CCGL
-RUN apk add --no-cache libgomp
+# Add gnu standard C++ library and OpenMP library for running apps based on CCGL
+RUN apk add --no-cache libstdc++ libgomp mongo-c-driver
 
 # Order layers starting with less frequently varying ones
 ARG INSTALL_DIR=/CCGL/dist

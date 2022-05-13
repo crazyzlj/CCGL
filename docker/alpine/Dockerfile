@@ -7,21 +7,21 @@
 #
 # Usage: 
 #   > cd CCGL
-#   > docker build -t <tag> -f docker/apline/Dockerfile
+#   > docker build -t <tag> -f docker/apline/Dockerfile .
 #
 # Copyright 2022 Liang-Jun Zhu <zlj@lreis.ac.cn>
 
-# Use alpine as the build and test container
+# Use alpine as the build container
 ARG ALPINE_VERSION=3.15
 FROM alpine:${ALPINE_VERSION} as builder
 
 LABEL maintainer="Liang-Jun Zhu <zlj@lreis.ac.cn>"
 
-# Replace alpine repository source cdn
+# Replace alpine repository source cdn to accelarate access speed
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 
 # Setup build env
-RUN apk add --no-cache git cmake make g++
+RUN apk add --no-cache cmake make g++
 
 # Copy source directory
 WORKDIR /CCGL
@@ -32,19 +32,10 @@ COPY apps apps
 COPY test test
 COPY data data
 
-
-# Build with GoogleTest and run unittest
-RUN cd /CCGL \
-    && mkdir build_with_test \
-    && cmake -B build_with_test -DCMAKE_BUILD_TYPE=Debug -DUNITTEST=1 -DFORCEDOWNGTEST=1 \
-    && cmake --build build_with_test --config Debug -- -j 2 \
-    && cd build_with_test \
-    && ctest -C Debug --rerun-failed --output-on-failure \
-    && cd ..
-
 # # Build for release
 ARG INSTALL_DIR=/CCGL/dist
-RUN mkdir build \
+RUN cd /CCGL \
+    && mkdir build \
     && cd build \
     && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
     && make -j 2 \
@@ -54,7 +45,8 @@ RUN mkdir build \
 # # Build final image
 FROM alpine:${ALPINE_VERSION} as runner
 
-RUN date
+# Replace alpine repository source cdn
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 
 # Add gnu standard C++ library and OpenMP library for running apps based on CCGL
 RUN apk add --no-cache libstdc++ libgomp
@@ -64,3 +56,4 @@ ARG INSTALL_DIR=/CCGL/dist
 COPY --from=builder ${INSTALL_DIR}/bin/ /usr/bin/
 COPY --from=builder ${INSTALL_DIR}/include/ /usr/include/
 COPY --from=builder ${INSTALL_DIR}/lib/ /usr/lib/
+COPY --from=builder ${INSTALL_DIR}/share/ccgl/ /usr/share/ccgl/
