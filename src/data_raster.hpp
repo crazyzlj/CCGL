@@ -266,7 +266,7 @@ bool ReadAscFile(const string& filename, STRDBL_MAP& header, T*& values) {
             if (rows < 0 || cols < 0) {
                 StatusMessage("Warning: NCOLS and NROWS should be defined first!");
             }
-            Initialize1DArray(rows * cols, values, nodata);
+            if (nullptr == values) { Initialize1DArray(rows * cols, values, nodata); }
             for (auto it_value = tokens.begin(); it_value != tokens.end(); ++it_value) {
                 double tmpv = IsDouble(*it_value, str2value);
                 if (!str2value) {
@@ -362,7 +362,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
     double minmax[2];
     T* tmprasterdata = nullptr;
     bool read_as_signedbyte = false;
-    char* char_data = nullptr;
+    signed char* char_data = nullptr; // DO NOT use char*
     unsigned char* uchar_data = nullptr;
     vuint16_t* uint16_data = nullptr; // 16-bit unsigned integer
     vint16_t* int16_data = nullptr;   // 16-bit signed integer
@@ -387,32 +387,26 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
             || (minmax[1] <= 127 && minmax[0] >= 0 && (!get_value_flag || get_value_flag && nodata < 0))) {
             read_as_signedbyte = true;
         }
-        if (read_as_signedbyte) {
-            char_data = static_cast<char*>(CPLMalloc(sizeof(char) * n_cols * n_rows));
-            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, char_data,
-                                       n_cols, n_rows, GDT_Byte, 0, 0);
-            if (result != CE_None) {
-                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            }
-            else {
-                Initialize1DArray(n_rows * n_cols, tmprasterdata, char_data);
-                CPLFree(char_data);
-            }
-            in_type = RDT_Int8;
+        uchar_data = static_cast<unsigned char*>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
+        result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uchar_data,
+                                   n_cols, n_rows, GDT_Byte, 0, 0);
+        if (result != CE_None) {
+            StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            GDALClose(po_dataset);
+            return false;
         }
-        else {
-            uchar_data = static_cast<unsigned char*>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
-            result = po_band->RasterIO(GF_Read, 0, 0, n_cols, n_rows, uchar_data,
-                                       n_cols, n_rows, GDT_Byte, 0, 0);
-            if (result != CE_None) {
-                StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            }
-            else {
-                Initialize1DArray(n_rows * n_cols, tmprasterdata, uchar_data);
-                CPLFree(uchar_data);
-            }
+        if (read_as_signedbyte) {
+            StatusMessage("Read GDT_Byte raster as unsigned char!");
+            Initialize1DArray(n_rows * n_cols, char_data, uchar_data);
+            Initialize1DArray(n_rows * n_cols, tmprasterdata, char_data);
+            Release1DArray(char_data);
+            in_type = RDT_Int8;
+        } else {
+            StatusMessage("Read GDT_Byte raster as unsigned char!");
+            Initialize1DArray(n_rows * n_cols, tmprasterdata, uchar_data);
             in_type = RDT_UInt8;
         }
+        CPLFree(uchar_data);
         break;
     case GDT_UInt16:
         uint16_data = static_cast<vuint16_t*>(CPLMalloc(sizeof(vuint16_t) * n_cols * n_rows));
@@ -420,11 +414,11 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_UInt16, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            GDALClose(po_dataset);
+            return false;
         }
-        else {
-            Initialize1DArray(n_rows * n_cols, tmprasterdata, uint16_data);
-            CPLFree(uint16_data);
-        }
+        Initialize1DArray(n_rows * n_cols, tmprasterdata, uint16_data);
+        CPLFree(uint16_data);
         in_type = RDT_UInt16;
         break;
     case GDT_Int16:
@@ -433,11 +427,11 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Int16, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            GDALClose(po_dataset);
+            return false;
         }
-        else {
-            Initialize1DArray(n_rows * n_cols, tmprasterdata, int16_data);
-            CPLFree(int16_data);
-        }
+        Initialize1DArray(n_rows * n_cols, tmprasterdata, int16_data);
+        CPLFree(int16_data);
         in_type = RDT_Int16;
         break;
     case GDT_UInt32:
@@ -446,11 +440,11 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_UInt32, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            GDALClose(po_dataset);
+            return false;
         }
-        else {
-            Initialize1DArray(n_rows * n_cols, tmprasterdata, uint32_data);
-            CPLFree(uint32_data);
-        }
+        Initialize1DArray(n_rows * n_cols, tmprasterdata, uint32_data);
+        CPLFree(uint32_data);
         in_type = RDT_UInt32;
         break;
     case GDT_Int32:
@@ -459,11 +453,11 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Int32, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            GDALClose(po_dataset);
+            return false;
         }
-        else {
-            Initialize1DArray(n_rows * n_cols, tmprasterdata, int32_data);
-            CPLFree(int32_data);
-        }
+        Initialize1DArray(n_rows * n_cols, tmprasterdata, int32_data);
+        CPLFree(int32_data);
         in_type = RDT_Int32;
         break;
     case GDT_Float32:
@@ -472,11 +466,11 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Float32, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            GDALClose(po_dataset);
+            return false;
         }
-        else {
-            Initialize1DArray(n_rows * n_cols, tmprasterdata, float_data);
-            CPLFree(float_data);
-        }
+        Initialize1DArray(n_rows * n_cols, tmprasterdata, float_data);
+        CPLFree(float_data);
         in_type = RDT_Float;
         break;
     case GDT_Float64:
@@ -485,11 +479,11 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Float64, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
+            GDALClose(po_dataset);
+            return false;
         }
-        else {
-            Initialize1DArray(n_rows * n_cols, tmprasterdata, double_data);
-            CPLFree(double_data);
-        }
+        Initialize1DArray(n_rows * n_cols, tmprasterdata, double_data);
+        CPLFree(double_data);
         in_type = RDT_Double;
         break;
     default:
@@ -572,8 +566,8 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
         else if (outtype == RDT_Int8) { // [-128, 127]
             // https://gdal.org/drivers/raster/gtiff.html
             papsz_options = CSLSetNameValue(papsz_options, "PIXELTYPE", "SIGNEDBYTE");
-            new_values = static_cast<char*>(CPLMalloc(sizeof(char) * n_cols * n_rows));
-            char* values_char = static_cast<char*>(new_values);
+            new_values = static_cast<signed char*>(CPLMalloc(sizeof(signed char) * n_cols * n_rows));
+            signed char* values_char = static_cast<signed char*>(new_values);
             if (old_nodata < INT8_MIN || old_nodata > INT8_MAX) {
                 new_nodata = INT8_MIN;
                 change_nodata = true;
@@ -585,8 +579,8 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
                     values_char[i] = INT8_MIN;
                     continue;
                 }
-                if (values[i] < INT8_MIN || values[i] > INT8_MAX) illegal_count += 1;
-                values_char[i] = static_cast<char>(values[i]);
+                if (values[i] < INT8_MIN || values[i] > INT8_MAX) { illegal_count += 1; }
+                values_char[i] = static_cast<signed char>(values[i]);
             }
             if (illegal_count > 0) convert_permit = false;
         }

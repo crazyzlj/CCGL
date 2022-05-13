@@ -45,7 +45,7 @@ void Usage(const string& appname, const string& error_msg /* = std::string() */)
             " [-out [<outFmt>] [<outFile>] [<outGFSName>]"
             " [-outdatatype <outDataType>] [-default <defaultValue>]"
             " [-include_nodata <includeNoData>]"
-            " [-mongo <ip> <port> <DB> <GFS>]"
+            " [-mongo <host> <port> <DB> <GFS>]"
             " [-thread <threadsNum>]\n\n";
     cout << "2. " << corename << " -configfile <configFile> [-thread <threadsNum>]\n\n";
 
@@ -59,10 +59,10 @@ void Usage(const string& appname, const string& error_msg /* = std::string() */)
             " int16, uint32, int32, float, and double are supported.\n";
     cout << "\t<includeNoData> is used when output raster data into MongoDB, can be 1 or 0.\n";
     cout << "\t<threadsNum> is the number of thread used by OpenMP, which must be >= 1 (default).\n";
-    cout << "\t-mongo specify the MongoDB configuration, including ip, port, DB, and GFS.\n";
+    cout << "\t-mongo specify the MongoDB configuration, including host, port, DB, and GFS.\n";
     cout << "\t<configFile> is a plain text file that defines all input parameters, the format is:\n";
     cout << "\t\t[-mode <IOMode>]";
-    cout << "\t\t[-mongo <ip> <port> <DB> <GFS>]\n";
+    cout << "\t\t[-mongo <host> <port> <DB> <GFS>]\n";
     cout << "\t\t-mask <maskFmt> [<maskFile>] [<maskGFSName>]";
     cout << "\t\t[-in <inFmt>]\n";
     cout << "\t\t[-out <outFmt>]\n";
@@ -129,7 +129,7 @@ int main(const int argc, const char** argv) {
 
     bool use_mongo = false;
 #ifdef USE_MONGODB
-    string mongo_ip;
+    string mongo_host;
     vint16_t mongo_port;
     string dbname;
     string gfsname;
@@ -262,11 +262,11 @@ int main(const int argc, const char** argv) {
                 cout << "Warning: -mongo tag MUST have 4 arguments!\n";
                 return 1;
             }
-            mongo_ip = itkv->second.at(0);
+            mongo_host = itkv->second.at(0);
             mongo_port = strtol(itkv->second.at(1).c_str(), &strend, 10);
             dbname = itkv->second.at(2);
             gfsname = itkv->second.at(3);
-            client = MongoClient::Init(mongo_ip.c_str(), mongo_port);
+            client = MongoClient::Init(mongo_host.c_str(), mongo_port);
             if (nullptr == client) {
                 cout << "Warning: Illegal arguments for MongoDB!\n";
             }

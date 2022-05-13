@@ -305,13 +305,14 @@ IF ((CV_GCC OR CV_CLANG) AND CODE_COVERAGE)
     add_code_coverage() # Adds instrumentation to all targets
 ENDIF ()
 
+### Copy test data to install directory!
+MAKE_DIRECTORY(${INSTALL_DIR})
+FILE(COPY ${CCGL_BASE_DIR}/data/ DESTINATION ${INSTALL_DIR}/share/ccgl)
+
 IF (UNITTEST STREQUAL 1)
     # Enable testing for the project
     enable_testing()
     ADD_SUBDIRECTORY(${TEST_DIR})
-    ### Copy test data to build directory for UnitTest Only!
-    MAKE_DIRECTORY(${INSTALL_DIR})
-    FILE(COPY ${CCGL_BASE_DIR}/data DESTINATION ${INSTALL_DIR})
     # For the convenient of debugging in MSVC and CLion
     IF (MSVC OR XCODE)
         FILE(COPY ${CCGL_BASE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/Debug)
