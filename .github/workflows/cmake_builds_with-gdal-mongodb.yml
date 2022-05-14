@@ -44,11 +44,8 @@ jobs:
     #     sleep 5
     #     echo 'db'  | mongo 127.0.0.1
 
-    - name: Install mongo-c-driver
-      run: sudo apt-get install -qq libmongoc-1.0-0 libmongoc-dev
-
-    - name: Install GDAL
-      run: sudo apt-get install -qq gdal-bin libgdal-dev
+    - name: Install GDAL and mongo-c-driver
+      run: sudo apt-get update && sudo apt-get install -qq gdal-bin libgdal-dev libmongoc-1.0-0 libmongoc-dev
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
