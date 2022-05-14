@@ -76,10 +76,11 @@ MongoClient::MongoClient(mongoc_client_t* conn): conn_(conn) {
  * \sa MongoClient()
  */
 MongoClient* MongoClient::Init(const char* host, const vuint16_t port) {
-    if (!IsIpAddress(host)) {
-        cout << "IP address: " + string(host) + " is invalid, Please check!" << endl;
-        return nullptr;
-    }
+    // mongo host not only limit to IP address
+    // if (!IsIpAddress(host)) {
+    //     cout << "IP address: " + string(host) + " is invalid, Please check!" << endl;
+    //     return nullptr;
+    // }
     mongoc_init();
     mongoc_uri_t* uri = mongoc_uri_new_for_host_port(host, port);
     mongoc_client_t* conn = mongoc_client_new_from_uri(uri);
@@ -417,7 +418,7 @@ bson_t* MongoGridFs::GetFileMetadata(string const& gfilename,
 }
 
 bool MongoGridFs::GetStreamData(string const& gfilename, char*& databuf,
-                                size_t& datalength, mongoc_gridfs_t* gfs /* = NULL */,
+                                vint& datalength, mongoc_gridfs_t* gfs /* = NULL */,
                                 STRING_MAP opts /* = STRING_MAP() */) {
     if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
@@ -436,7 +437,7 @@ bool MongoGridFs::GetStreamData(string const& gfilename, char*& databuf,
     iov.iov_base = databuf;
     iov.iov_len = static_cast<u_long>(datalength);
     mongoc_stream_t* stream = mongoc_stream_gridfs_new(gfile);
-    // Set a 10 milliseconds for timeout
+    // Set 10 milliseconds for timeout
     vint flag = mongoc_stream_readv(stream, &iov, 1, -1, 10);
     mongoc_stream_destroy(stream);
     mongoc_gridfs_file_destroy(gfile);
@@ -444,7 +445,7 @@ bool MongoGridFs::GetStreamData(string const& gfilename, char*& databuf,
 }
 
 bool MongoGridFs::WriteStreamData(const string& gfilename, char*& buf,
-                                  const size_t length, const bson_t* p,
+                                  vint length, const bson_t* p,
                                   mongoc_gridfs_t* gfs /* = NULL */) {
     if (gfs_ != NULL) { gfs = gfs_; }
     if (NULL == gfs) {
@@ -494,7 +495,8 @@ void AppendStringOptionsToBson(bson_t* bson_opts, const STRING_MAP& opts,
         if (StringMatch("", iter->second) || !is_dbl) {
             BSON_APPEND_UTF8(bson_opts, meta_field.c_str(), iter->second.c_str());
         } else {
-            if (std::fmod(dbl_value, 1.) == 0) {
+            double intpart; // https://stackoverflow.com/a/1521682/4837280
+            if (std::modf(dbl_value, &intpart) == 0.0) {
                 BSON_APPEND_INT32(bson_opts, meta_field.c_str(), CVT_INT(dbl_value));
             } else {
                 BSON_APPEND_DOUBLE(bson_opts, meta_field.c_str(), dbl_value);

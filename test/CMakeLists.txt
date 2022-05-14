@@ -36,7 +36,7 @@ ELSE ()
 ENDIF ()
 
 install(TARGETS ${APPNAME}
-        DESTINATION ${INSTALL_DIR})
+        DESTINATION ${INSTALL_DIR}/bin)
 
 if ((CV_GCC OR CV_CLANG) AND CODE_COVERAGE)
     target_code_coverage(${CCGLNAME})

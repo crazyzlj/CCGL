@@ -495,15 +495,31 @@ TEST_P(clsRasterDataSplitMerge, SplitRaster) {
         }
         delete tmp_rs;
     }
-    FltRaster* rs_comb = FltRaster::Init(outfiles, true, maskrsflt_, true);
+    // Combine raster data using mask's subset data
+    for (auto it = subset.begin(); it != subset.end(); ++it) {
+        string outfilesub = PrefixCoreFileName(outfile, it->first);
+        if (!FileExists(outfilesub)) {
+            it->second->usable = false;
+            continue;
+        }
+        FltRaster* tmpsub = FltRaster::Init(outfilesub, true);
+        int len;
+        float* validdata = nullptr;
+        tmpsub->GetRasterData(&len, &validdata);
+        it->second->SetData(len, validdata);
+        delete tmpsub;
+    }
+    string combined_file = AppendCoreFileName(outfile, "combined");
+    maskrsflt_->OutputToFile(combined_file, true);
+    FltRaster* rs_comb = FltRaster::Init(PrefixCoreFileName(combined_file, 0), true);
     EXPECT_NE(nullptr, rs_comb);
     int comblen;
     float* combvalues;
-    rs->GetRasterData(&comblen, &combvalues);
-    EXPECT_EQ(comblen, 20);
+    rs_comb->GetRasterData(&comblen, &combvalues);
+    EXPECT_EQ(comblen, 16);
     EXPECT_NE(nullptr, combvalues);
-    for (int i = 0; i < 20; i++) {
-        EXPECT_EQ(combvalues[i], datacom[i]);
+    for (int i = 0; i < 16; i++) {
+        EXPECT_EQ(combvalues[i], datacomvalid[i]);
     }
     delete rs_comb;
 

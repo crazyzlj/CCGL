@@ -9,6 +9,7 @@
 #       $ mkdir -p build
 #       $ cd build
 #       $ cmake ..
+#       $ make && make install
 #     Optional cmake options:
 #       -DUNITTEST=1  means run unittest based gtest/gmock
 #       -DFORCEDOWNGTEST=1 means download and compile gtest no matter it has existed or not
@@ -24,7 +25,7 @@
 #              mongo-c-driver-1.16.2, GDAL-3.3.3 (brew installed and framework by kyngchaos.com)
 #
 #  Created and maintained by Liangjun Zhu, zlj(a)lreis.ac.cn
-#  Latest updated: Dec. 23, 2021
+#  Latest updated: May. 12, 2022
 #  Copyright (C) 2017-2022 Lreis, IGSNRR, CAS
 # ----------------------------------------------------------------------------
 ### Disable in-source builds to prevent source tree corruption.
@@ -73,12 +74,15 @@ set(CMAKE_MODULE_PATH
 
 ### Set default or specified installation directory.
 IF (INSTALL_PREFIX)
-    SET(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX} CACHE PATH "Set specified install path" FORCE)
+    SET(INSTALL_DIR ${INSTALL_PREFIX} CACHE PATH "Set specified install path" FORCE)
 ELSE()
-    SET(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/bin CACHE PATH "Set default install path" FORCE)
+    IF (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        SET(INSTALL_DIR ${PROJECT_BINARY_DIR} CACHE PATH "Set specified install path" FORCE)
+    ELSE ()
+        SET(INSTALL_DIR ${CMAKE_INSTALL_PREFIX} CACHE PATH "Set default install path" FORCE)
+    ENDIF ()
 ENDIF ()
-SET(INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
-SET(DOC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/doc" CACHE PATH "Path to the documentation")
+SET(DOC_INSTALL_DIR "${INSTALL_DIR}/doc" CACHE PATH "Path to the documentation")
 
 ### In case of Makefiles if the user does not setup CMAKE_BUILD_TYPE, assume it's Release.
 IF(CMAKE_GENERATOR MATCHES "Makefiles|Ninja" AND "${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -272,16 +276,28 @@ ENDIF()
 IF (DOWNLOAD_GTEST)
     MESSAGE(STATUS "GoogleTest Version: ${GTestTAG}")
     geo_include_directories(${CCGL_BASE_DIR})
-    ### Download and compile googletest
-    INCLUDE(DownloadProject)
-    download_project(PROJ                googletest
-            GIT_REPOSITORY      https://github.com/google/googletest.git
-            GIT_TAG             ${GTestTAG}
-            ${UPDATE_DISCONNECTED_IF_AVAILABLE}
-            )
-    ADD_SUBDIRECTORY(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
-    geo_include_directories(${gtest_SOURCE_DIR}/include)
-    geo_include_directories(${gmock_SOURCE_DIR}/include)
+    ### Download and compile googletest using FetchContent supported officially by CMake 3.11+
+    # https://google.github.io/googletest/quickstart-cmake.html
+    include(FetchContent)
+    FetchContent_Declare(
+      googletest
+      URL https://github.com/google/googletest/archive/refs/tags/${GTestTAG}.zip
+      )
+    IF (WIN32)
+        # For Windows: Prevent overriding the parent project's compiler/linker settings
+        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    ENDIF ()
+    FetchContent_MakeAvailable(googletest)
+    
+    #INCLUDE(DownloadProject)
+    #download_project(PROJ                googletest
+    #        GIT_REPOSITORY      https://github.com/google/googletest.git
+    #        GIT_TAG             ${GTestTAG}
+    #        ${UPDATE_DISCONNECTED_IF_AVAILABLE}
+    #        )
+    #ADD_SUBDIRECTORY(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+    #geo_include_directories(${gtest_SOURCE_DIR}/include)
+    #geo_include_directories(${gmock_SOURCE_DIR}/include)
 ENDIF ()
 
 IF ((CV_GCC OR CV_CLANG) AND CODE_COVERAGE)
@@ -289,13 +305,14 @@ IF ((CV_GCC OR CV_CLANG) AND CODE_COVERAGE)
     add_code_coverage() # Adds instrumentation to all targets
 ENDIF ()
 
+### Copy test data to install directory!
+MAKE_DIRECTORY(${INSTALL_DIR})
+FILE(COPY ${CCGL_BASE_DIR}/data/ DESTINATION ${INSTALL_DIR}/share/ccgl)
+
 IF (UNITTEST STREQUAL 1)
     # Enable testing for the project
     enable_testing()
     ADD_SUBDIRECTORY(${TEST_DIR})
-    ### Copy test data to build directory for UnitTest Only!
-    MAKE_DIRECTORY(${INSTALL_DIR})
-    FILE(COPY ${CCGL_BASE_DIR}/data DESTINATION ${INSTALL_DIR})
     # For the convenient of debugging in MSVC and CLion
     IF (MSVC OR XCODE)
         FILE(COPY ${CCGL_BASE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/Debug)
@@ -310,9 +327,10 @@ ADD_SUBDIRECTORY(${APPS_DIR})
 
 # Install CCGL, including include files and library file
 INSTALL(TARGETS ${CCGLNAME}
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        RUNTIME DESTINATION "${INSTALL}/bin"
+        PUBLIC_HEADER DESTINATION "${INSTALL_DIR}/include"
+        ARCHIVE DESTINATION "${INSTALL_DIR}/lib"
+        LIBRARY DESTINATION "${INSTALL_DIR}/lib")
 
 ### Build doc based on doxygen
 IF(BUILD_DOC)
