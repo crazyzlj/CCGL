@@ -44,5 +44,7 @@ void Usage(const string& appname, const string& error_msg = std::string());
  */ 
 bool parse_fmt_paths(string& tag, vector<string>& strs, DATAFMT& fmt, vector<string>& paths);
 
+bool parse_key_values(string& kvstrs, map<vint, double>& kv);
+
 
 #endif /* CCGL_APP_MASK_RASTERIO_H */

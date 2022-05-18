@@ -360,8 +360,8 @@ TEST_P(clsRasterData2DSplitMerge, MaskLyrIO) {
 
     STRING_MAP opts_full;
     STRING_MAP opts_valid;
-    UpdateStrHeader(opts_full, HEADER_INC_NODATA, "true");
-    UpdateStrHeader(opts_valid, HEADER_INC_NODATA, "false");
+    UpdateStrHeader(opts_full, HEADER_INC_NODATA, "TRUE");
+    UpdateStrHeader(opts_valid, HEADER_INC_NODATA, "FALSE");
     
     for (auto it = subsetsfull.begin(); it != subsetsfull.end(); ++it) {
         string gfsfull = itoa(it->first) + "_" + mask_subset_name;

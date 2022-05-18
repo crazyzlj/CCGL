@@ -225,15 +225,16 @@ TEST(clsRasterDataUnsignedByte, FullIO) {
 #ifdef USE_MONGODB
     EXPECT_TRUE(rs->OutputToMongoDB(GlobalEnv->gfs_, newcorename, STRING_MAP(), false)); // Save valid data
 
-    clsRasterData<vuint8_t>* rs_mongo_fail = clsRasterData<vuint8_t>::
+    clsRasterData<vuint8_t>* rs_mongo_auto_calc_pos = clsRasterData<vuint8_t>::
             Init(GlobalEnv->gfs_, newcorename.c_str(), false, mask_rs);
-    EXPECT_EQ(rs_mongo_fail, nullptr);
+    EXPECT_NE(rs_mongo_auto_calc_pos, nullptr);
     clsRasterData<vuint8_t>* rs_mongo = clsRasterData<vuint8_t>::
             Init(GlobalEnv->gfs_, newcorename.c_str(), true, mask_rs);
     EXPECT_NE(rs_mongo, nullptr);
     for (int i = 0; i < ncells; i++) {
         EXPECT_EQ(data[i], rs_mongo->GetValueByIndex(i));
     }
+    delete rs_mongo_auto_calc_pos;
     delete rs_mongo;
 #endif
 

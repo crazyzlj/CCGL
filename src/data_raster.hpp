@@ -98,14 +98,14 @@ CONST_CHARS HEADER_RS_CELLSNUM = "CELLSNUM"; /// Number of the first layer's val
 CONST_CHARS HEADER_RS_SRS = "SRS"; /// SRS
 CONST_CHARS HEADER_RS_DATATYPE = "DATATYPE"; /// Data type of original raster
 CONST_CHARS HEADER_RSOUT_DATATYPE = "DATATYPE_OUT"; /// Desired output data type of raster
-CONST_CHARS HEADER_INC_NODATA = "INCLUDE_NODATA"; /// Include nodata ("true") or not, for DB only
+CONST_CHARS HEADER_INC_NODATA = "INCLUDE_NODATA"; /// Include nodata ("TRUE") or not ("FALSE"), for DB only
 CONST_CHARS HEADER_MASK_NAME = "MASK_NAME"; /// Mask layer's name if only store valid values
 CONST_CHARS STATS_RS_VALIDNUM = "VALID_CELLNUMBER"; /// Valid cell number
-CONST_CHARS STATS_RS_MEAN = "MEAN"; /// Mean value 
+CONST_CHARS STATS_RS_MEAN = "MEAN"; /// Mean value
 CONST_CHARS STATS_RS_MIN = "MIN"; /// Minimum value
 CONST_CHARS STATS_RS_MAX = "MAX"; /// Maximum value
-CONST_CHARS STATS_RS_STD = "STD"; /// Standard derivation value 
-CONST_CHARS STATS_RS_RANGE = "RANGE"; /// Range value 
+CONST_CHARS STATS_RS_STD = "STD"; /// Standard derivation value
+CONST_CHARS STATS_RS_RANGE = "RANGE"; /// Range value
 CONST_CHARS ASCIIExtension = "asc"; /// ASCII extension
 CONST_CHARS GTiffExtension = "tif"; /// GeoTIFF extension
 
@@ -319,6 +319,8 @@ bool WriteAscHeaders(const string& filename, const STRDBL_MAP& header);
 template <typename T>
 bool WriteSingleAsc(const string& filename, const STRDBL_MAP& header, T* values) {
     string abs_filename = GetAbsolutePath(filename);
+    string dirname = GetPathFromFullName(abs_filename);
+    if (!PathExists(dirname)) { MakeDirectory(dirname); }
     if (!WriteAscHeaders(abs_filename, header)) { return false; }
     std::ofstream raster_file(abs_filename.c_str(), std::ios::app | std::ios::out);
     if (!raster_file.is_open()) {
@@ -509,7 +511,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
     srs = string(po_dataset->GetProjectionRef());
 
     GDALClose(po_dataset);
-    
+
     values = tmprasterdata;
     return true;
 }
@@ -682,6 +684,8 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
     }
     GDALDriver* po_driver = GetGDALDriverManager()->GetDriverByName("GTiff");
     if (nullptr == po_driver) { return false; }
+    string dirname = GetPathFromFullName(filename);
+    if (!PathExists(dirname)) { MakeDirectory(dirname); }
     GDALDataset* po_dst_ds = po_driver->Create(filename.c_str(), n_cols, n_rows, 1,
                                                CvtToGDALDataType(outtype), papsz_options);
     if (nullptr == po_dst_ds) { return false; }
@@ -812,7 +816,7 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
         delete[] buf;
         return false;
     }
-    
+
     if (rstype == RDT_Double && size_dtype == sizeof(double)) {
         double* data_dbl = reinterpret_cast<double*>(buf);
         Initialize1DArray(value_count, data, data_dbl);
@@ -991,6 +995,7 @@ public:
         } else {
             Initialize1DArray(n_cells, data_, data);
         }
+        usable = true;
         return true;
     }
 
@@ -1008,6 +1013,7 @@ public:
         } else {
             Initialize2DArray(n_cells, n_lyrs, data2d_, data2d);
         }
+        usable = true;
         return true;
     }
 #ifdef USE_MONGODB
@@ -2205,6 +2211,7 @@ bool clsRasterData<T, MASK_T>::BuildSubSet(map<int, int> groups /* = map<int, in
     if (nullptr == pos_data_) {
         if (!SetCalcPositions()) { return false; }
     }
+    if (!subset_.empty()) { return true; }
     map<int, vector<int> > global_idx;
     for (int vi = 0; vi < n_cells_; vi++) {
         T curv = GetValueByIndex(vi); // compatible with 2D Raster
@@ -2684,17 +2691,19 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToFile(const bool out_origin /* = fal
         T* data1d = nullptr;
         int sublyrs;
         int sublen;
-        bool flag = PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
-                                          true, recls, default_value);
+        if (!PrepareCombSubsetData(&data1d, &sublen, &sublyrs,
+                                   true, recls, default_value)) {
+            return false;
+        }
         STRDBL_MAP tmpheader;
         CopyHeader(headers_, tmpheader);
         UpdateHeader(tmpheader, HEADER_RS_LAYERS, sublyrs);
         UpdateHeader(tmpheader, HEADER_RS_CELLSNUM, sublen / sublyrs);
-        flag = flag && OutputFullsizeToFiles(data1d, sublen / sublyrs, sublyrs,
-                                             PrefixCoreFileName(outpathact, 0),
-                                             tmpheader, options_);
+        bool combflag = OutputFullsizeToFiles(data1d, sublen / sublyrs, sublyrs,
+                                              PrefixCoreFileName(outpathact, 0),
+                                              tmpheader, options_);
         Release1DArray(data1d);
-        return flag;
+        return combflag;
     }
     STRDBL_MAP subheader;
     bool flag = true;
@@ -2740,6 +2749,10 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
             return false;
         }
     }
+    if (lyrs < 0) {
+        if (!recls.empty()) { lyrs = 1; } // subsets have never been used
+        else { return false; }
+    }
     int gnrows = GetRows();
     int gncols = GetCols();
     int gncells = include_nodata ? gnrows * gncols : n_cells_;
@@ -2780,6 +2793,7 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
     *datalyrs = lyrs;
     return true;
 }
+
 template <typename T, typename MASK_T>
 bool clsRasterData<T, MASK_T>::PrepareSubsetData(const int sub_id, SubsetPositions* sub,
                                                  T** values, int* datalen, int* datalyrs,
@@ -2789,6 +2803,15 @@ bool clsRasterData<T, MASK_T>::PrepareSubsetData(const int sub_id, SubsetPositio
     if (nullptr == sub) { return false; }
     T* data1d = nullptr; // Both raster 1D and 2D data can be combined as 1D array
     int lyrs = out_origin ? n_lyrs_ : sub->n_lyrs;
+    double recls_value = default_value;
+    if (lyrs < 0) {
+        if (!recls.empty()) {
+            if (recls.count(sub_id) == 0) { return false; }
+            recls_value = recls.at(sub_id);
+            lyrs = 1;
+        }
+        else { return false; }
+    }
     int nrows = sub->g_erow - sub->g_srow + 1;
     int ncols = sub->g_ecol - sub->g_scol + 1;
     int ncells = include_nodata ? nrows * ncols : sub->n_cells;
@@ -3014,9 +3037,9 @@ bool clsRasterData<T, MASK_T>::OutputToMongoDB(MongoGridFs* gfs, const string& f
     int n_cols = GetCols();
     int n_fullsize = n_rows * n_cols;
     if (include_nodata) {
-        UpdateStringMap(options_, HEADER_INC_NODATA, "true");
+        UpdateStringMap(options_, HEADER_INC_NODATA, "TRUE");
     } else {
-        UpdateStringMap(options_, HEADER_INC_NODATA, "false");
+        UpdateStringMap(options_, HEADER_INC_NODATA, "FALSE");
     }
     // 2. Get raster data
     T* data_1d = nullptr;
@@ -3077,10 +3100,10 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
     if (subset_.empty()) { return false; }
     CopyStringMap(opts, options_); // Update metadata
     if (include_nodata) {
-        UpdateStringMap(options_, HEADER_INC_NODATA, "true");
+        UpdateStringMap(options_, HEADER_INC_NODATA, "TRUE");
     }
     else {
-        UpdateStringMap(options_, HEADER_INC_NODATA, "false");
+        UpdateStringMap(options_, HEADER_INC_NODATA, "FALSE");
     }
     if (options_.find(HEADER_RSOUT_DATATYPE) == options_.end()
         || StringMatch("Unknown", options_.at(HEADER_RSOUT_DATATYPE))) {
@@ -3122,7 +3145,7 @@ bool clsRasterData<T, MASK_T>::OutputSubsetToMongoDB(MongoGridFs* gfs,
                                out_origin, include_nodata, recls, default_value)) {
             continue;
         }
-        UpdateHeader(subheader, HEADER_RS_LAYERS, it->second->n_lyrs);
+        UpdateHeader(subheader, HEADER_RS_LAYERS, tmplyrs);
         UpdateHeader(subheader, HEADER_RS_CELLSNUM, tmpdatalen / tmplyrs);
         string tmpfname = itoa(CVT_VINT(it->first)) + "_" + outnameact;
         flag = flag && WriteStreamDataAsGridfs(gfs, tmpfname, subheader, tmpdata1d, tmpdatalen, options_);
@@ -3164,7 +3187,7 @@ bool clsRasterData<T, MASK_T>::ReadFromFiles(vector<string>& filenames, const bo
     // 2. change corename and filepath template which format is: `<file dir>/CoreName_%d.<suffix>`
     //    support "corename.tif or corename_1.tif", "corename_2.tif", and "corename_3.tif", etc.
     string::size_type last_underline = core_name_.find_last_of('_');
-    if (last_underline == string::npos || last_underline != core_name_.length() - 1) {
+    if (last_underline == string::npos) {
         last_underline = core_name_.length();
     }
     core_name_ = core_name_.substr(0, last_underline);
@@ -3256,7 +3279,7 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
     }
     CopyStringMap(header_str, options_);
 
-    bool include_nodata = !StringMatch(options_.at(HEADER_INC_NODATA), "false");
+    bool include_nodata = !StringMatch(options_.at(HEADER_INC_NODATA), "FALSE");
 
     int n_rows = CVT_INT(headers_.at(HEADER_RS_NROWS));
     int n_cols = CVT_INT(headers_.at(HEADER_RS_NCOLS));
@@ -3267,20 +3290,17 @@ bool clsRasterData<T, MASK_T>::ReadFromMongoDB(MongoGridFs* gfs,
     n_cells_ = CVT_INT(headers_.at(HEADER_RS_CELLSNUM));
 
     if (include_nodata && n_cells_ != fullsize) { return false; }
+    if (n_cells_ != fullsize) { calc_pos_ = true; }
+
     // check the valid values count and determine whether can read directly.
     bool mask_pos_subset = true;
-    if (nullptr != mask_ && calc_pos_ && use_mask_ext_ && n_cells_ == mask_->GetCellNumber()) {
+    if (nullptr != mask_ && calc_pos_ && use_mask_ext_ && n_cells_ == mask_->GetValidNumber()) {
         store_pos_ = false;
         mask_->GetRasterPositionData(&n_cells_, &pos_data_);
         mask_pos_subset = false;
     }
 
-    if (include_nodata) {
-        if (n_cells_ != fullsize) { return false; }
-    } else {
-        if (nullptr == pos_data_) { return false; }
-        calc_pos_ = true;
-    }
+    if (!include_nodata && nullptr == pos_data_) { return false; }
 
     if (n_lyrs_ == 1) {
         is_2draster = false;
