@@ -522,7 +522,7 @@ int main(const int argc, const char** argv) {
             if (nullptr == rs) { continue; }
 
             if (update_nodata.at(in_idx)) { rs->ReplaceNoData(nodata_values.at(in_idx)); }
-            
+
             if (reclass_data.at(in_idx)) { rs->BuildSubSet(); }
 
             if (out_fmts.at(in_idx) == SFILE) {
@@ -553,6 +553,7 @@ int main(const int argc, const char** argv) {
                 cout << "Error: The COMBINE mode MUST based on a mask layer!";
                 return 1;
             }
+            mask_layer->SetDefaultValue(default_values.at(in_idx));
             map<int, SubsetPositions*>& subset = mask_layer->GetSubset();
             for (auto it = subset.begin(); it != subset.end(); ++it) {
                 it->second->usable = false;

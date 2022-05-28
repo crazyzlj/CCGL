@@ -1376,6 +1376,9 @@ public:
     /// Set output raster data type
     void SetOutDataType(const string& strtype);
 
+    /// Set default value
+    void SetDefaultValue(const double defaultv) { default_value_ = defaultv; }
+
     /*!
      * \brief Build subsets by given groups (cell value->group ID) or by discrete values (default)
      */
@@ -2755,11 +2758,21 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
     }
     int gnrows = GetRows();
     int gncols = GetCols();
+    if (FloatEqual(default_value, NODATA_VALUE)) {
+        default_value = default_value_;
+    }
     int gncells = include_nodata ? gnrows * gncols : n_cells_;
     int data_length = gncells * lyrs;
     Initialize1DArray(data_length, data1d, no_data_value_);
     for (auto it = subset_.begin(); it != subset_.end(); ++it) {
-        if (!it->second->usable) { continue; }
+        bool use_defaultv_directly = false;
+        if (!it->second->usable) {
+            if (!FloatEqual(no_data_value_, default_value)) {
+                use_defaultv_directly = true;
+            } else {
+                continue;
+            }
+        }
         for (int vi = 0; vi < it->second->n_cells; vi++) {
             for (int ilyr = 0; ilyr < lyrs; ilyr++) {
                 int gidx = it->second->global_[vi];
@@ -2773,6 +2786,9 @@ bool clsRasterData<T, MASK_T>::PrepareCombSubsetData(T** values, int* datalen, i
                         uniqe_value = recls.at(it->first);
                     }
                     data1d[tmprc * lyrs + ilyr] = static_cast<T>(uniqe_value);
+                }
+                else if (use_defaultv_directly) {
+                    data1d[tmprc * lyrs + ilyr] = static_cast<T>(default_value);
                 }
                 else if (lyrs > 1 && nullptr != it->second->data2d_) { // raster 2D
                     data1d[tmprc * lyrs + ilyr] = static_cast<T>(it->second->data2d_[vi][ilyr]);
