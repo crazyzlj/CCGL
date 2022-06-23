@@ -396,12 +396,12 @@ int main(const int argc, const char** argv) {
             }
         }
         if (default_values.empty()) { default_values.emplace_back(global_defaultv); }
-        if (update_nodata.empty()) { update_nodata.emplace_back(global_updnodata); }
+        if (update_nodata.empty()) { update_nodata.push_back(global_updnodata); }  // compatible with vs2010 
         if (nodata_values.empty()) { nodata_values.emplace_back(global_nodata); }
         if (out_types.empty()) { out_types.emplace_back(global_outtype); }
         if (out_fmts.empty()) { out_fmts.emplace_back(global_outfmt); }
         else { out_fmts[0] = global_outfmt; }
-        if (reclass_data.empty()) { reclass_data.emplace_back(global_recls); }
+        if (reclass_data.empty()) { reclass_data.push_back(global_recls); }
         if (reclass_keyvalues.empty()) { reclass_keyvalues.emplace_back(map<vint, vector<double> >()); }
     }
     else { // clear others
@@ -466,10 +466,10 @@ int main(const int argc, const char** argv) {
             out_paths.emplace_back(tmpout);
             out_fmts.emplace_back(global_outfmt);
             default_values.emplace_back(tmp_defv);
-            update_nodata.emplace_back(upd_nodata);
+            update_nodata.push_back(upd_nodata);  // compatible with vs2010
             nodata_values.emplace_back(tmp_nodata);
             out_types.emplace_back(tmpouttype);
-            reclass_data.emplace_back(do_recls);
+            reclass_data.push_back(do_recls);
             reclass_keyvalues.emplace_back(tmp_recls);
         }
     }
