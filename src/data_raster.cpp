@@ -299,6 +299,7 @@ bool SubsetPositions::ReadFromMongoDB(MongoGridFs* gfs, const string& fname, con
         }
     }
     usable = true;
+    Release1DArray(dbdata);
     return true;
 }
 #endif
