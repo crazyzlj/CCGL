@@ -25,7 +25,7 @@
 #              mongo-c-driver-1.16.2, GDAL-3.3.3 (brew installed and framework by kyngchaos.com)
 #
 #  Created and maintained by Liangjun Zhu, zlj(a)lreis.ac.cn
-#  Latest updated: May. 12, 2022
+#  Latest updated: Nov. 29, 2022
 #  Copyright (C) 2017-2022 Lreis, IGSNRR, CAS
 # ----------------------------------------------------------------------------
 ### Disable in-source builds to prevent source tree corruption.
@@ -87,6 +87,8 @@ ELSE()
         SET(INSTALL_DIR ${CMAKE_INSTALL_PREFIX} CACHE PATH "Set default install path" FORCE)
     ENDIF ()
 ENDIF ()
+
+SET(INSTALL_PREFIX ${INSTALL_DIR})
 SET(CMAKE_INSTALL_PREFIX ${INSTALL_DIR})
 SET(DOC_INSTALL_DIR "${INSTALL_DIR}/doc" CACHE PATH "Path to the documentation")
 
