@@ -9,10 +9,10 @@
 #       $ mkdir -p build
 #       $ cd build
 #       $ cmake ..
-#       $ make && make install
+#       $ make
+#       $ ctest --rerun-failed --output-on-failure
 #     Optional cmake options:
 #       -DUNITTEST=1  means run unittest based gtest/gmock
-#       -DFORCEDOWNGTEST=1 means download and compile gtest no matter it has existed or not
 #       -DCODE_COVERAGE=1 means run code coverage based gcov and lcov
 #       -DLLVM_ROOT_DIR Specific the root directory of brew installed LLVM, e.g., /opt/homebrew/opt/llvm
 #       -DBUILD_DOC=1 means build CCGL documentation based on doxygen
@@ -25,8 +25,8 @@
 #              mongo-c-driver-1.16.2, GDAL-3.3.3 (brew installed and framework by kyngchaos.com)
 #
 #  Created and maintained by Liangjun Zhu, zlj(a)lreis.ac.cn
-#  Latest updated: Nov. 29, 2022
-#  Copyright (C) 2017-2022 Lreis, IGSNRR, CAS
+#  Latest updated: Mar. 23, 2023
+#  Copyright (C) 2017-2023 Lreis, IGSNRR, CAS
 # ----------------------------------------------------------------------------
 ### Disable in-source builds to prevent source tree corruption.
 IF (" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
@@ -41,6 +41,7 @@ cmake_policy(SET CMP0054 NEW)
 cmake_policy(SET CMP0074 NEW)
 cmake_policy(SET CMP0077 NEW)
 cmake_policy(SET CMP0079 NEW)
+cmake_policy(SET CMP0135 NEW)
 SET(CMAKE_SH "CMAKE_SH-NOTFOUND")
 
 ### Set coding language
@@ -256,35 +257,27 @@ IF ((CV_GCC OR CV_CLANG) AND CODE_COVERAGE)
     SET(UNITTEST 1)
 ENDIF ()
 
-### unittest based on gtest/gmock, which is optional.
-SET(GTestTAG release-1.8.1)
-IF(MSVC_VERSION LESS 1900)
-    SET(GTestTAG release-1.8.0)
-ENDIF()
-### Find or build Googletest if UNITTEST is set as True or 1
-SET(DOWNLOAD_GTEST 0)
+### Build Googletest if UNITTEST is set as True or 1
 IF (UNITTEST STREQUAL 1)
     ADD_DEFINITIONS(-DUNITTEST)
-    IF (FORCEDOWNGTEST STREQUAL 1)
-        SET(DOWNLOAD_GTEST 1)
-    ELSE ()
-        find_package(GTest)
-        IF (GTEST_FOUND)
-            geo_include_directories(${GTEST_INCLUDE_DIRS})
-        ELSE ()
-            SET(DOWNLOAD_GTEST 1)
-        ENDIF ()
-    ENDIF ()
-ENDIF()
-IF (DOWNLOAD_GTEST)
+    ### unittest based on gtest/gmock, which is optional.
+    SET(GTestTAG release-1.8.1)
+    IF(MSVC_VERSION LESS 1900)
+        SET(GTestTAG release-1.8.0)
+    ENDIF()
     MESSAGE(STATUS "GoogleTest Version: ${GTestTAG}")
     geo_include_directories(${CCGL_BASE_DIR})
     ### Download and compile googletest using FetchContent supported officially by CMake 3.11+
     # https://google.github.io/googletest/quickstart-cmake.html
+    # Because download from github often failed, I decided to include googletest tags in src directory.
+    SET(GTESTZIPDIR ${CMAKE_CURRENT_BINARY_DIR}/googletest_tags_zip)
+    FILE(MAKE_DIRECTORY ${GTESTZIPDIR})
+    file(COPY ${CCGL_BASE_DIR}/src/googletest_tags_zip/ DESTINATION ${GTESTZIPDIR})
     include(FetchContent)
     FetchContent_Declare(
       googletest
-      URL https://github.com/google/googletest/archive/refs/tags/${GTestTAG}.zip
+      URL "file://${GTESTZIPDIR}/${GTestTAG}.zip"
+      # URL https://github.com/google/googletest/archive/refs/tags/${GTestTAG}.zip
       )
     IF (WIN32)
         # For Windows: Prevent overriding the parent project's compiler/linker settings
@@ -302,7 +295,7 @@ IF ((CV_GCC OR CV_CLANG) AND CODE_COVERAGE)
 ENDIF ()
 
 ### Copy test data to install directory!
-MAKE_DIRECTORY(${INSTALL_DIR})
+FILE(MAKE_DIRECTORY ${INSTALL_DIR})
 FILE(COPY ${CCGL_BASE_DIR}/data/ DESTINATION ${INSTALL_DIR}/share/ccgl)
 
 IF (UNITTEST STREQUAL 1)

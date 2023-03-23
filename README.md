@@ -18,9 +18,7 @@
   cd build
   cmake .. -DUNITTEST=1
   make -j4
-  make install
-  cd ../bin
-  ./UnitTests_CCGL
+  ctest --rerun-failed --output-on-failure
    ```
 
 ## Subtree
