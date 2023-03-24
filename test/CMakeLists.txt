@@ -52,6 +52,7 @@ IF (XCODE OR MSVC)
 ELSE ()
     gtest_discover_tests(${APPNAME}
                          EXTRA_ARGS  -host ${MONGOHOST}  -port ${MONGOPORT}
+                         DISCOVERY_TIMEOUT 600
                         )
 ENDIF ()
 
