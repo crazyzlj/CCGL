@@ -41,7 +41,6 @@ cmake_policy(SET CMP0054 NEW)
 cmake_policy(SET CMP0074 NEW)
 cmake_policy(SET CMP0077 NEW)
 cmake_policy(SET CMP0079 NEW)
-cmake_policy(SET CMP0135 NEW)
 SET(CMAKE_SH "CMAKE_SH-NOTFOUND")
 
 ### Set coding language
@@ -270,14 +269,11 @@ IF (UNITTEST STREQUAL 1)
     ### Download and compile googletest using FetchContent supported officially by CMake 3.11+
     # https://google.github.io/googletest/quickstart-cmake.html
     # Because download from github often failed, I decided to include googletest tags in src directory.
-    SET(GTESTZIPDIR ${CMAKE_CURRENT_BINARY_DIR}/googletest_tags_zip)
-    FILE(MAKE_DIRECTORY ${GTESTZIPDIR})
-    file(COPY ${CCGL_BASE_DIR}/src/googletest_tags_zip/ DESTINATION ${GTESTZIPDIR})
     include(FetchContent)
     FetchContent_Declare(
       googletest
-      URL "file://${GTESTZIPDIR}/${GTestTAG}.zip"
-      # URL https://github.com/google/googletest/archive/refs/tags/${GTestTAG}.zip
+      URL "file://${CCGL_BASE_DIR}/src/googletest_tags_zip/${GTestTAG}.zip"
+      #URL https://github.com/google/googletest/archive/refs/tags/${GTestTAG}.zip
       )
     IF (WIN32)
         # For Windows: Prevent overriding the parent project's compiler/linker settings
