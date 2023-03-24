@@ -72,6 +72,15 @@ jobs:
     - name: Find mongod.exe
       run: where.exe mongod.exe
       # C:\Program Files\MongoDB\Server\5.0\bin\mongod.exe
+
+    - name: Start MongoDB Service
+      # How to start MongoDB as a service on Windows runners
+      # https://github.com/orgs/community/discussions/30083#discussioncomment-3448499
+      shell: pwsh
+      run: |
+          Set-Service mongodb -StartupType Automatic
+          Start-Service -Name mongodb
+
     - name: Download mongo-c-driver
       # Build mongo-c-driver is time-consuming, I moved it to another repo. https://github.com/crazyzlj/Github_Actions_Precompiled_Packages
       # run: ${{github.workspace}}\.github\workflows\build_mongo-c-driver.ps1
