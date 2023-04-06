@@ -80,13 +80,13 @@ jobs:
       uses: mattnotmitt/doxygen-action@v1.9.2
       with:
           working-directory: '.'
-          doxyfile-path: 'doc/Doxyfile'
+          doxyfile-path: 'doc/Doxyfile.in'
 
     - name: Build Doc in Chinese
       uses: mattnotmitt/doxygen-action@v1.9.2
       with:
           working-directory: '.'
-          doxyfile-path: 'doc/Doxyfile.zh-cn'
+          doxyfile-path: 'doc/Doxyfile.zh-cn.in'
 
     - name: Deploy Doc
       uses: peaceiris/actions-gh-pages@v3
