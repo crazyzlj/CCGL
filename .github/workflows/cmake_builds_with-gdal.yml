@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Checkout CCGL
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install GDAL
       run: sudo apt-get update && sudo apt-get install -qq gdal-bin libgdal-dev
@@ -49,7 +49,7 @@ jobs:
 
     steps:
     - name: Checkout CCGL
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Download GDAL
       id: pwshdowngdal
@@ -88,7 +88,7 @@ jobs:
       run: brew list gdal &>/dev/null || brew install gdal
 
     - name: Checkout CCGL
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1
