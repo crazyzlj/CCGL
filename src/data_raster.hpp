@@ -24,7 +24,7 @@
  *                     Add subset feature to support data decomposition and combination.
  *
  * \author Liangjun Zhu, zlj(at)lreis.ac.cn
- * \version 2.5
+ * \version 2.6
  */
 #ifndef CCGL_DATA_RASTER_H
 #define CCGL_DATA_RASTER_H
@@ -3944,13 +3944,12 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
             int tmpr = pos_rows.at(k);
             int tmpc = pos_cols.at(k);
             if (store_fullsize) {
-                if (!within_ext) {
-                    if (tmpr > max_row || tmpr < min_row || tmpc > max_col || tmpc < min_col) {
-                        continue;
-                    }
-                    synthesis_idx = tmpr * new_cols + tmpc;
-                } else {
-                    synthesis_idx = tmpr * ncols + tmpc;
+                if (tmpr > max_row || tmpr < min_row || tmpc > max_col || tmpc < min_col) {
+                    continue;
+                }
+                synthesis_idx = (tmpr - min_row) * ncols + tmpc - min_col;
+                if (synthesis_idx > n_cells_ - 1) {
+                    continue; // error may occurred!
                 }
             }
             if (is_2draster) { // multiple layers
