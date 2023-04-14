@@ -42,16 +42,17 @@ IF (XCODE OR MSVC)
     #                 TEST_SUFFIX .noArgs
     #                 TEST_LIST   noArgsTests
     #                )
-    set_tests_properties(${ArgsTests} PROPERTIES TIMEOUT 10)
+    set_tests_properties(${ArgsTests} PROPERTIES TIMEOUT 600)
     gtest_add_tests(TARGET      ${APPNAME}
                     EXTRA_ARGS  -host ${MONGOHOST}  -port ${MONGOPORT}
                     TEST_SUFFIX .withArgs
                     TEST_LIST   withArgsTests
                    )
-    set_tests_properties(${withArgsTests} PROPERTIES TIMEOUT 10)
+    set_tests_properties(${withArgsTests} PROPERTIES TIMEOUT 600)
 ELSE ()
     gtest_discover_tests(${APPNAME}
                          EXTRA_ARGS  -host ${MONGOHOST}  -port ${MONGOPORT}
+                         DISCOVERY_TIMEOUT 600
                         )
 ENDIF ()
 
@@ -59,8 +60,11 @@ install(TARGETS ${APPNAME}
         DESTINATION ${INSTALL_DIR}/bin)
 
 if ((CV_GCC OR CV_CLANG) AND CODE_COVERAGE)
-    target_code_coverage(${CCGLNAME})
+    # As an executable target, adds the 'ccov-${APPNAME}' target and instrumentation for generating coverage reports.
+    # Note that, the code coverage should excluding the test sources themself and gtest source code.
     target_code_coverage(${APPNAME} EXCLUDE ${TEST_DIR}/* ${googletest_SOURCE_DIR}/* ${googletest_BINARY_DIR}/*)
+    # As a library target, adds coverage instrumentation but no targets.
+    target_code_coverage(${CCGLNAME})
 endif ()
 
 # Previously implementation based on CodeCoverage.cmake by Lars Bilke

@@ -30,7 +30,7 @@ jobs:
 
     steps:
     - name: Checkout CCGL
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     # 1. https://github.com/supercharge/mongodb-github-action
     # - name: MongoDB in GitHub Actions
@@ -50,7 +50,7 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1
 
     - name: Build
       # Build your program with the given configuration
@@ -67,11 +67,20 @@ jobs:
 
     steps:
     - name: Checkout CCGL
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Find mongod.exe
       run: where.exe mongod.exe
       # C:\Program Files\MongoDB\Server\5.0\bin\mongod.exe
+
+    - name: Start MongoDB Service
+      # How to start MongoDB as a service on Windows runners
+      # https://github.com/orgs/community/discussions/30083#discussioncomment-3448499
+      shell: pwsh
+      run: |
+          Set-Service mongodb -StartupType Automatic
+          Start-Service -Name mongodb
+
     - name: Download mongo-c-driver
       # Build mongo-c-driver is time-consuming, I moved it to another repo. https://github.com/crazyzlj/Github_Actions_Precompiled_Packages
       # run: ${{github.workspace}}\.github\workflows\build_mongo-c-driver.ps1
@@ -83,14 +92,14 @@ jobs:
       run: |
         cd ${{github.workspace}}\.github\workflows
         ./download_mongo-c-driver.ps1 -mongoCPath ${{github.workspace}}/mongolib
-        Get-ChildItem Env: | Where-Object {$_.Name -Match "^MONGO"} | %{ echo "::set-output name=$($_.Name)::$($_.Value)" }
+        Get-ChildItem Env: | Where-Object {$_.Name -Match "^MONGO"} | %{ echo "$($_.Name)=$($_.Value)" >> $env:GITHUB_ENV }
 
     - name: Configure CMake
       shell: cmd
       run: |
         cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build ^
-        -DMONGOC_ROOT=${{ steps.pwshdownmongo.outputs.MONGOC_ROOT }} ^
-        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
+        -DMONGOC_ROOT=${{ env.MONGOC_ROOT }} ^
+        -DUNITTEST=1
 
     - name: Build
       shell: cmd
@@ -100,7 +109,7 @@ jobs:
       shell: cmd
       working-directory: ${{github.workspace}}/build
       run: |
-        set PATH=${{ steps.pwshdownmongo.outputs.MONGOC_BIN }};%PATH%
+        set PATH=${{ env.MONGOC_BIN }};%PATH%
         ctest -C ${{env.BUILD_TYPE}} --rerun-failed --output-on-failure
 
   build-mac:
@@ -131,10 +140,10 @@ jobs:
       run: brew install mongo-c-driver
 
     - name: Checkout CCGL
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1 -DFORCEDOWNGTEST=1
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
