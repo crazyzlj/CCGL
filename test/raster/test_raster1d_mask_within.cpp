@@ -1768,7 +1768,7 @@ INSTANTIATE_TEST_CASE_P(SingleLayer, clsRasterDataTestMaskWithin,
                             new InputRasterFiles(TifFile, MaskTifFileS, MaskTifFileS2)));
 #else
 INSTANTIATE_TEST_CASE_P(SingleLayer, clsRasterDataTestMaskWithin,
-                        Values(new InputRasterFiles(AscFile, MaskAscFileS)));
+                        Values(new InputRasterFiles(AscFile, MaskAscFileS, MaskAscFileS2)));
 #endif /* USE_GDAL */
 
 } /* namespace */
