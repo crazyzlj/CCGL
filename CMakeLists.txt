@@ -300,7 +300,7 @@ IF (UNITTEST STREQUAL 1)
     enable_testing()
     ADD_SUBDIRECTORY(${TEST_DIR})
     # For the convenient of debugging in MSVC and CLion
-    IF (CMAKE_GENERATOR MATCHES "Visual Studio" OR CMAKE_GENERATOR MATCHES "XCode")
+    IF (CMAKE_GENERATOR MATCHES "Visual Studio" OR CMAKE_GENERATOR MATCHES "Xcode")
         FILE(COPY ${CCGL_BASE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/Debug)
         FILE(COPY ${CCGL_BASE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test/Release)
     ELSE ()

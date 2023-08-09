@@ -393,7 +393,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
         //
         po_band->ComputeRasterMinMax(approx_minmax, minmax);
         if ((minmax[1] <= 127 && minmax[0] < 0)
-            || (minmax[1] <= 127 && minmax[0] >= 0 && (!get_value_flag || get_value_flag && nodata < 0))) {
+            || (minmax[1] <= 127 && minmax[0] >= 0 && (!get_value_flag || (get_value_flag && nodata < 0)))) {
             read_as_signedbyte = true;
         }
         uchar_data = static_cast<unsigned char*>(CPLMalloc(sizeof(unsigned char) * n_cols * n_rows));
@@ -4044,7 +4044,7 @@ int clsRasterData<T, MASK_T>::MaskAndCalculateValidPosition() {
             Initialize1DArray(n_cells_, raster_, no_data_value_);
         }
         // Loop the masked raster values
-        int synthesis_idx = -1;
+        size_t synthesis_idx = 0;
         for (size_t k = 0; k < pos_rows.size(); ++k) {
             synthesis_idx = k;
             int tmpr = pos_rows.at(k);
