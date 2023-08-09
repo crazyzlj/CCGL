@@ -624,7 +624,7 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
         }
         else if (outtype == RDT_Int8) { // [-128, 127]
             // https://gdal.org/drivers/raster/gtiff.html
-#if GDAL_VERSION_MAJOR <= 3 && GDAL_VERSION_MINOR < 7
+#if GDAL_VERSION_MAJOR < 3 || (GDAL_VERSION_MAJOR == 3 && GDAL_VERSION_MINOR < 7)
             papsz_options = CSLSetNameValue(papsz_options, "PIXELTYPE", "SIGNEDBYTE");
 #endif
             new_values = static_cast<signed char*>(CPLMalloc(sizeof(signed char) * n_cols * n_rows));
