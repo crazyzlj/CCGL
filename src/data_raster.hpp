@@ -2031,7 +2031,8 @@ void clsRasterData<T, MASK_T>::InitializeRasterClass(bool is_2d /* = false */) {
     n_cells_ = -1;
     rs_type_ = RDT_Unknown;
     rs_type_out_ = RDT_Unknown;
-    no_data_value_ = static_cast<T>(NODATA_VALUE); // Be careful of unsigned data type!
+    no_data_value_ = DefaultNoDataByType(TypeToRasterDataType(typeid(T)));
+    //no_data_value_ = static_cast<T>(NODATA_VALUE); // Be careful of unsigned data type!
     default_value_ = NODATA_VALUE;
     raster_ = nullptr;
     pos_data_ = nullptr;
@@ -2483,7 +2484,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
     sindex = GetUpper(sindex);
     if (!ValidateRasterData() || !ValidateLayer(lyr)) {
         StatusMessage("No available raster statistics!");
-        return CVT_DBL(no_data_value_);
+        return CVT_DBL(default_value_);
     }
     if (is_2draster && nullptr != raster_2d_) {
         // for 2D raster data
@@ -2496,7 +2497,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
             return stats_2d_.at(sindex)[lyr - 1];
         }
         StatusMessage("WARNING: " + ValueToString(sindex) + " is not supported currently.");
-        return CVT_DBL(no_data_value_);
+        return CVT_DBL(default_value_);
     }
     // Else, for 1D raster data
     auto it = stats_.find(sindex);
@@ -2507,7 +2508,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
         return stats_.at(sindex);
     }
     StatusMessage("WARNING: " + ValueToString(sindex) + " is not supported currently.");
-    return CVT_DBL(no_data_value_);
+    return CVT_DBL(default_value_);
 }
 
 template <typename T, typename MASK_T>
