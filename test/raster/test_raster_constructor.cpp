@@ -187,7 +187,7 @@ TEST(clsRasterDataASCConstructor, SupportedCases) {
     if (HasFailure()) { return; }
     EXPECT_EQ(4, not_std_rs->GetCellNumber());
     EXPECT_EQ(2, not_std_rs->GetValidNumber());
-
+    delete not_std_rs;
 }
 
 TEST(clsRasterDataFailedConstructor, FailedCases) {
@@ -479,6 +479,8 @@ TEST(clsRasterDataInt32, IOWithoutDefNodata) {
     EXPECT_EQ(INT32_MIN, rs->GetNoDataValue());
     EXPECT_TRUE(rs->GetDataType() == RDT_Int32);
     EXPECT_TRUE(rs->GetOutDataType() == RDT_Int32);
+
+    delete rs;
 }
 
 TEST(clsRasterDataFloat, FullIO) {

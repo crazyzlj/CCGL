@@ -302,7 +302,9 @@ bool SubsetPositions::ReadFromMongoDB(MongoGridFs* gfs, const string& fname, con
     n_lyrs = db_nlyrs;
     if (n_lyrs == 1) {
         if (n_cells == db_ncells) {
-            return SetData(db_ncells, dbdata);
+            bool set_success = SetData(db_ncells, dbdata);
+            Release1DArray(dbdata);
+            return set_success;
         }
         if (nullptr == data_) {
             Initialize1DArray(n_cells, data_, NODATA_VALUE);
