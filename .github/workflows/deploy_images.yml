@@ -1,4 +1,4 @@
-name: Create and publish SWAT Docker images
+name: Create and publish CCGL Docker images
 
 # Configures this workflow to run every time a change is pushed to the branches.
 on:
@@ -47,7 +47,6 @@ jobs:
           context: .
           file: ./Dockerfile-alpine
           push: true
-          load: true
           tags: alpine-${{ steps.meta.outputs.tags }}
           labels: alpine-${{ steps.meta.outputs.labels }}
       - name: Build CCGL with gdal
@@ -56,7 +55,6 @@ jobs:
           context: .
           file: ./Dockerfile-alpine-with-gdal
           push: true
-          load: true
           tags: alpine-with-gdal-${{ steps.meta.outputs.tags }}
           labels: alpine-with-gdal-${{ steps.meta.outputs.labels }}
       - name: Build CCGL with mongodb
@@ -65,7 +63,6 @@ jobs:
           context: .
           file: ./Dockerfile-alpine-with-mongodb
           push: true
-          load: true
           tags: alpine-with-mongodb-${{ steps.meta.outputs.tags }}
           labels: alpine-with-mongodb-${{ steps.meta.outputs.labels }}
       - name: Build CCGL with gdal and mongodb
@@ -74,6 +71,5 @@ jobs:
           context: .
           file: ./Dockerfile-alpine-with-gdal-mongodb
           push: true
-          load: true
           tags: alpine-with-gdal-mongodb-${{ steps.meta.outputs.tags }}
           labels: alpine-with-gdal-mongodb-${{ steps.meta.outputs.labels }}
