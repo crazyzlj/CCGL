@@ -47,29 +47,25 @@ jobs:
           context: .
           file: ./Dockerfile-alpine
           push: true
-          tags: alpine-${{ steps.meta.outputs.tags }}
-          labels: alpine-${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}-alpine
       - name: Build CCGL with gdal
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile-alpine-with-gdal
           push: true
-          tags: alpine-with-gdal-${{ steps.meta.outputs.tags }}
-          labels: alpine-with-gdal-${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}-alpine-with-gdal
       - name: Build CCGL with mongodb
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile-alpine-with-mongodb
           push: true
-          tags: alpine-with-mongodb-${{ steps.meta.outputs.tags }}
-          labels: alpine-with-mongodb-${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}-alpine-with-mongodb
       - name: Build CCGL with gdal and mongodb
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile-alpine-with-gdal-mongodb
           push: true
-          tags: alpine-with-gdal-mongodb-${{ steps.meta.outputs.tags }}
-          labels: alpine-with-gdal-mongodb-${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}-alpine-with-gdal-mongodb
