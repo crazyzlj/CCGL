@@ -13,6 +13,7 @@ env:
   IMAGE_NAME: ccgl
   # github container registry
   REGISTRY: ghcr.io
+  NAMESPACE: crazyzlj
   # aliyun ACR
   REGION_ID_ACR: cn-hangzhou
   REGISTRY_ACR: registry.cn-hangzhou.aliyuncs.com
@@ -49,13 +50,13 @@ jobs:
           password: "${{ secrets.ACR_PASSWORD }}"
 
       # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: |
-            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}
-            ${{ env.REGISTRY }}/crazyzlj/${{ env.IMAGE_NAME }}
+      # - name: Extract metadata (tags, labels) for Docker
+      #   id: meta
+      #   uses: docker/metadata-action@v5
+      #   with:
+      #     images: |
+      #       ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}
+      #       ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see "[Usage](https://github.com/docker/build-push-action#usage)" in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
@@ -67,25 +68,27 @@ jobs:
           context: .
           file: ./Dockerfile-alpine
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-alpine
-      - name: Build CCGL with gdal
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile-alpine-with-gdal
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}-alpine-with-gdal
-      - name: Build CCGL with mongodb
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile-alpine-with-mongodb
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}-alpine-with-mongodb
-      - name: Build CCGL with gdal and mongodb
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile-alpine-with-gdal-mongodb
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}-alpine-with-gdal-mongodb
+          tags: ｜
+            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}-alpine:latest
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}-alpine:latest
+      # - name: Build CCGL with gdal
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile-alpine-with-gdal
+      #     push: true
+      #     tags: ${{ steps.meta.outputs.tags }}-alpine-with-gdal
+      # - name: Build CCGL with mongodb
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile-alpine-with-mongodb
+      #     push: true
+      #     tags: ${{ steps.meta.outputs.tags }}-alpine-with-mongodb
+      # - name: Build CCGL with gdal and mongodb
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile-alpine-with-gdal-mongodb
+      #     push: true
+      #     tags: ${{ steps.meta.outputs.tags }}-alpine-with-gdal-mongodb
