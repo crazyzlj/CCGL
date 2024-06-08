@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: ccgl
   # github container registry
   REGISTRY: ghcr.io
-  NAMESPACE: crazyzlj
+  NAMESPACE: ${{ github.repository_owner }}
   # aliyun ACR
   REGION_ID_ACR: cn-hangzhou
   REGISTRY_ACR: registry.cn-hangzhou.aliyuncs.com
@@ -73,7 +73,7 @@ jobs:
           context: .
           file: ./Dockerfile-alpine
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-alpine
+          tags: "${{ steps.meta.outputs.tags }}-alpine"
 
       # - name: Build CCGL with gdal
       #   uses: docker/build-push-action@v5
