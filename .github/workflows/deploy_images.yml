@@ -44,13 +44,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # login alibaba Container Registry
-      - name: Login to ACR
-        uses: aliyun/acr-login@v1
-        with:
-          login-server: https://registry.cn-hangzhou.aliyuncs.com
-          region-id: cn-hangzhou
-          username: "${{ secrets.ACR_USERNAME }}"
-          password: "${{ secrets.ACR_PASSWORD }}"
+      # - name: Login to ACR
+      #   uses: aliyun/acr-login@v1
+      #   with:
+      #     login-server: https://registry.cn-hangzhou.aliyuncs.com
+      #     region-id: cn-hangzhou
+      #     username: "${{ secrets.ACR_USERNAME }}"
+      #     password: "${{ secrets.ACR_PASSWORD }}"
 
       # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
       - name: Extract metadata (tags, labels) for Docker
