@@ -54,9 +54,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+            #${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}
+            #${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -73,7 +73,7 @@ jobs:
           context: .
           file: ./Dockerfile-alpine
           push: true
-          tags: "${{ steps.meta.outputs.tags }}-alpine"
+          tags: ${{ steps.meta.outputs.tags }}
 
       # - name: Build CCGL with gdal
       #   uses: docker/build-push-action@v5
