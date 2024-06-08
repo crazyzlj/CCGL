@@ -53,8 +53,6 @@ FROM alpine:${ALPINE_VERSION} as runner
 RUN apk update && apk upgrade && \
     apk add --no-cache libstdc++ libgomp
 
-RUN apk add --no-cache libstdc++ libgomp
-
 # Order layers starting with less frequently varying ones
 ARG INSTALL_DIR=/CCGL/dist
 COPY --from=builder ${INSTALL_DIR}/bin/ /usr/bin/
