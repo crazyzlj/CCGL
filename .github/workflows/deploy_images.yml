@@ -25,9 +25,12 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
-    permissions:
-      contents: read
-      packages: write
+    permissions: write-all
+    # permissions:
+    #   contents: read
+    #   packages: write
+    #   attestations: write
+    #   id-token: write
       #
     steps:
       - name: Checkout repository
@@ -73,7 +76,7 @@ jobs:
           context: .
           file: ./Dockerfile-alpine
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/crazyzlj/ccgl:dev
 
       # - name: Build CCGL with gdal
       #   uses: docker/build-push-action@v5
