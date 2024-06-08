@@ -77,6 +77,7 @@ jobs:
           context: .
           file: ./Dockerfile-alpine
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine
@@ -89,6 +90,7 @@ jobs:
           context: .
           file: ./Dockerfile-alpine-with-gdal
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-gdal
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-gdal
@@ -101,6 +103,7 @@ jobs:
           context: .
           file: ./Dockerfile-alpine-with-mongodb
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-mongodb
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-mongodb
@@ -113,6 +116,7 @@ jobs:
           context: .
           file: ./Dockerfile-alpine-with-gdal-mongodb
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-gdal-mongodb
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-gdal-mongodb
