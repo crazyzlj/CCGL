@@ -78,29 +78,43 @@ jobs:
           file: ./Dockerfile-alpine
           push: true
           tags: |
-            registry.cn-hangzhou.aliyuncs.com/ljzhu-geomodels/ccgl:dev-alpine
-            ghcr.io/crazyzlj/ccgl:dev-alpine
+            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # - name: Build CCGL with gdal
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile-alpine-with-gdal
-      #     push: true
-      #     tags: ${{ steps.meta.outputs.tags }}-alpine-with-gdal
-      # - name: Build CCGL with mongodb
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile-alpine-with-mongodb
-      #     push: true
-      #     tags: ${{ steps.meta.outputs.tags }}-alpine-with-mongodb
-      # - name: Build CCGL with gdal and mongodb
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile-alpine-with-gdal-mongodb
-      #     push: true
-      #     tags: ${{ steps.meta.outputs.tags }}-alpine-with-gdal-mongodb
+      - name: Build CCGL with gdal
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile-alpine-with-gdal
+          push: true
+          tags: |
+            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-gdal
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-gdal
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build CCGL with mongodb
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile-alpine-with-mongodb
+          push: true
+          tags: |
+            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-mongodb
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-mongodb
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build CCGL with gdal and mongodb
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile-alpine-with-gdal-mongodb
+          push: true
+          tags: |
+            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-gdal-mongodb
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-alpine-with-gdal-mongodb
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
