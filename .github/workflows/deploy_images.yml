@@ -77,7 +77,11 @@ jobs:
           context: .
           file: ./Dockerfile-alpine
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-alpine
+          tags: |
+            registry.cn-hangzhou.aliyuncs.com/ljzhu-geomodels/ccgl:dev-alpine
+            ghcr.io/crazyzlj/ccgl:dev-alpine
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # - name: Build CCGL with gdal
       #   uses: docker/build-push-action@v5
