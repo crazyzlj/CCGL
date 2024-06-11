@@ -52,7 +52,7 @@ RUN apk update && apk upgrade && \
 
 # Order layers starting with less frequently varying ones
 ARG INSTALL_DIR=/CCGL/dist
-COPY --from=builder ${INSTALL_DIR}/bin/ /usr/bin/
-COPY --from=builder ${INSTALL_DIR}/include/ /usr/include/
-COPY --from=builder ${INSTALL_DIR}/lib/ /usr/lib/
-COPY --from=builder ${INSTALL_DIR}/share/ccgl/ /usr/share/ccgl/
+COPY --from=builder ${INSTALL_DIR}/bin/ /usr/local/bin/
+COPY --from=builder ${INSTALL_DIR}/include/ /usr/local/include/
+COPY --from=builder ${INSTALL_DIR}/lib/ /usr/local/lib/
+COPY --from=builder ${INSTALL_DIR}/share/ccgl/ /usr/local/share/ccgl/
