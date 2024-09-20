@@ -187,8 +187,6 @@ jobs:
     # https://github.com/ankane/setup-mongodb
     - name: Setup MongoDB
       uses: ankane/setup-mongodb@v1
-      with:
-          mongodb-version: 7.0
 
     - name: Run MongoDB
       run: mongosh --eval "db.version()"
