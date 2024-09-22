@@ -919,48 +919,59 @@ bool ReadGridFsFile(MongoGridFs* gfs, const string& filename,
     if (rstype == RDT_Double && size_dtype == sizeof(double)) {
         double* data_dbl = reinterpret_cast<double*>(buf);
         Initialize1DArray(value_count, data, data_dbl);
-        Release1DArray(data_dbl);
+        //Release1DArray(data_dbl);
     }
     else if (rstype == RDT_Float && size_dtype == sizeof(float)) {
         float* data_flt = reinterpret_cast<float*>(buf);
         Initialize1DArray(value_count, data, data_flt);
-        Release1DArray(data_flt);
+        //Release1DArray(data_flt);
     }
     else if (rstype == RDT_Int32 && size_dtype == sizeof(vint32_t)) {
         vint32_t* data_int32 = reinterpret_cast<vint32_t*>(buf);
         Initialize1DArray(value_count, data, data_int32);
-        Release1DArray(data_int32);
+        //Release1DArray(data_int32);
     }
     else if (rstype == RDT_UInt32 && size_dtype == sizeof(vuint32_t)) {
         vuint32_t* data_uint32 = reinterpret_cast<vuint32_t*>(buf);
         Initialize1DArray(value_count, data, data_uint32);
-        Release1DArray(data_uint32);
+        //Release1DArray(data_uint32);
+    }
+    else if (rstype == RDT_Int64 && size_dtype == sizeof(vint64_t)) {
+        vint64_t* data_int64 = reinterpret_cast<vint64_t*>(buf);
+        Initialize1DArray(value_count, data, data_int64);
+        //Release1DArray(data_int64);
+    }
+    else if (rstype == RDT_UInt64 && size_dtype == sizeof(vuint64_t)) {
+        vuint64_t* data_uint64 = reinterpret_cast<vuint64_t*>(buf);
+        Initialize1DArray(value_count, data, data_uint64);
+        //Release1DArray(data_uint64);
     }
     else if (rstype == RDT_Int16 && size_dtype == sizeof(vint16_t)) {
         vint16_t* data_int16 = reinterpret_cast<vint16_t*>(buf);
         Initialize1DArray(value_count, data, data_int16);
-        Release1DArray(data_int16);
+        //Release1DArray(data_int16);
     }
     else if (rstype == RDT_UInt16 && size_dtype == sizeof(vuint16_t)) {
         vuint16_t* data_uint16 = reinterpret_cast<vuint16_t*>(buf);
         Initialize1DArray(value_count, data, data_uint16);
-        Release1DArray(data_uint16);
+        //Release1DArray(data_uint16);
     }
     else if (rstype == RDT_Int8 && size_dtype == sizeof(vint8_t)) {
         vint8_t* data_int8 = reinterpret_cast<vint8_t*>(buf);
         Initialize1DArray(value_count, data, data_int8);
-        Release1DArray(data_int8);
+        //Release1DArray(data_int8);
     }
     else if (rstype == RDT_UInt8 && size_dtype == sizeof(vuint8_t)) {
         vuint8_t* data_uint8 = reinterpret_cast<vuint8_t*>(buf);
         Initialize1DArray(value_count, data, data_uint8);
-        Release1DArray(data_uint8);
+        //Release1DArray(data_uint8);
     }
     else {
         StatusMessage("Unconsistent of data type and size!");
         delete[] buf;
         return false;
     }
+    delete[] buf;
     return true;
 }
 
@@ -2020,7 +2031,8 @@ void clsRasterData<T, MASK_T>::InitializeRasterClass(bool is_2d /* = false */) {
     n_cells_ = -1;
     rs_type_ = RDT_Unknown;
     rs_type_out_ = RDT_Unknown;
-    no_data_value_ = static_cast<T>(NODATA_VALUE); // Be careful of unsigned data type!
+    no_data_value_ = DefaultNoDataByType(TypeToRasterDataType(typeid(T)));
+    //no_data_value_ = static_cast<T>(NODATA_VALUE); // Be careful of unsigned data type!
     default_value_ = NODATA_VALUE;
     raster_ = nullptr;
     pos_data_ = nullptr;
@@ -2472,7 +2484,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
     sindex = GetUpper(sindex);
     if (!ValidateRasterData() || !ValidateLayer(lyr)) {
         StatusMessage("No available raster statistics!");
-        return CVT_DBL(no_data_value_);
+        return CVT_DBL(default_value_);
     }
     if (is_2draster && nullptr != raster_2d_) {
         // for 2D raster data
@@ -2485,7 +2497,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
             return stats_2d_.at(sindex)[lyr - 1];
         }
         StatusMessage("WARNING: " + ValueToString(sindex) + " is not supported currently.");
-        return CVT_DBL(no_data_value_);
+        return CVT_DBL(default_value_);
     }
     // Else, for 1D raster data
     auto it = stats_.find(sindex);
@@ -2496,7 +2508,7 @@ double clsRasterData<T, MASK_T>::GetStatistics(string sindex, const int lyr /* =
         return stats_.at(sindex);
     }
     StatusMessage("WARNING: " + ValueToString(sindex) + " is not supported currently.");
-    return CVT_DBL(no_data_value_);
+    return CVT_DBL(default_value_);
 }
 
 template <typename T, typename MASK_T>
