@@ -27,7 +27,7 @@ env:
   NAMESPACE_ACR: ljzhu-geomodels
   DOCKERFILE_NAME: Dockerfile.alpine-with-gdal-mongodb
   # IMAGE_TAG: ${{ github.sha }}
-  IMAGE_TAG: ${{ github.ref == 'master' && 'alpine-with-gdal-mongodb' || 'dev-alpine-with-gdal-mongodb' }}
+  IMAGE_TAG: ${{ github.ref == 'refs/heads/master' && 'alpine-with-gdal-mongodb' || 'dev-alpine-with-gdal-mongodb' }}
 
 jobs:
   build-linux:
@@ -153,7 +153,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          
+
   build-windows:
     runs-on: windows-2019
 

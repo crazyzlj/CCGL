@@ -31,7 +31,7 @@ env:
   NAMESPACE_ACR: ljzhu-geomodels
   DOCKERFILE_NAME: Dockerfile.alpine-with-gdal
   # IMAGE_TAG: ${{ github.sha }}
-  IMAGE_TAG: ${{ github.ref == 'master' && 'alpine-with-gdal' || 'dev-alpine-with-gdal' }}
+  IMAGE_TAG: ${{ github.ref == 'refs/heads/master' && 'alpine-with-gdal' || 'dev-alpine-with-gdal' }}
 
 jobs:
   # Check GitHub Actions runner images versions: https://github.com/actions/runner-images
@@ -161,7 +161,7 @@ jobs:
       run: brew list gdal &>/dev/null || brew install gdal
 
     - name: Checkout CCGL
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1

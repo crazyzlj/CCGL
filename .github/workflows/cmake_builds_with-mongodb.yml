@@ -31,7 +31,7 @@ env:
   NAMESPACE_ACR: ljzhu-geomodels
   DOCKERFILE_NAME: Dockerfile.alpine-with-mongodb
   # IMAGE_TAG: ${{ github.sha }}
-  IMAGE_TAG: ${{ github.ref == 'master' && 'alpine-with-mongodb' || 'dev-alpine-with-mongodb' }}
+  IMAGE_TAG: ${{ github.ref == 'refs/heads/master' && 'alpine-with-mongodb' || 'dev-alpine-with-mongodb' }}
 
 jobs:
   # Check GitHub Actions runner images versions: https://github.com/actions/runner-images
