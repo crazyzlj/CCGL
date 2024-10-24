@@ -88,7 +88,7 @@ jobs:
           doxyfile-path: 'doc/Doxyfile.zh-cn.in'
 
     - name: Deploy Doc
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: ${{ github.event.head_commit.message }}
