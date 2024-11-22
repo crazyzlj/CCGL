@@ -151,7 +151,7 @@ jobs:
         ctest -C ${{env.BUILD_TYPE}} --rerun-failed --output-on-failure
 
   build-mac:
-    runs-on: macos-latest
+    runs-on: macos-13-xlarge
 
     steps:
     - name: Setup xcode
