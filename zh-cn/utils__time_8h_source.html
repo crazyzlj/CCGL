@@ -1,0 +1,222 @@
+<!-- HTML header for doxygen -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.2"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CCGL: src/utils_time.h 源文件</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/crazyzlj/CCGL" title="CCGL by Liang-Jun Zhu"><i class="githublogo"></i></a></div>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="搜索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search",'搜索','.html');
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('utils__time_8h_source.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">utils_time.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="utils__time_8h.html">浏览该文件的文档.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#ifndef CCGL_UTILS_TIME_H</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#define CCGL_UTILS_TIME_H</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;<a class="code" href="basic_8h.html">basic.h</a>&quot;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceccgl.html">ccgl</a> {</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">namespace </span>utils_time {</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a4c2ec3abdec22d88ea4d009f77ba3c83">TimeCounting</a>();</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="namespaceccgl_1_1utils__time.html#a2f4edbf938e7e7e5a77eb49941c394bc">   31</a></span><span class="keyword">inline</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a2f4edbf938e7e7e5a77eb49941c394bc">IsLeapYear</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> yr) { <span class="keywordflow">return</span> !(yr % 4) &amp;&amp; (yr % 100 || !(yr % 400)); }</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keywordtype">string</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a43122b008098c56e7c09508134961bce">ConvertToString</a>(<span class="keyword">const</span> time_t date, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keywordtype">string</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#ac1aef898f7cd5299bffa4abdef38c623">ConvertToString2</a>(<span class="keyword">const</span> time_t date, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keywordtype">string</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a6545a6289393225664ad5ee5e3b76814">ConvertToString3</a>(<span class="keyword">const</span> time_t date, <span class="keywordtype">bool</span> utc_time  = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>time_t <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#af5c44ba5e658d30fe83437ba0f4ec391">ConvertToTime</a>(<span class="keyword">const</span> <span class="keywordtype">string</span>&amp; str_date, <span class="keywordtype">string</span> <span class="keyword">const</span>&amp; format, <span class="keywordtype">bool</span> include_hour, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>time_t <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a155279320ba105ac82c76ec0f115539e">ConvertYMDToTime</a>(<span class="keywordtype">int</span>&amp; year, <span class="keywordtype">int</span>&amp; month, <span class="keywordtype">int</span>&amp; day, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a2b54a9b7fa73f7d9b71992beef1b2251">GetDateInfoFromTimet</a>(time_t t, <span class="keywordtype">int</span>* year, <span class="keywordtype">int</span>* month, <span class="keywordtype">int</span>* day, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#aefcfffa6e550213459e15b75453c4bf6">LocalTime</a>(time_t date, <span class="keyword">struct</span> tm* t);</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a30a2227568161bebf0f0ab4603bc38af">UTCTime</a>(time_t date, <span class="keyword">struct</span> tm* t);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a6099df01b033f57aabceaa527a6aed63">GetDateTime</a>(time_t date, <span class="keyword">struct</span> tm* t, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#ab7ef0f744861da626ae5d195cbed25f3">GetYear</a>(time_t date, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#aa37d5fa1eb88894029c02f73946cfc4f">GetMonth</a>(time_t date, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#acdf9e4445b6dbe26401db990b3ec6d71">GetDay</a>(time_t date, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a9163c6ac7cc98fb169c42f57ebcd0954">DayOfYear</a>(time_t date, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a9163c6ac7cc98fb169c42f57ebcd0954">DayOfYear</a>(<span class="keywordtype">int</span> year, <span class="keywordtype">int</span> month, <span class="keywordtype">int</span> day);</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a370157f7a6873a4bc5607ad9badead20">JulianDay</a>(time_t date, <span class="keywordtype">bool</span> utc_time = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span><span class="keywordtype">int</span> <a class="code hl_function" href="namespaceccgl_1_1utils__time.html#a370157f7a6873a4bc5607ad9badead20">JulianDay</a>(<span class="keywordtype">int</span> year, <span class="keywordtype">int</span> month, <span class="keywordtype">int</span> day);</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html">  156</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> {</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#a9a3f518814aad3fb4b0e584758aaf454">  157</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#a9a3f518814aad3fb4b0e584758aaf454">year</a>;                     </div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#a458e98e91f7a4ed3ff1bb3498fd35a3b">  158</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#a458e98e91f7a4ed3ff1bb3498fd35a3b">month</a>;                    </div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#a776c4bb0dab88d86b963cc50b5e7aec1">  159</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#a776c4bb0dab88d86b963cc50b5e7aec1">day</a>;                      </div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#a3fa7f243b36ec8be402dae7db13b7eeb">  160</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#a3fa7f243b36ec8be402dae7db13b7eeb">day_of_week</a>;              </div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#a7f49ca75536c0a9de52d409e1481f372">  161</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#a7f49ca75536c0a9de52d409e1481f372">day_of_year</a>;              </div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#a95140f4ec4e27a7b454c0daf324f585c">  162</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#a95140f4ec4e27a7b454c0daf324f585c">hour</a>;                     </div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#a4d7bc96f794ed4055fcc604f362c5c95">  163</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#a4d7bc96f794ed4055fcc604f362c5c95">minute</a>;                   </div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#a88f625f13d70409c80dd0a3d7052b233">  164</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#a88f625f13d70409c80dd0a3d7052b233">second</a>;                   </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#af62a7fff73ed676bebb02c90e989239c">  165</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#af62a7fff73ed676bebb02c90e989239c">milliseconds</a>;             </div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#af95029bf5bd0704b807eeeef1cb37787">  166</a></span>    vuint64_t <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#af95029bf5bd0704b807eeeef1cb37787">total_milliseconds</a>; </div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno"><a class="line" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">  167</a></span>    vuint64_t <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a>;           </div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keyword">static</span> <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#ac99c9a2b5beb6d47a00781110d2d8520">LocalTime</a>();</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keyword">static</span> <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#a1ca89a18a392ea3503019217a28d7504">UTCTime</a>();</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <span class="keyword">static</span> <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#a02d7f0807091f431ec7c18041ca87370">FromDateTime</a>(<span class="keywordtype">int</span> iyear, <span class="keywordtype">int</span> imonth, <span class="keywordtype">int</span> iday, <span class="keywordtype">int</span> ihour = 0,</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>                                 <span class="keywordtype">int</span> iminute = 0, <span class="keywordtype">int</span> isecond = 0, <span class="keywordtype">int</span> imillisecond = 0);</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keyword">static</span> <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#a76bc9d0fc6269f4eab40c68cf4535139">FromFileTime</a>(vuint64_t ifiletime);</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#ac580e77a19b760abf6ee3d2ac9b0b701">DateTime</a>(); </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#a93f697d60a046cd834507f9491a66468">ToLocalTime</a>(); </div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#ad5a6dd95c3b06b4e8bb593aa9df6b0ff">ToUTCTime</a>(); </div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#abb5802bd349c4a1f7d06a29a614bee53">Forward</a>(<span class="keywordtype">int</span> imilliseconds); </div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#a0db753c83f14367d5c717b224445c9b8">Backward</a>(<span class="keywordtype">int</span> imilliseconds); </div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a>&amp; value)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a> == value.<a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a>; }</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a>&amp; value)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a> != value.<a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a>; }</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordtype">bool</span> operator&lt;(<span class="keyword">const</span> <a class="code hl_struct" href="structccgl_1_1utils__time_1_1_date_time.html">DateTime</a>&amp; value)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a> &lt; value.<a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a>; }</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keywordtype">bool</span> operator&lt;=(<span class="keyword">const</span> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#ac580e77a19b760abf6ee3d2ac9b0b701">DateTime</a>&amp; value)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a> &lt;= value.filetime; }</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keywordtype">bool</span> operator&gt;(<span class="keyword">const</span> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#ac580e77a19b760abf6ee3d2ac9b0b701">DateTime</a>&amp; value)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a> &gt; value.filetime; }</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordtype">bool</span> operator&gt;=(<span class="keyword">const</span> <a class="code hl_function" href="structccgl_1_1utils__time_1_1_date_time.html#ac580e77a19b760abf6ee3d2ac9b0b701">DateTime</a>&amp; value)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code hl_variable" href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">filetime</a> &gt;= value.filetime; }</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>};</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>} <span class="comment">/* namespace: utils_time */</span></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>} <span class="comment">/* namespace: ccgl */</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="preprocessor">#endif </span><span class="comment">/* CCGL_UTILS_TIME_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="abasic_8h_html"><div class="ttname"><a href="basic_8h.html">basic.h</a></div><div class="ttdoc">Basic definitions.</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a155279320ba105ac82c76ec0f115539e"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a155279320ba105ac82c76ec0f115539e">ccgl::utils_time::ConvertYMDToTime</a></div><div class="ttdeci">time_t ConvertYMDToTime(int &amp;year, int &amp;month, int &amp;day, const bool utc_time)</div><div class="ttdoc">Convert integer year, month, and day to date time</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:157</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a2b54a9b7fa73f7d9b71992beef1b2251"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a2b54a9b7fa73f7d9b71992beef1b2251">ccgl::utils_time::GetDateInfoFromTimet</a></div><div class="ttdeci">int GetDateInfoFromTimet(const time_t t, int *year, int *month, int *day, const bool utc_time)</div><div class="ttdoc">Get date information from time_t variable</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:182</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a2f4edbf938e7e7e5a77eb49941c394bc"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a2f4edbf938e7e7e5a77eb49941c394bc">ccgl::utils_time::IsLeapYear</a></div><div class="ttdeci">bool IsLeapYear(const int yr)</div><div class="ttdoc">Check the given year is a leap year or not.</div><div class="ttdef"><b>Definition:</b> utils_time.h:31</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a30a2227568161bebf0f0ab4603bc38af"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a30a2227568161bebf0f0ab4603bc38af">ccgl::utils_time::UTCTime</a></div><div class="ttdeci">void UTCTime(const time_t date, struct tm *t)</div><div class="ttdoc">Get UTC:+00:00 time</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:205</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a370157f7a6873a4bc5607ad9badead20"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a370157f7a6873a4bc5607ad9badead20">ccgl::utils_time::JulianDay</a></div><div class="ttdeci">int JulianDay(const time_t date, const bool utc_time)</div><div class="ttdoc">Get the Julian day from time_t date</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:257</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a43122b008098c56e7c09508134961bce"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a43122b008098c56e7c09508134961bce">ccgl::utils_time::ConvertToString</a></div><div class="ttdeci">string ConvertToString(const time_t date, const bool utc_time)</div><div class="ttdoc">Convert date time to string as the format of &quot;YYYY-MM-DD&quot;</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:30</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a4c2ec3abdec22d88ea4d009f77ba3c83"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a4c2ec3abdec22d88ea4d009f77ba3c83">ccgl::utils_time::TimeCounting</a></div><div class="ttdeci">double TimeCounting()</div><div class="ttdoc">Precisely and cross-platform time counting function.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:13</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a6099df01b033f57aabceaa527a6aed63"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a6099df01b033f57aabceaa527a6aed63">ccgl::utils_time::GetDateTime</a></div><div class="ttdeci">void GetDateTime(const time_t date, struct tm *t, const bool utc_time)</div><div class="ttdoc">Get UTC:+00:00 time</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:213</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a6545a6289393225664ad5ee5e3b76814"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a6545a6289393225664ad5ee5e3b76814">ccgl::utils_time::ConvertToString3</a></div><div class="ttdeci">string ConvertToString3(const time_t date, const bool utc_time)</div><div class="ttdoc">format: 2022_11_17_092000</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:76</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_a9163c6ac7cc98fb169c42f57ebcd0954"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#a9163c6ac7cc98fb169c42f57ebcd0954">ccgl::utils_time::DayOfYear</a></div><div class="ttdeci">int DayOfYear(const time_t date, const bool utc_time)</div><div class="ttdoc">Get the day of one year, [1, 366]</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:245</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_aa37d5fa1eb88894029c02f73946cfc4f"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#aa37d5fa1eb88894029c02f73946cfc4f">ccgl::utils_time::GetMonth</a></div><div class="ttdeci">int GetMonth(const time_t date, const bool utc_time)</div><div class="ttdoc">Get the month</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:229</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_ab7ef0f744861da626ae5d195cbed25f3"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#ab7ef0f744861da626ae5d195cbed25f3">ccgl::utils_time::GetYear</a></div><div class="ttdeci">int GetYear(const time_t date, const bool utc_time)</div><div class="ttdoc">Get the year</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:221</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_ac1aef898f7cd5299bffa4abdef38c623"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#ac1aef898f7cd5299bffa4abdef38c623">ccgl::utils_time::ConvertToString2</a></div><div class="ttdeci">string ConvertToString2(const time_t date, const bool utc_time)</div><div class="ttdoc">Convert date time to string as the format of &quot;YYYY-MM-DD HH&quot;</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:42</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_acdf9e4445b6dbe26401db990b3ec6d71"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#acdf9e4445b6dbe26401db990b3ec6d71">ccgl::utils_time::GetDay</a></div><div class="ttdeci">int GetDay(const time_t date, const bool utc_time)</div><div class="ttdoc">Get the day</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:237</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_aefcfffa6e550213459e15b75453c4bf6"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#aefcfffa6e550213459e15b75453c4bf6">ccgl::utils_time::LocalTime</a></div><div class="ttdeci">void LocalTime(time_t date, struct tm *t)</div><div class="ttdoc">Get local time</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:197</div></div>
+<div class="ttc" id="anamespaceccgl_1_1utils__time_html_af5c44ba5e658d30fe83437ba0f4ec391"><div class="ttname"><a href="namespaceccgl_1_1utils__time.html#af5c44ba5e658d30fe83437ba0f4ec391">ccgl::utils_time::ConvertToTime</a></div><div class="ttdeci">time_t ConvertToTime(const string &amp;str_date, string const &amp;format, const bool include_hour, const bool utc_time)</div><div class="ttdoc">Convert string to date time, string format could be %4d%2d%2d or d-d-d</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:113</div></div>
+<div class="ttc" id="anamespaceccgl_html"><div class="ttname"><a href="namespaceccgl.html">ccgl</a></div><div class="ttdoc">Common Cross-platform Geographic Library (CCGL)</div><div class="ttdef"><b>Definition:</b> basic.cpp:17</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html">ccgl::utils_time::DateTime</a></div><div class="ttdoc">A type representing the combination of date and time.</div><div class="ttdef"><b>Definition:</b> utils_time.h:156</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a02d7f0807091f431ec7c18041ca87370"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a02d7f0807091f431ec7c18041ca87370">ccgl::utils_time::DateTime::FromDateTime</a></div><div class="ttdeci">static DateTime FromDateTime(int iyear, int imonth, int iday, int ihour=0, int iminute=0, int isecond=0, int imillisecond=0)</div><div class="ttdoc">Create a date time value from each time element value.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:379</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a0db753c83f14367d5c717b224445c9b8"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a0db753c83f14367d5c717b224445c9b8">ccgl::utils_time::DateTime::Backward</a></div><div class="ttdeci">DateTime Backward(int imilliseconds)</div><div class="ttdoc">Move backward by the delta in milliseconds.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:496</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a1ca89a18a392ea3503019217a28d7504"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a1ca89a18a392ea3503019217a28d7504">ccgl::utils_time::DateTime::UTCTime</a></div><div class="ttdeci">static DateTime UTCTime()</div><div class="ttdoc">Get the current UTC time.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:360</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a3fa7f243b36ec8be402dae7db13b7eeb"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a3fa7f243b36ec8be402dae7db13b7eeb">ccgl::utils_time::DateTime::day_of_week</a></div><div class="ttdeci">int day_of_week</div><div class="ttdoc">Day of the week since Sunday - [0, 6]</div><div class="ttdef"><b>Definition:</b> utils_time.h:160</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a458e98e91f7a4ed3ff1bb3498fd35a3b"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a458e98e91f7a4ed3ff1bb3498fd35a3b">ccgl::utils_time::DateTime::month</a></div><div class="ttdeci">int month</div><div class="ttdoc">Month since January - [1, 12]</div><div class="ttdef"><b>Definition:</b> utils_time.h:158</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a4d7bc96f794ed4055fcc604f362c5c95"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a4d7bc96f794ed4055fcc604f362c5c95">ccgl::utils_time::DateTime::minute</a></div><div class="ttdeci">int minute</div><div class="ttdoc">Minutes after the hour - [0, 59]</div><div class="ttdef"><b>Definition:</b> utils_time.h:163</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a76bc9d0fc6269f4eab40c68cf4535139"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a76bc9d0fc6269f4eab40c68cf4535139">ccgl::utils_time::DateTime::FromFileTime</a></div><div class="ttdeci">static DateTime FromFileTime(vuint64_t ifiletime)</div><div class="ttdoc">Create a date time value from FILETIME.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:413</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a776c4bb0dab88d86b963cc50b5e7aec1"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a776c4bb0dab88d86b963cc50b5e7aec1">ccgl::utils_time::DateTime::day</a></div><div class="ttdeci">int day</div><div class="ttdoc">Day of the month - [1, 31]</div><div class="ttdef"><b>Definition:</b> utils_time.h:159</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a7f49ca75536c0a9de52d409e1481f372"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a7f49ca75536c0a9de52d409e1481f372">ccgl::utils_time::DateTime::day_of_year</a></div><div class="ttdeci">int day_of_year</div><div class="ttdoc">Day of the year - [0, 365]</div><div class="ttdef"><b>Definition:</b> utils_time.h:161</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a88f625f13d70409c80dd0a3d7052b233"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a88f625f13d70409c80dd0a3d7052b233">ccgl::utils_time::DateTime::second</a></div><div class="ttdeci">int second</div><div class="ttdoc">Seconds after the minute - [0, 59]</div><div class="ttdef"><b>Definition:</b> utils_time.h:164</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a93f697d60a046cd834507f9491a66468"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a93f697d60a046cd834507f9491a66468">ccgl::utils_time::DateTime::ToLocalTime</a></div><div class="ttdeci">DateTime ToLocalTime()</div><div class="ttdoc">Convert the UTC time to the local time.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:445</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a95140f4ec4e27a7b454c0daf324f585c"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a95140f4ec4e27a7b454c0daf324f585c">ccgl::utils_time::DateTime::hour</a></div><div class="ttdeci">int hour</div><div class="ttdoc">Hour of the day since midnight - [0, 23]</div><div class="ttdef"><b>Definition:</b> utils_time.h:162</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_a9a3f518814aad3fb4b0e584758aaf454"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#a9a3f518814aad3fb4b0e584758aaf454">ccgl::utils_time::DateTime::year</a></div><div class="ttdeci">int year</div><div class="ttdoc">Year</div><div class="ttdef"><b>Definition:</b> utils_time.h:157</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_abb5802bd349c4a1f7d06a29a614bee53"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#abb5802bd349c4a1f7d06a29a614bee53">ccgl::utils_time::DateTime::Forward</a></div><div class="ttdeci">DateTime Forward(int imilliseconds)</div><div class="ttdoc">Move forward by the delta in milliseconds.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:488</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_ac580e77a19b760abf6ee3d2ac9b0b701"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#ac580e77a19b760abf6ee3d2ac9b0b701">ccgl::utils_time::DateTime::DateTime</a></div><div class="ttdeci">DateTime()</div><div class="ttdoc">Create an empty date time value.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:438</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_ac99c9a2b5beb6d47a00781110d2d8520"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#ac99c9a2b5beb6d47a00781110d2d8520">ccgl::utils_time::DateTime::LocalTime</a></div><div class="ttdeci">static DateTime LocalTime()</div><div class="ttdoc">Get the current local time.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:341</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_ad5a6dd95c3b06b4e8bb593aa9df6b0ff"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#ad5a6dd95c3b06b4e8bb593aa9df6b0ff">ccgl::utils_time::DateTime::ToUTCTime</a></div><div class="ttdeci">DateTime ToUTCTime()</div><div class="ttdoc">Convert the local time to the UTC time.</div><div class="ttdef"><b>Definition:</b> utils_time.cpp:467</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_aeaf742c83e00def43e48ca61d65f4944"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#aeaf742c83e00def43e48ca61d65f4944">ccgl::utils_time::DateTime::filetime</a></div><div class="ttdeci">vuint64_t filetime</div><div class="ttdoc">The number of 100-nanosecond intervals since January 1, 1601 (UTC).</div><div class="ttdef"><b>Definition:</b> utils_time.h:167</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_af62a7fff73ed676bebb02c90e989239c"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#af62a7fff73ed676bebb02c90e989239c">ccgl::utils_time::DateTime::milliseconds</a></div><div class="ttdeci">int milliseconds</div><div class="ttdoc">Milliseconds after the second - [0, 999]</div><div class="ttdef"><b>Definition:</b> utils_time.h:165</div></div>
+<div class="ttc" id="astructccgl_1_1utils__time_1_1_date_time_html_af95029bf5bd0704b807eeeef1cb37787"><div class="ttname"><a href="structccgl_1_1utils__time_1_1_date_time.html#af95029bf5bd0704b807eeeef1cb37787">ccgl::utils_time::DateTime::total_milliseconds</a></div><div class="ttdeci">vuint64_t total_milliseconds</div><div class="ttdoc">Total milliseconds of the time</div><div class="ttdef"><b>Definition:</b> utils_time.h:166</div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="utils__time_8h.html">utils_time.h</a></li>
+  </ul>
+</div>
+</body>
+</html>
