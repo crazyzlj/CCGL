@@ -119,7 +119,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   build-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
     - name: Checkout CCGL
       uses: actions/checkout@v4
@@ -135,7 +135,7 @@ jobs:
     - name: Configure CMake
       shell: cmd
       run: |
-        cmake -G "Visual Studio 16 2019" -A x64 -B ${{github.workspace}}/build ^
+        cmake -G "Visual Studio 17 2022" -A x64 -B ${{github.workspace}}/build ^
         -DGDAL_ROOT=${{ env.GDAL_ROOT }} ^
         -DUNITTEST=1
 
