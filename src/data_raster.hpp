@@ -44,23 +44,14 @@
 #include <omp.h>
 #endif /* SUPPORT_OMP */
 
-// include GDAL, optional
-#ifdef USE_GDAL
-#include "gdal.h"
-#include "gdal_priv.h"
-#include "cpl_string.h"
-#include "ogr_spatialref.h"
-#endif /* USE_GDAL */
-
 #include "basic.h"
 #include "utils_filesystem.h"
 #include "utils_string.h"
 #include "utils_array.h"
 #include "utils_math.h"
-// include MongoDB, optional
-#ifdef USE_MONGODB
+
+#include "gdal_handler.h"
 #include "db_mongoc.h"
-#endif /* USE_MONGODB */
 
 using std::map;
 using std::set;
@@ -363,8 +354,9 @@ template <typename T>
 bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values,
                           RasterDataType& in_type, string& srs) {
     StatusMessage(("Read " + filename + "...").c_str());
-    GDALDataset* po_dataset = static_cast<GDALDataset*>(GDALOpen(filename.c_str(),
-                                                                 GA_ReadOnly));
+    GDALRasterDSHandle po_dataset(OpenRaster(filename.c_str()));
+    // GDALDataset* po_dataset = static_cast<GDALDataset*>(GDALOpen(filename.c_str(),
+    //                                                              GA_ReadOnly));
     if (nullptr == po_dataset) {
         StatusMessage("Open file " + filename + " failed.");
         return false;
@@ -412,7 +404,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Byte, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         if (read_as_signedbyte) {
@@ -435,7 +427,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                        n_cols, n_rows, GDT_Int8, 0, 0);
             if (result != CE_None) {
                 StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-                GDALClose(po_dataset);
+                // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
                 return false;
             }
             Initialize1DArray(n_rows * n_cols, tmprasterdata, char_data);
@@ -449,7 +441,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_UInt16, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         Initialize1DArray(n_rows * n_cols, tmprasterdata, uint16_data);
@@ -462,7 +454,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Int16, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         Initialize1DArray(n_rows * n_cols, tmprasterdata, int16_data);
@@ -475,7 +467,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_UInt32, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         Initialize1DArray(n_rows * n_cols, tmprasterdata, uint32_data);
@@ -488,7 +480,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Int32, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         Initialize1DArray(n_rows * n_cols, tmprasterdata, int32_data);
@@ -502,7 +494,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_UInt64, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         Initialize1DArray(n_rows * n_cols, tmprasterdata, uint64_data);
@@ -515,7 +507,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Int64, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         Initialize1DArray(n_rows * n_cols, tmprasterdata, int64_data);
@@ -529,7 +521,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Float32, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         Initialize1DArray(n_rows * n_cols, tmprasterdata, float_data);
@@ -542,7 +534,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
                                    n_cols, n_rows, GDT_Float64, 0, 0);
         if (result != CE_None) {
             StatusMessage("RaterIO trouble: " + string(CPLGetLastErrorMsg()));
-            GDALClose(po_dataset);
+            // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
             return false;
         }
         Initialize1DArray(n_rows * n_cols, tmprasterdata, double_data);
@@ -551,7 +543,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
         break;
     default:
         StatusMessage("Unexpected GDALDataType: " + string(RasterDataTypeToString(in_type)));
-        GDALClose(po_dataset);
+        // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
         return false;
     }
 
@@ -571,7 +563,7 @@ bool ReadRasterFileByGdal(const string& filename, STRDBL_MAP& header, T*& values
     UpdateHeader(header, HEADER_RS_CELLSNUM, n_cols * n_rows);
     srs = string(po_dataset->GetProjectionRef());
 
-    GDALClose(po_dataset);
+    // GDALClose(po_dataset); // When use GDALRasterDSHandle, No need to explicitly close dataset
 
     values = tmprasterdata;
     return true;
@@ -785,12 +777,15 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
         if (new_values != nullptr) { CPLFree(new_values); }
         return false;
     }
-    GDALDriver* po_driver = GetGDALDriverManager()->GetDriverByName("GTiff");
-    if (nullptr == po_driver) { return false; }
     string dirname = GetPathFromFullName(filename);
     if (!PathExists(dirname)) { MakeDirectory(dirname); }
-    GDALDataset* po_dst_ds = po_driver->Create(filename.c_str(), n_cols, n_rows, 1,
-                                               CvtToGDALDataType(outtype), papsz_options);
+    GDALRasterDSHandle po_dst_ds(CreateRaster("GTiff", filename.c_str(),
+                                                 n_cols, n_rows, 1,
+                                                 CvtToGDALDataType(outtype), papsz_options));
+    // GDALDriver* po_driver = GetGDALDriverManager()->GetDriverByName("GTiff");
+    // if (nullptr == po_driver) { return false; }
+    // GDALDataset* po_dst_ds = po_driver->Create(filename.c_str(), n_cols, n_rows, 1,
+    //                                            CvtToGDALDataType(outtype), papsz_options);
     if (nullptr == po_dst_ds) { return false; }
     GDALRasterBand* po_dst_band = po_dst_ds->GetRasterBand(1);
     CPLErr result = CE_None;
@@ -806,7 +801,7 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
         StatusMessage("RaterIO Error: " + string(CPLGetLastErrorMsg()));
         if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
         if (new_values != nullptr) { CPLFree(new_values); }
-        GDALClose(po_dst_ds);
+        // GDALClose(po_dst_ds); // When use GDALRasterDSHandle, No need to explicitly close dataset
         return false;
     }
     po_dst_band->SetNoDataValue(new_nodata);
@@ -826,7 +821,7 @@ bool WriteSingleGeotiff(const string& filename, const STRDBL_MAP& header,
     }
     if (papsz_options != nullptr) { CSLDestroy(papsz_options); }
     if (new_values != nullptr) { CPLFree(new_values); }
-    GDALClose(po_dst_ds);
+    // GDALClose(po_dst_ds); // When use GDALRasterDSHandle, No need to explicitly close dataset
 
     return true;
 }
