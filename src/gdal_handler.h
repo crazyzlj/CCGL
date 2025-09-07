@@ -11,6 +11,7 @@
  */
 #ifndef CCGL_DB_GDAL_H_
 #define CCGL_DB_GDAL_H_
+#ifdef USE_GDAL
 
 #include <memory>
 
@@ -96,5 +97,5 @@ struct GDALRasterDSDeleter {
     void operator()(GDALRasterDS* ds) const { CloseRaster(ds); }
 };
 typedef std::unique_ptr<GDALRasterDS, GDALRasterDSDeleter> GDALRasterDSHandle;
-
+#endif // USE_GDAL
 #endif // CCGL_DB_GDAL_H_

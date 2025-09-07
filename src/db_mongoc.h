@@ -320,7 +320,7 @@ bool GetBoolFromBsonIterator(bson_iter_t* iter);
  * \brief Get String from `bson_t`
  * \param[in] bmeta Instance of `bson_t`
  * \param[in] key
- * \return true if succeed, otherwise false.]
+ * \return true if succeeded, otherwise false.
  * \sa GetBoolFromBsonIterator()
  */
 bool GetBoolFromBson(bson_t* bmeta, const char* key);
