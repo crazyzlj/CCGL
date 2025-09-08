@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['header_5finc_5fnodata_0',['HEADER_INC_NODATA',['../namespaceccgl_1_1data__raster.html#a01fcd2f6465de24571e8bc90f98efea2',1,'ccgl::data_raster']]],
+  ['header_5fmask_5fname_1',['HEADER_MASK_NAME',['../namespaceccgl_1_1data__raster.html#ae559ccfc8aa9f388f326c5fbe97c8acd',1,'ccgl::data_raster']]],
+  ['header_5frs_5fcellsize_2',['HEADER_RS_CELLSIZE',['../namespaceccgl_1_1data__raster.html#ab432e647189ce560d5eb1dc8301388fa',1,'ccgl::data_raster']]],
+  ['header_5frs_5fcellsnum_3',['HEADER_RS_CELLSNUM',['../namespaceccgl_1_1data__raster.html#a2879e6b651cc144edd02b61806ff46b5',1,'ccgl::data_raster']]],
+  ['header_5frs_5fdatatype_4',['HEADER_RS_DATATYPE',['../namespaceccgl_1_1data__raster.html#a6989577c1cda968701492d5ac3c3f7e0',1,'ccgl::data_raster']]],
+  ['header_5frs_5flayers_5',['HEADER_RS_LAYERS',['../namespaceccgl_1_1data__raster.html#a719029d0926896bccdb4351a059c17d7',1,'ccgl::data_raster']]],
+  ['header_5frs_5fncols_6',['HEADER_RS_NCOLS',['../namespaceccgl_1_1data__raster.html#af38fe06de6c8276745ec7411cfbc11f4',1,'ccgl::data_raster']]],
+  ['header_5frs_5fnrows_7',['HEADER_RS_NROWS',['../namespaceccgl_1_1data__raster.html#af70ec25248983f365c43a9cf1cdfa8cc',1,'ccgl::data_raster']]],
+  ['header_5frs_5fparam_5fabstraction_5ftype_8',['HEADER_RS_PARAM_ABSTRACTION_TYPE',['../namespaceccgl_1_1data__raster.html#a2a8f56053d0fb5d886d7dfe2f08d449f',1,'ccgl::data_raster']]],
+  ['header_5frs_5fsrs_9',['HEADER_RS_SRS',['../namespaceccgl_1_1data__raster.html#a90326d4ba9875d06169ea6b513715ae0',1,'ccgl::data_raster']]],
+  ['header_5frs_5fxll_10',['HEADER_RS_XLL',['../namespaceccgl_1_1data__raster.html#afa44b39b60e51aedb1971a4831491a79',1,'ccgl::data_raster']]],
+  ['header_5frs_5fxllcor_11',['HEADER_RS_XLLCOR',['../namespaceccgl_1_1data__raster.html#af3ed3893eee522465004d461455c5a41',1,'ccgl::data_raster']]],
+  ['header_5frs_5fyll_12',['HEADER_RS_YLL',['../namespaceccgl_1_1data__raster.html#a2f5bfcf5b27cbcb78142bb1a57392c06',1,'ccgl::data_raster']]],
+  ['header_5frs_5fyllcor_13',['HEADER_RS_YLLCOR',['../namespaceccgl_1_1data__raster.html#acafe7654108aeed3294d825eced78587',1,'ccgl::data_raster']]],
+  ['header_5frsout_5fdatatype_14',['HEADER_RSOUT_DATATYPE',['../namespaceccgl_1_1data__raster.html#a84bd206d271a21e05cdfe29b56914ab8',1,'ccgl::data_raster']]],
+  ['hour_15',['hour',['../structccgl_1_1utils__time_1_1_date_time.html#a95140f4ec4e27a7b454c0daf324f585c',1,'ccgl::utils_time::DateTime']]]
+];

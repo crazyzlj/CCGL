@@ -1,0 +1,407 @@
+<!-- HTML header for doxygen -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.2"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CCGL: src/data_raster.hpp 文件参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/crazyzlj/CCGL" title="CCGL by Liang-Jun Zhu"><i class="githublogo"></i></a></div>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="搜索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search",'搜索','.html');
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('data__raster_8hpp.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">类</a> &#124;
+<a href="#namespaces">命名空间</a> &#124;
+<a href="#define-members">宏定义</a> &#124;
+<a href="#typedef-members">类型定义</a> &#124;
+<a href="#enum-members">枚举</a> &#124;
+<a href="#func-members">函数</a> &#124;
+<a href="#var-members">变量</a>  </div>
+  <div class="headertitle"><div class="title">data_raster.hpp 文件参考</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Define Raster class to handle raster data Part of the Common Cross-platform Geographic Library (CCGL)  
+<a href="#details">更多...</a></p>
+<div class="textblock"><code>#include &lt;string&gt;</code><br />
+<code>#include &lt;map&gt;</code><br />
+<code>#include &lt;set&gt;</code><br />
+<code>#include &lt;fstream&gt;</code><br />
+<code>#include &lt;iomanip&gt;</code><br />
+<code>#include &lt;typeinfo&gt;</code><br />
+<code>#include &lt;cassert&gt;</code><br />
+<code>#include &lt;omp.h&gt;</code><br />
+<code>#include &quot;<a class="el" href="basic_8h_source.html">basic.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="utils__filesystem_8h_source.html">utils_filesystem.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="utils__string_8h_source.html">utils_string.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="utils__array_8h_source.html">utils_array.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="utils__math_8h_source.html">utils_math.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="gdal__handler_8h_source.html">gdal_handler.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="db__mongoc_8h_source.html">db_mongoc.h</a>&quot;</code><br />
+</div>
+<p><a href="data__raster_8hpp_source.html">浏览源代码.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+类</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1_subset_positions.html">ccgl::data_raster::SubsetPositions</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subset positions of raster data  <a href="classccgl_1_1data__raster_1_1_subset_positions.html#details">更多...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html">ccgl::data_raster::clsRasterData&lt; T, MASK_T &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoDB database.  <a href="classccgl_1_1data__raster_1_1cls_raster_data.html#details">更多...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
+命名空间</h2></td></tr>
+<tr class="memitem:namespaceccgl"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceccgl.html">ccgl</a></td></tr>
+<tr class="memdesc:namespaceccgl"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common Cross-platform Geographic Library (CCGL) <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespaceccgl_1_1data__raster"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html">ccgl::data_raster</a></td></tr>
+<tr class="memdesc:namespaceccgl_1_1data__raster"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raster class to handle various raster data <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+宏定义</h2></td></tr>
+<tr class="memitem:a293beafd9c2edd57e4baf98ea018a614"><td class="memItemLeft" align="right" valign="top"><a id="a293beafd9c2edd57e4baf98ea018a614" name="a293beafd9c2edd57e4baf98ea018a614"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CONST_CHARS</b>&#160;&#160;&#160;static const char*</td></tr>
+<tr class="memdesc:a293beafd9c2edd57e4baf98ea018a614"><td class="mdescLeft">&#160;</td><td class="mdescRight">const string <br /></td></tr>
+<tr class="separator:a293beafd9c2edd57e4baf98ea018a614"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb9ea9c30be9ccaf5bea3c890ae154d3"><td class="memItemLeft" align="right" valign="top"><a id="adb9ea9c30be9ccaf5bea3c890ae154d3" name="adb9ea9c30be9ccaf5bea3c890ae154d3"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>IntRaster</b>&#160;&#160;&#160;clsRasterData&lt;int&gt;</td></tr>
+<tr class="separator:adb9ea9c30be9ccaf5bea3c890ae154d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87f53279cb75b9783c3aa1f4ccb2e0c0"><td class="memItemLeft" align="right" valign="top"><a id="a87f53279cb75b9783c3aa1f4ccb2e0c0" name="a87f53279cb75b9783c3aa1f4ccb2e0c0"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>FltRaster</b>&#160;&#160;&#160;clsRasterData&lt;float&gt;</td></tr>
+<tr class="separator:a87f53279cb75b9783c3aa1f4ccb2e0c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01a91faa50e851c3fda734239f21c5de"><td class="memItemLeft" align="right" valign="top"><a id="a01a91faa50e851c3fda734239f21c5de" name="a01a91faa50e851c3fda734239f21c5de"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>DblRaster</b>&#160;&#160;&#160;clsRasterData&lt;double&gt;</td></tr>
+<tr class="separator:a01a91faa50e851c3fda734239f21c5de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83182b6f41be421d53761cc42f24696e"><td class="memItemLeft" align="right" valign="top"><a id="a83182b6f41be421d53761cc42f24696e" name="a83182b6f41be421d53761cc42f24696e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>IntIntRaster</b>&#160;&#160;&#160;clsRasterData&lt;int, int&gt;</td></tr>
+<tr class="separator:a83182b6f41be421d53761cc42f24696e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d2c568cec78116a0421f0cb1d075074"><td class="memItemLeft" align="right" valign="top"><a id="a7d2c568cec78116a0421f0cb1d075074" name="a7d2c568cec78116a0421f0cb1d075074"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>FltIntRaster</b>&#160;&#160;&#160;clsRasterData&lt;float, int&gt;</td></tr>
+<tr class="separator:a7d2c568cec78116a0421f0cb1d075074"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52fa6bf1c4916698707ebdec0c4fc7db"><td class="memItemLeft" align="right" valign="top"><a id="a52fa6bf1c4916698707ebdec0c4fc7db" name="a52fa6bf1c4916698707ebdec0c4fc7db"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>DblIntRaster</b>&#160;&#160;&#160;clsRasterData&lt;double, int&gt;</td></tr>
+<tr class="separator:a52fa6bf1c4916698707ebdec0c4fc7db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+类型定义</h2></td></tr>
+<tr class="memitem:a9dd42d7efe1084b07b99592c0fec3d30"><td class="memItemLeft" align="right" valign="top"><a id="a9dd42d7efe1084b07b99592c0fec3d30" name="a9dd42d7efe1084b07b99592c0fec3d30"></a>
+typedef std::pair&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::ROW_COL</b></td></tr>
+<tr class="separator:a9dd42d7efe1084b07b99592c0fec3d30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecc2aa82b198c86e5cc78ae76cda691e"><td class="memItemLeft" align="right" valign="top"><a id="aecc2aa82b198c86e5cc78ae76cda691e" name="aecc2aa82b198c86e5cc78ae76cda691e"></a>
+typedef std::pair&lt; double, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::XY_COOR</b></td></tr>
+<tr class="memdesc:aecc2aa82b198c86e5cc78ae76cda691e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Row and Col pair <br /></td></tr>
+<tr class="separator:aecc2aa82b198c86e5cc78ae76cda691e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+枚举</h2></td></tr>
+<tr class="memitem:a38992d8ee944be814d2ffc47a719e0bf"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bf">ccgl::data_raster::RasterDataType</a> { <br />
+&#160;&#160;<a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfad32b0f65ca547bdae39603bda79ce914">ccgl::data_raster::RDT_Unknown</a>
+, <a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfafb215a00b0f97713bbec1c40f4604e08">ccgl::data_raster::RDT_UInt8</a>
+, <a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfadfc92c82ee0f3cf51c57ab348e5c645e">ccgl::data_raster::RDT_Int8</a>
+, <a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfa08c1f2c0b4fe0fc6956c304bd0f647d9">ccgl::data_raster::RDT_UInt16</a>
+, <br />
+&#160;&#160;<a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfab8a3f730ee66e7d7741d513cd72a6204">ccgl::data_raster::RDT_Int16</a>
+, <a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfa2cca98247ff68c792ec16c0d464a3944">ccgl::data_raster::RDT_UInt32</a>
+, <a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfa1d68fb9cb18f42cf37b4186c5680b4d4">ccgl::data_raster::RDT_Int32</a>
+, <a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfa67a3d5f33cd533feed0a8dafcc5cd411">ccgl::data_raster::RDT_UInt64</a>
+, <br />
+&#160;&#160;<a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfa52285f110a14ccf4ca51c708a8f5f4c2">ccgl::data_raster::RDT_Int64</a>
+, <a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfa67a07899d9d7a98efe88cf45955dd701">ccgl::data_raster::RDT_Float</a>
+, <a class="el" href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bfa95a8dcd6b2443357587f2bc2f4060d3a">ccgl::data_raster::RDT_Double</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:a38992d8ee944be814d2ffc47a719e0bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coordinate pair  <a href="namespaceccgl_1_1data__raster.html#a38992d8ee944be814d2ffc47a719e0bf">更多...</a><br /></td></tr>
+<tr class="separator:a38992d8ee944be814d2ffc47a719e0bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:ac624ef701cfa30f15773380f9087fa82"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#ac624ef701cfa30f15773380f9087fa82">ccgl::data_raster::RasterDataTypeToString</a> (int type)</td></tr>
+<tr class="memdesc:ac624ef701cfa30f15773380f9087fa82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common functions independent to <a class="el" href="classccgl_1_1data__raster_1_1cls_raster_data.html" title="Raster data (1D and 2D) I/O class Support I/O among ASCII file, TIFF, and MongoDB database.">clsRasterData</a>  <a href="namespaceccgl_1_1data__raster.html#ac624ef701cfa30f15773380f9087fa82">更多...</a><br /></td></tr>
+<tr class="separator:ac624ef701cfa30f15773380f9087fa82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfce945649be49901d8acde745fd6d03"><td class="memItemLeft" align="right" valign="top"><a id="abfce945649be49901d8acde745fd6d03" name="abfce945649be49901d8acde745fd6d03"></a>
+RasterDataType&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::StringToRasterDataType</b> (const string &amp;stype)</td></tr>
+<tr class="memdesc:abfce945649be49901d8acde745fd6d03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert string to RasterDataType <br /></td></tr>
+<tr class="separator:abfce945649be49901d8acde745fd6d03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e0d943cf5d155295463a40b83b043f8"><td class="memItemLeft" align="right" valign="top"><a id="a6e0d943cf5d155295463a40b83b043f8" name="a6e0d943cf5d155295463a40b83b043f8"></a>
+RasterDataType&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::TypeToRasterDataType</b> (const std::type_info &amp;t)</td></tr>
+<tr class="memdesc:a6e0d943cf5d155295463a40b83b043f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert C++ data type to RasterDataType <br /></td></tr>
+<tr class="separator:a6e0d943cf5d155295463a40b83b043f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b3554f3791fc8be19ae5df81463cebf"><td class="memItemLeft" align="right" valign="top"><a id="a5b3554f3791fc8be19ae5df81463cebf" name="a5b3554f3791fc8be19ae5df81463cebf"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::DefaultNoDataByType</b> (RasterDataType type)</td></tr>
+<tr class="memdesc:a5b3554f3791fc8be19ae5df81463cebf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default NoData value by data type <br /></td></tr>
+<tr class="separator:a5b3554f3791fc8be19ae5df81463cebf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ebd12ef948bdf5c24ec3ac95e822ebc"><td class="memItemLeft" align="right" valign="top"><a id="a0ebd12ef948bdf5c24ec3ac95e822ebc" name="a0ebd12ef948bdf5c24ec3ac95e822ebc"></a>
+GDALDataType&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::CvtToGDALDataType</b> (const RasterDataType type)</td></tr>
+<tr class="separator:a0ebd12ef948bdf5c24ec3ac95e822ebc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42e36043a07ca386f460a708af287ecf"><td class="memItemLeft" align="right" valign="top"><a id="a42e36043a07ca386f460a708af287ecf" name="a42e36043a07ca386f460a708af287ecf"></a>
+STRDBL_MAP&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::InitialHeader</b> ()</td></tr>
+<tr class="memdesc:a42e36043a07ca386f460a708af287ecf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize header information in double <br /></td></tr>
+<tr class="separator:a42e36043a07ca386f460a708af287ecf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ac67911157d246a372d447f3d50e126"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#a3ac67911157d246a372d447f3d50e126">ccgl::data_raster::CopyHeader</a> (const STRDBL_MAP &amp;refers, STRDBL_MAP &amp;dst)</td></tr>
+<tr class="memdesc:a3ac67911157d246a372d447f3d50e126"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy header information from one to another  <a href="namespaceccgl_1_1data__raster.html#a3ac67911157d246a372d447f3d50e126">更多...</a><br /></td></tr>
+<tr class="separator:a3ac67911157d246a372d447f3d50e126"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee36e8b8cb88fa66dd23a5fc262494a3"><td class="memTemplParams" colspan="2"><a id="aee36e8b8cb88fa66dd23a5fc262494a3" name="aee36e8b8cb88fa66dd23a5fc262494a3"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aee36e8b8cb88fa66dd23a5fc262494a3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ccgl::data_raster::UpdateHeader</b> (STRDBL_MAP &amp;header, const string &amp;key, T val)</td></tr>
+<tr class="memdesc:aee36e8b8cb88fa66dd23a5fc262494a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update value in header information <br /></td></tr>
+<tr class="separator:aee36e8b8cb88fa66dd23a5fc262494a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a210f17f147e472d736a03daee66720cf"><td class="memItemLeft" align="right" valign="top"><a id="a210f17f147e472d736a03daee66720cf" name="a210f17f147e472d736a03daee66720cf"></a>
+STRING_MAP&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::InitialStrHeader</b> ()</td></tr>
+<tr class="memdesc:a210f17f147e472d736a03daee66720cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize header information in string <br /></td></tr>
+<tr class="separator:a210f17f147e472d736a03daee66720cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01f63f5c2785e9b427a9f15df768b306"><td class="memItemLeft" align="right" valign="top"><a id="a01f63f5c2785e9b427a9f15df768b306" name="a01f63f5c2785e9b427a9f15df768b306"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::UpdateStrHeader</b> (STRING_MAP &amp;strheader, const string &amp;key, const string &amp;val)</td></tr>
+<tr class="memdesc:a01f63f5c2785e9b427a9f15df768b306"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update header information in string <br /></td></tr>
+<tr class="separator:a01f63f5c2785e9b427a9f15df768b306"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa298f0b6aad975720f0ac86628a1b18"><td class="memItemLeft" align="right" valign="top"><a id="afa298f0b6aad975720f0ac86628a1b18" name="afa298f0b6aad975720f0ac86628a1b18"></a>
+RasterDataType&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::RasterDataTypeInOptionals</b> (const STRING_MAP &amp;opts)</td></tr>
+<tr class="memdesc:afa298f0b6aad975720f0ac86628a1b18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get output raster data type from optional inputs <br /></td></tr>
+<tr class="separator:afa298f0b6aad975720f0ac86628a1b18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9aa1f590e8f4a88537932f41769940f2"><td class="memItemLeft" align="right" valign="top"><a id="a9aa1f590e8f4a88537932f41769940f2" name="a9aa1f590e8f4a88537932f41769940f2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::InitialStatsMap</b> (STRDBL_MAP &amp;stats, map&lt; string, double * &gt; &amp;stats2d)</td></tr>
+<tr class="memdesc:a9aa1f590e8f4a88537932f41769940f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize statistics values for 1D and 2D raster data <br /></td></tr>
+<tr class="separator:a9aa1f590e8f4a88537932f41769940f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9fb532a260ab575a018563559484e40"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:af9fb532a260ab575a018563559484e40"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#af9fb532a260ab575a018563559484e40">ccgl::data_raster::ReadAscFile</a> (const string &amp;filename, STRDBL_MAP &amp;header, T *&amp;values)</td></tr>
+<tr class="memdesc:af9fb532a260ab575a018563559484e40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read raster data from ASC file, the simply usage  <a href="namespaceccgl_1_1data__raster.html#af9fb532a260ab575a018563559484e40">更多...</a><br /></td></tr>
+<tr class="separator:af9fb532a260ab575a018563559484e40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2530bfceb51920ad40594af9ff643b8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#ab2530bfceb51920ad40594af9ff643b8">ccgl::data_raster::WriteAscHeaders</a> (const string &amp;filename, const STRDBL_MAP &amp;header)</td></tr>
+<tr class="memdesc:ab2530bfceb51920ad40594af9ff643b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write raster header information into a ASC file.  <a href="namespaceccgl_1_1data__raster.html#ab2530bfceb51920ad40594af9ff643b8">更多...</a><br /></td></tr>
+<tr class="separator:ab2530bfceb51920ad40594af9ff643b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3bc471be1ede30b341014381d5ec9e53"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a3bc471be1ede30b341014381d5ec9e53"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#a3bc471be1ede30b341014381d5ec9e53">ccgl::data_raster::WriteSingleAsc</a> (const string &amp;filename, const STRDBL_MAP &amp;header, T *values)</td></tr>
+<tr class="memdesc:a3bc471be1ede30b341014381d5ec9e53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write raster data as a single ASC file.  <a href="namespaceccgl_1_1data__raster.html#a3bc471be1ede30b341014381d5ec9e53">更多...</a><br /></td></tr>
+<tr class="separator:a3bc471be1ede30b341014381d5ec9e53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d1d5c5403dd8ebc9016cca7086fec93"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a1d1d5c5403dd8ebc9016cca7086fec93"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#a1d1d5c5403dd8ebc9016cca7086fec93">ccgl::data_raster::ReadRasterFileByGdal</a> (const string &amp;filename, STRDBL_MAP &amp;header, T *&amp;values, RasterDataType &amp;in_type, string &amp;srs)</td></tr>
+<tr class="memdesc:a1d1d5c5403dd8ebc9016cca7086fec93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read single raster file by GDAL  <a href="namespaceccgl_1_1data__raster.html#a1d1d5c5403dd8ebc9016cca7086fec93">更多...</a><br /></td></tr>
+<tr class="separator:a1d1d5c5403dd8ebc9016cca7086fec93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d2839c78bd53282858867868af9fb0c"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a1d2839c78bd53282858867868af9fb0c"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#a1d2839c78bd53282858867868af9fb0c">ccgl::data_raster::WriteSingleGeotiff</a> (const string &amp;filename, const STRDBL_MAP &amp;header, const STRING_MAP &amp;opts, T *values)</td></tr>
+<tr class="memdesc:a1d2839c78bd53282858867868af9fb0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write single geotiff file If the file exists, delete it first.  <a href="namespaceccgl_1_1data__raster.html#a1d2839c78bd53282858867868af9fb0c">更多...</a><br /></td></tr>
+<tr class="separator:a1d2839c78bd53282858867868af9fb0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23cc2258b588ffec2608c3ea13414d9b"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a23cc2258b588ffec2608c3ea13414d9b"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#a23cc2258b588ffec2608c3ea13414d9b">ccgl::data_raster::WriteRasterToFile</a> (const string &amp;filename, const STRDBL_MAP &amp;header, const STRING_MAP &amp;opts, T *values)</td></tr>
+<tr class="memdesc:a23cc2258b588ffec2608c3ea13414d9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write single raster file, if the file exists, delete it first.  <a href="namespaceccgl_1_1data__raster.html#a23cc2258b588ffec2608c3ea13414d9b">更多...</a><br /></td></tr>
+<tr class="separator:a23cc2258b588ffec2608c3ea13414d9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee5b75adfa3f0eff4d4bc60417c42f8b"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aee5b75adfa3f0eff4d4bc60417c42f8b"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#aee5b75adfa3f0eff4d4bc60417c42f8b">ccgl::data_raster::ReadGridFsFile</a> (MongoGridFs *gfs, const string &amp;filename, T *&amp;data, STRDBL_MAP &amp;header, STRING_MAP &amp;header_str, const STRING_MAP &amp;opts)</td></tr>
+<tr class="memdesc:aee5b75adfa3f0eff4d4bc60417c42f8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read GridFs file from MongoDB  <a href="namespaceccgl_1_1data__raster.html#aee5b75adfa3f0eff4d4bc60417c42f8b">更多...</a><br /></td></tr>
+<tr class="separator:aee5b75adfa3f0eff4d4bc60417c42f8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06d17b603b04d31980c0fca8ad3be398"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a06d17b603b04d31980c0fca8ad3be398"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceccgl_1_1data__raster.html#a06d17b603b04d31980c0fca8ad3be398">ccgl::data_raster::WriteStreamDataAsGridfs</a> (MongoGridFs *gfs, const string &amp;filename, STRDBL_MAP &amp;header, T *values, const int datalength, const STRING_MAP &amp;opts=STRING_MAP())</td></tr>
+<tr class="memdesc:a06d17b603b04d31980c0fca8ad3be398"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write array data (both valid and full-sized raster data) as GridFS file.  <a href="namespaceccgl_1_1data__raster.html#a06d17b603b04d31980c0fca8ad3be398">更多...</a><br /></td></tr>
+<tr class="separator:a06d17b603b04d31980c0fca8ad3be398"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+变量</h2></td></tr>
+<tr class="memitem:ae64ccd8665dd15352373c389b556d570"><td class="memItemLeft" align="right" valign="top"><a id="ae64ccd8665dd15352373c389b556d570" name="ae64ccd8665dd15352373c389b556d570"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_NODATA</b> = &quot;NODATA_VALUE&quot;</td></tr>
+<tr class="separator:ae64ccd8665dd15352373c389b556d570"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa44b39b60e51aedb1971a4831491a79"><td class="memItemLeft" align="right" valign="top"><a id="afa44b39b60e51aedb1971a4831491a79" name="afa44b39b60e51aedb1971a4831491a79"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_XLL</b> = &quot;XLLCENTER&quot;</td></tr>
+<tr class="memdesc:afa44b39b60e51aedb1971a4831491a79"><td class="mdescLeft">&#160;</td><td class="mdescRight">NoData value <br /></td></tr>
+<tr class="separator:afa44b39b60e51aedb1971a4831491a79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f5bfcf5b27cbcb78142bb1a57392c06"><td class="memItemLeft" align="right" valign="top"><a id="a2f5bfcf5b27cbcb78142bb1a57392c06" name="a2f5bfcf5b27cbcb78142bb1a57392c06"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_YLL</b> = &quot;YLLCENTER&quot;</td></tr>
+<tr class="memdesc:a2f5bfcf5b27cbcb78142bb1a57392c06"><td class="mdescLeft">&#160;</td><td class="mdescRight">X coordinate value of left low center <br /></td></tr>
+<tr class="separator:a2f5bfcf5b27cbcb78142bb1a57392c06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3ed3893eee522465004d461455c5a41"><td class="memItemLeft" align="right" valign="top"><a id="af3ed3893eee522465004d461455c5a41" name="af3ed3893eee522465004d461455c5a41"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_XLLCOR</b> = &quot;XLLCORNER&quot;</td></tr>
+<tr class="memdesc:af3ed3893eee522465004d461455c5a41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Y coordinate value of left low center <br /></td></tr>
+<tr class="separator:af3ed3893eee522465004d461455c5a41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acafe7654108aeed3294d825eced78587"><td class="memItemLeft" align="right" valign="top"><a id="acafe7654108aeed3294d825eced78587" name="acafe7654108aeed3294d825eced78587"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_YLLCOR</b> = &quot;YLLCORNER&quot;</td></tr>
+<tr class="memdesc:acafe7654108aeed3294d825eced78587"><td class="mdescLeft">&#160;</td><td class="mdescRight">X coordinate value of left low center <br /></td></tr>
+<tr class="separator:acafe7654108aeed3294d825eced78587"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af70ec25248983f365c43a9cf1cdfa8cc"><td class="memItemLeft" align="right" valign="top"><a id="af70ec25248983f365c43a9cf1cdfa8cc" name="af70ec25248983f365c43a9cf1cdfa8cc"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_NROWS</b> = &quot;NROWS&quot;</td></tr>
+<tr class="memdesc:af70ec25248983f365c43a9cf1cdfa8cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Y coordinate value of left low center <br /></td></tr>
+<tr class="separator:af70ec25248983f365c43a9cf1cdfa8cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af38fe06de6c8276745ec7411cfbc11f4"><td class="memItemLeft" align="right" valign="top"><a id="af38fe06de6c8276745ec7411cfbc11f4" name="af38fe06de6c8276745ec7411cfbc11f4"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_NCOLS</b> = &quot;NCOLS&quot;</td></tr>
+<tr class="memdesc:af38fe06de6c8276745ec7411cfbc11f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rows number <br /></td></tr>
+<tr class="separator:af38fe06de6c8276745ec7411cfbc11f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab432e647189ce560d5eb1dc8301388fa"><td class="memItemLeft" align="right" valign="top"><a id="ab432e647189ce560d5eb1dc8301388fa" name="ab432e647189ce560d5eb1dc8301388fa"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_CELLSIZE</b> = &quot;CELLSIZE&quot;</td></tr>
+<tr class="memdesc:ab432e647189ce560d5eb1dc8301388fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Column number <br /></td></tr>
+<tr class="separator:ab432e647189ce560d5eb1dc8301388fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a719029d0926896bccdb4351a059c17d7"><td class="memItemLeft" align="right" valign="top"><a id="a719029d0926896bccdb4351a059c17d7" name="a719029d0926896bccdb4351a059c17d7"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_LAYERS</b> = &quot;LAYERS&quot;</td></tr>
+<tr class="memdesc:a719029d0926896bccdb4351a059c17d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cell size (length) <br /></td></tr>
+<tr class="separator:a719029d0926896bccdb4351a059c17d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2879e6b651cc144edd02b61806ff46b5"><td class="memItemLeft" align="right" valign="top"><a id="a2879e6b651cc144edd02b61806ff46b5" name="a2879e6b651cc144edd02b61806ff46b5"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_CELLSNUM</b> = &quot;CELLSNUM&quot;</td></tr>
+<tr class="memdesc:a2879e6b651cc144edd02b61806ff46b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layers number <br /></td></tr>
+<tr class="separator:a2879e6b651cc144edd02b61806ff46b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90326d4ba9875d06169ea6b513715ae0"><td class="memItemLeft" align="right" valign="top"><a id="a90326d4ba9875d06169ea6b513715ae0" name="a90326d4ba9875d06169ea6b513715ae0"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_SRS</b> = &quot;SRS&quot;</td></tr>
+<tr class="memdesc:a90326d4ba9875d06169ea6b513715ae0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of the first layer's valid cells <br /></td></tr>
+<tr class="separator:a90326d4ba9875d06169ea6b513715ae0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6989577c1cda968701492d5ac3c3f7e0"><td class="memItemLeft" align="right" valign="top"><a id="a6989577c1cda968701492d5ac3c3f7e0" name="a6989577c1cda968701492d5ac3c3f7e0"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_DATATYPE</b> = &quot;DATATYPE&quot;</td></tr>
+<tr class="memdesc:a6989577c1cda968701492d5ac3c3f7e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">SRS <br /></td></tr>
+<tr class="separator:a6989577c1cda968701492d5ac3c3f7e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84bd206d271a21e05cdfe29b56914ab8"><td class="memItemLeft" align="right" valign="top"><a id="a84bd206d271a21e05cdfe29b56914ab8" name="a84bd206d271a21e05cdfe29b56914ab8"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RSOUT_DATATYPE</b> = &quot;DATATYPE_OUT&quot;</td></tr>
+<tr class="memdesc:a84bd206d271a21e05cdfe29b56914ab8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data type of original raster <br /></td></tr>
+<tr class="separator:a84bd206d271a21e05cdfe29b56914ab8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01fcd2f6465de24571e8bc90f98efea2"><td class="memItemLeft" align="right" valign="top"><a id="a01fcd2f6465de24571e8bc90f98efea2" name="a01fcd2f6465de24571e8bc90f98efea2"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_INC_NODATA</b> = &quot;INCLUDE_NODATA&quot;</td></tr>
+<tr class="memdesc:a01fcd2f6465de24571e8bc90f98efea2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Desired output data type of raster <br /></td></tr>
+<tr class="separator:a01fcd2f6465de24571e8bc90f98efea2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae559ccfc8aa9f388f326c5fbe97c8acd"><td class="memItemLeft" align="right" valign="top"><a id="ae559ccfc8aa9f388f326c5fbe97c8acd" name="ae559ccfc8aa9f388f326c5fbe97c8acd"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_MASK_NAME</b> = &quot;MASK_NAME&quot;</td></tr>
+<tr class="memdesc:ae559ccfc8aa9f388f326c5fbe97c8acd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Include nodata ("TRUE") or not ("FALSE"), for DB only <br /></td></tr>
+<tr class="separator:ae559ccfc8aa9f388f326c5fbe97c8acd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30ff66e72d53586afba200abd0ef89c5"><td class="memItemLeft" align="right" valign="top"><a id="a30ff66e72d53586afba200abd0ef89c5" name="a30ff66e72d53586afba200abd0ef89c5"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::STATS_RS_VALIDNUM</b> = &quot;VALID_CELLNUMBER&quot;</td></tr>
+<tr class="memdesc:a30ff66e72d53586afba200abd0ef89c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mask layer's name if only store valid values <br /></td></tr>
+<tr class="separator:a30ff66e72d53586afba200abd0ef89c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a263d4f9864ec8286258758c66a97d0f8"><td class="memItemLeft" align="right" valign="top"><a id="a263d4f9864ec8286258758c66a97d0f8" name="a263d4f9864ec8286258758c66a97d0f8"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::STATS_RS_MEAN</b> = &quot;MEAN&quot;</td></tr>
+<tr class="memdesc:a263d4f9864ec8286258758c66a97d0f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Valid cell number <br /></td></tr>
+<tr class="separator:a263d4f9864ec8286258758c66a97d0f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cd5437f2ab7d68b16b6afcbaff46cc1"><td class="memItemLeft" align="right" valign="top"><a id="a6cd5437f2ab7d68b16b6afcbaff46cc1" name="a6cd5437f2ab7d68b16b6afcbaff46cc1"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::STATS_RS_MIN</b> = &quot;MIN&quot;</td></tr>
+<tr class="memdesc:a6cd5437f2ab7d68b16b6afcbaff46cc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mean value <br /></td></tr>
+<tr class="separator:a6cd5437f2ab7d68b16b6afcbaff46cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeabc698feb71a66a0863a864ad4b2c54"><td class="memItemLeft" align="right" valign="top"><a id="aeabc698feb71a66a0863a864ad4b2c54" name="aeabc698feb71a66a0863a864ad4b2c54"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::STATS_RS_MAX</b> = &quot;MAX&quot;</td></tr>
+<tr class="memdesc:aeabc698feb71a66a0863a864ad4b2c54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum value <br /></td></tr>
+<tr class="separator:aeabc698feb71a66a0863a864ad4b2c54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2a093c0ae5569a35e0471a6c98796dc"><td class="memItemLeft" align="right" valign="top"><a id="ab2a093c0ae5569a35e0471a6c98796dc" name="ab2a093c0ae5569a35e0471a6c98796dc"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::STATS_RS_STD</b> = &quot;STD&quot;</td></tr>
+<tr class="memdesc:ab2a093c0ae5569a35e0471a6c98796dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum value <br /></td></tr>
+<tr class="separator:ab2a093c0ae5569a35e0471a6c98796dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a799f017c668ba91b231891912d033a99"><td class="memItemLeft" align="right" valign="top"><a id="a799f017c668ba91b231891912d033a99" name="a799f017c668ba91b231891912d033a99"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::STATS_RS_RANGE</b> = &quot;RANGE&quot;</td></tr>
+<tr class="memdesc:a799f017c668ba91b231891912d033a99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard derivation value <br /></td></tr>
+<tr class="separator:a799f017c668ba91b231891912d033a99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cdb9ad798549d7d5a13e1e9c1af5ec8"><td class="memItemLeft" align="right" valign="top"><a id="a7cdb9ad798549d7d5a13e1e9c1af5ec8" name="a7cdb9ad798549d7d5a13e1e9c1af5ec8"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::ASCIIExtension</b> = &quot;asc&quot;</td></tr>
+<tr class="memdesc:a7cdb9ad798549d7d5a13e1e9c1af5ec8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Range value <br /></td></tr>
+<tr class="separator:a7cdb9ad798549d7d5a13e1e9c1af5ec8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40f0cb2a06c676b4d1ecd093a5205443"><td class="memItemLeft" align="right" valign="top"><a id="a40f0cb2a06c676b4d1ecd093a5205443" name="a40f0cb2a06c676b4d1ecd093a5205443"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::GTiffExtension</b> = &quot;tif&quot;</td></tr>
+<tr class="memdesc:a40f0cb2a06c676b4d1ecd093a5205443"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASCII extension <br /></td></tr>
+<tr class="separator:a40f0cb2a06c676b4d1ecd093a5205443"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a8f56053d0fb5d886d7dfe2f08d449f"><td class="memItemLeft" align="right" valign="top"><a id="a2a8f56053d0fb5d886d7dfe2f08d449f" name="a2a8f56053d0fb5d886d7dfe2f08d449f"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::HEADER_RS_PARAM_ABSTRACTION_TYPE</b> = &quot;PARAM_ABSTRACTION_TYPE&quot;</td></tr>
+<tr class="memdesc:a2a8f56053d0fb5d886d7dfe2f08d449f"><td class="mdescLeft">&#160;</td><td class="mdescRight">GeoTIFF extension <br /></td></tr>
+<tr class="separator:a2a8f56053d0fb5d886d7dfe2f08d449f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add03de1f1e0d52f1ea99eb5d70e2bd79"><td class="memItemLeft" align="right" valign="top"><a id="add03de1f1e0d52f1ea99eb5d70e2bd79" name="add03de1f1e0d52f1ea99eb5d70e2bd79"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::PARAM_ABSTRACTION_TYPE_CONEPTUAL</b> = &quot;CONCEPTUAL&quot;</td></tr>
+<tr class="memdesc:add03de1f1e0d52f1ea99eb5d70e2bd79"><td class="mdescLeft">&#160;</td><td class="mdescRight">spatial parameter type, physical or conceptual <br /></td></tr>
+<tr class="separator:add03de1f1e0d52f1ea99eb5d70e2bd79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9847472719538d513f769610b9e2a6bd"><td class="memItemLeft" align="right" valign="top"><a id="a9847472719538d513f769610b9e2a6bd" name="a9847472719538d513f769610b9e2a6bd"></a>
+<a class="el" href="data__raster_8hpp.html#a293beafd9c2edd57e4baf98ea018a614">CONST_CHARS</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ccgl::data_raster::PARAM_ABSTRACTION_TYPE_PHYSICAL</b> = &quot;PHYSICAL&quot;</td></tr>
+<tr class="separator:a9847472719538d513f769610b9e2a6bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<div class="textblock"><p >Define Raster class to handle raster data Part of the Common Cross-platform Geographic Library (CCGL) </p>
+<ul>
+<li>1. Using GDAL and MongoDB (currently, up to mongo-c-driver 1.16.2 was tested)</li>
+<li>2. Array1D and Array2D raster data are supported</li>
+<li>3. C++11 supported</li>
+<li>4. Unit Tests based Google Test.</li>
+</ul>
+<dl class="section remark"><dt>备注</dt><dd><ul>
+<li>1. Dec. 2016 lj Separated from SEIMS to a common library for widely use.</li>
+<li>2. Mar. 2017 lj VLD check, bug fixed, function enhanced.</li>
+<li>3. Apr. 2017 lj Avoid try...catch block</li>
+<li>4. May. 2017 lj Use MongoDB wrapper</li>
+<li>5. Nov. 2017 lj Code review based on C++11 and use a single header file.</li>
+<li>6. Dec. 2017 lj Add Unittest based on Google Test.</li>
+<li>7. Mar. 2018 lj Make part of CCGL, and make GDAL optional. Follows Google C++ Code Style.</li>
+<li>8. Jun. 2018 lj Use emplace and emplace_back rather than insert and push_back whenever possible.</li>
+<li>9. Nov. 2018 lj Add specific field-value as options of raster data, including SRS. -10. Jul. 2021 lj No need to use pointer-to-pointer as arguments in GetValue and GetValueByIndex. -11. Apr. 2022 lj Comprehensive functional testing, bug fixing, and robustness improving. Add subset feature to support data decomposition and combination. -12. Jul. 2023 lj Add valid position index (1D array, pos_idx_) and will remove pos_data_ in next version. -13. Aug. 2023 lj Add GDAL data types added from versions 3.5 and 3.7</li>
+</ul>
+</dd></dl>
+<dl class="section author"><dt>作者</dt><dd>Liangjun Zhu, zlj(at)lreis.ac.cn </dd></dl>
+<dl class="section version"><dt>版本</dt><dd>2.8 </dd></dl>
+</div></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="data__raster_8hpp.html">data_raster.hpp</a></li>
+  </ul>
+</div>
+</body>
+</html>
