@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout CCGL
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -68,7 +68,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # login alibaba Container Registry
       - name: Login to ACR
         uses: aliyun/acr-login@v1
@@ -79,7 +79,7 @@ jobs:
           password: ${{ secrets.ACR_PASSWORD }}
       # login ghcr.io
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -119,7 +119,7 @@ jobs:
     runs-on: windows-2022
     steps:
     - name: Checkout CCGL
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Configure CMake
       shell: cmd
@@ -143,7 +143,7 @@ jobs:
       uses: maxim-lobanov/setup-xcode@v1
 
     - name: Checkout CCGL
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNITTEST=1
